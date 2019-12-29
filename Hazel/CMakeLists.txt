@@ -1,0 +1,47 @@
+cmake_minimum_required(VERSION 3.15)
+
+project(Hazel VERSION 0.1.0 LANGUAGES CXX)
+DeclareProjectInstallDirectories()
+
+add_library(Hazel SHARED)
+add_library(Hazel::Hazel ALIAS Hazel)
+
+add_subdirectory(vendor EXCLUDE_FROM_ALL)
+target_link_libraries(Hazel
+    PUBLIC
+        spdlog::spdlog
+)
+add_subdirectory(src)
+
+target_compile_definitions(Hazel
+    PUBLIC
+        HZ_PLATFORM_WINDOWS
+        $<$<CONFIG:Debug>:HZ_DEBUG>
+        $<$<CONFIG:Release>:HZ_RELEASE>
+    PRIVATE
+        HZ_BUILD_DLL
+)
+
+set_target_properties(Hazel
+    PROPERTIES
+        SOVERSION ${PROJECT_VERSION_MAJOR}
+        VERSION ${PROJECT_VERSION}
+        MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>
+        RUNTIME_OUTPUT_DIRECTORY          ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Hazel
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Hazel
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE  ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Hazel
+        ARCHIVE_OUTPUT_DIRECTORY          ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/Hazel
+        ARCHIVE_OUTPUT_DIRECTORY_DEBUG    ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/Hazel
+        ARCHIVE_OUTPUT_DIRECTORY_RELEASE  ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/Hazel
+        LIBRARY_OUTPUT_DIRECTORY          ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Hazel
+        LIBRARY_OUTPUT_DIRECTORY_DEBUG    ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Hazel
+        LIBRARY_OUTPUT_DIRECTORY_RELEASE  ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Hazel
+)
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/src/
+    DESTINATION ${Hazel_install_include_dir}
+    FILES_MATCHING PATTERN "*.h"
+)
+
+InstallProject(TARGETS Hazel)
