@@ -13,3 +13,8 @@ target_include_directories(Hazel
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
     PRIVATE
 )
+
+target_precompile_headers(Hazel
+    PUBLIC
+        $<BUILD_INTERFACE:hzpch.h>
+)
