@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 add_subdirectory(Hazel)
+add_subdirectory(Platform)
 
 target_sources(Hazel
     PUBLIC

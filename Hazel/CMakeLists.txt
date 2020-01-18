@@ -6,10 +6,14 @@ DeclareProjectInstallDirectories()
 add_library(Hazel SHARED)
 add_library(Hazel::Hazel ALIAS Hazel)
 
-add_subdirectory(vendor EXCLUDE_FROM_ALL)
+add_subdirectory(vendor)
 target_link_libraries(Hazel
     PUBLIC
         spdlog::spdlog
+    PRIVATE
+        glfw
+        opengl32.lib
+        HzBuildFlags
 )
 add_subdirectory(src)
 

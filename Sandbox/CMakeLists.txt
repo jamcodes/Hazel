@@ -8,6 +8,7 @@ add_subdirectory(src)
 target_link_libraries(Sandbox
     PRIVATE
         Hazel::Hazel
+        HzBuildFlags
 )
 
 set_target_properties(Sandbox

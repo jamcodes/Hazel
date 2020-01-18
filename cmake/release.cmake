@@ -38,12 +38,12 @@ function(InstallProject)
     install(
         TARGETS ${arg_TARGETS}
         EXPORT ${${PROJECT_NAME}_export_targets}
-        RUNTIME DESTINATION ${project_install_runtime_dir}
+        RUNTIME DESTINATION ${${PROJECT_NAME}_install_runtime_dir}
             COMPONENT           ${project_runtime_component}
-        LIBRARY DESTINATION ${project_install_library_dir}
+        LIBRARY DESTINATION ${${PROJECT_NAME}_library_dir}
             COMPONENT           ${project_runtime_component}
             NAMELINK_COMPONENT  ${project_development_component}
-        ARCHIVE DESTINATION ${project_install_library_dir}
+        ARCHIVE DESTINATION ${${PROJECT_NAME}_library_dir}
             COMPONENT           ${project_development_component}
     )
 
