@@ -11,7 +11,7 @@ include(release)
 SetGlobalFlags(DEFAULT_BUILD_TYPE Debug)
 DeclareCompilerConfigTarget(HzBuildFlags)
 
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
 add_subdirectory(Hazel)
 add_subdirectory(Sandbox)
