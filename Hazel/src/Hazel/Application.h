@@ -13,18 +13,25 @@ public:
     Application();
     virtual ~Application();
 
-    void Run();
+    void run();
 
-    void OnEvent(Event& e);
+    void onEvent(Event& e);
 
     void pushLayer(std::unique_ptr<Layer> layer);
     void pushOverlay(std::unique_ptr<Layer> overlay);
 
+    inline Window& getWindow() noexcept { return *window_; }
+    inline Window const& getWindow() const noexcept { return *window_; }
+
+    static inline Application& get() noexcept { return *instance_; }
 private:
-    bool OnWindowClose(WindowCloseEvent& e) noexcept;
+    bool onWindowClose(WindowCloseEvent& e) noexcept;
+
     std::unique_ptr<Window> window_;
     bool running_{true};
     LayerStack layerStack_;
+
+    static Application* instance_;
 };
 
 // To be defined in CLIENT

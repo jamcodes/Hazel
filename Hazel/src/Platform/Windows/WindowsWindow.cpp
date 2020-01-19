@@ -19,7 +19,7 @@ static void GLFWErrorCallback(int error, const char* description) noexcept
     HZ_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
 }
 
-std::unique_ptr<Window> Window::Create(const WindowProps& props)
+std::unique_ptr<Window> Window::create(const WindowProps& props)
 {
     return std::make_unique<WindowsWindow>(props);
 }
@@ -42,7 +42,7 @@ WindowsWindow::WindowsWindow(const WindowProps& props)
     glfwMakeContextCurrent(window_.get());
     initGlLoader();
     glfwSetWindowUserPointer(window_.get(), &data_);
-    SetVSync(true);
+    setVSync(true);
     setGlfwCallbacks();
 }
 
@@ -123,18 +123,18 @@ void WindowsWindow::setGlfwCallbacks() noexcept
     });
 }
 
-void WindowsWindow::OnUpdate()
+void WindowsWindow::onUpdate()
 {
     glfwPollEvents();
     glfwSwapBuffers(window_.get());
 }
 
-void WindowsWindow::SetVSync(bool enabled) noexcept
+void WindowsWindow::setVSync(bool enabled) noexcept
 {
     glfwSwapInterval(static_cast<int>(enabled));
     data_.vSync = enabled;
 }
 
-bool WindowsWindow::IsVSync() const noexcept { return data_.vSync; }
+bool WindowsWindow::isVSync() const noexcept { return data_.vSync; }
 
 }  // namespace Hazel

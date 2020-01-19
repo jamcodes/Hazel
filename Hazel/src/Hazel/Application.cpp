@@ -8,27 +8,37 @@
 
 namespace Hazel {
 
-Application::Application() : window_{Window::Create()}
+struct ApplicationAssertionHandler : Hazel::CoreLoggingHandler, Hazel::Enforce {
+};
+
+Application* Application::instance_{nullptr};
+
+Application::Application() : window_{Window::create()}
 {
-    window_->SetEventCallback([this](Event& e) { this->OnEvent(e); });
+    // TODO: Make this a sane singleton
+    HZ_EXPECT(Application::instance_ == nullptr, ApplicationAssertionHandler{}, "Hazel::Application already instantiated");
+    Application::instance_ = this;
+    window_->setEventCallback([this](Event& e) { this->onEvent(e); });
 }
 Application::~Application() = default;
 
 void Application::pushLayer(std::unique_ptr<Layer> layer)
 {
+    layer->onAttach();
     layerStack_.pushLayer(std::move(layer));
 }
 
-void Application::pushOverlay(std::unique_ptr<Layer> overlay)
+void Application::pushOverlay(std::unique_ptr<Layer> layer)
 {
-    layerStack_.pushOverlay(std::move(overlay));
+    layer->onAttach();
+    layerStack_.pushOverlay(std::move(layer));
 }
 
 
-void Application::OnEvent(Event& e)
+void Application::onEvent(Event& e)
 {
     EventDispatcher dispatcher{e};
-    dispatcher.dispatch<WindowCloseEvent>([this](WindowCloseEvent& e) { return this->OnWindowClose(e); });
+    dispatcher.dispatch<WindowCloseEvent>([this](WindowCloseEvent& e) { return this->onWindowClose(e); });
 
     HZ_CORE_TRACE("{0}", e);
 
@@ -38,7 +48,7 @@ void Application::OnEvent(Event& e)
     }
 }
 
-void Application::Run()
+void Application::run()
 {
     while (running_) {
         glClearColor(0, 1, 1, 1);
@@ -48,11 +58,11 @@ void Application::Run()
             layer->onUpdate();
         }
 
-        window_->OnUpdate();
+        window_->onUpdate();
     }
 }
 
-bool Application::OnWindowClose(WindowCloseEvent&) noexcept
+bool Application::onWindowClose(WindowCloseEvent&) noexcept
 {
     running_ = false;
     return true;

@@ -9,11 +9,11 @@ add_library(Hazel SHARED)
 add_library(Hazel::Hazel ALIAS Hazel)
 
 add_subdirectory(vendor)
+
 target_link_libraries(Hazel
     PUBLIC
         spdlog::spdlog
     PRIVATE
-        # OpenGL::GL
         $<$<BOOL:${OPENGL_gl_LIBRARY}>:OpenGL::GL>
         $<$<NOT:$<BOOL:${OPENGL_gl_LIBRARY}>>:OpenGL::OpenGL>
         $<$<BOOL:${OPENGL_GLU_FOUND}>:OpenGL::GLU>
@@ -21,6 +21,7 @@ target_link_libraries(Hazel
         $<$<BOOL:${OpenGL_EGL_FOUND}>:OpenGL::EGL>
         glfw
         glad
+        imgui
         HzBuildFlags
 )
 add_subdirectory(src)

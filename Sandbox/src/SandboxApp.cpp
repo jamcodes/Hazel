@@ -27,6 +27,7 @@ public:
     Sandbox()
     {
         pushLayer(std::make_unique<ExampleLayer>());
+        pushOverlay(std::make_unique<Hazel::ImGuiLayer>());
     }
     ~Sandbox() = default;
     Sandbox& operator=(Sandbox&&) noexcept = delete;

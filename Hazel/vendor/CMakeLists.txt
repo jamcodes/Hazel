@@ -27,3 +27,6 @@ install(
 
 add_subdirectory(glad)
 target_link_libraries(glad PRIVATE HzBuildFlags)
+
+add_subdirectory(imgui)
+target_link_libraries(imgui PRIVATE HzBuildFlags)

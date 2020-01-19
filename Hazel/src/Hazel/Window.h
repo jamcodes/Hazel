@@ -22,17 +22,17 @@ public:
     virtual ~Window() = default;
     Window& operator=(Window&&) = delete;
 
-    virtual void OnUpdate() = 0;
+    virtual void onUpdate() = 0;
 
-    virtual unsigned GetWidth() const = 0;
-    virtual unsigned GetHeight() const = 0;
+    virtual unsigned getWidth() const = 0;
+    virtual unsigned getHeight() const = 0;
 
     // Window attributes
-    virtual void SetEventCallback(EventCallbackFn cb) = 0;
-    virtual void SetVSync(bool enabled) = 0;
-    virtual bool IsVSync() const = 0;
+    virtual void setEventCallback(EventCallbackFn cb) = 0;
+    virtual void setVSync(bool enabled) = 0;
+    virtual bool isVSync() const = 0;
 
-    static std::unique_ptr<Window> Create(const WindowProps& props = WindowProps());
+    static std::unique_ptr<Window> create(const WindowProps& props = WindowProps());
 };
 
 }  // namespace Hazel

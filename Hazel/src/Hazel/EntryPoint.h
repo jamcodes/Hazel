@@ -11,9 +11,8 @@ int main(int argc, char** argv)
     int a = 5;
     HZ_INFO("Hello! Var={0}", a);
 
-    auto app = Hazel::CreateApplication();
-    app->Run();
-    delete app;
+    auto app = std::unique_ptr<Hazel::Application>{Hazel::CreateApplication()};
+    app->run();
 }
 
 #endif
