@@ -28,6 +28,7 @@ public:
     bool IsVSync() const noexcept override;
 
 private:
+    inline void initGlLoader() noexcept;
     void setGlfwCallbacks() noexcept;
 
     struct GLFWwindowDestructor {

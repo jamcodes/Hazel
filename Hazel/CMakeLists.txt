@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.15)
 project(Hazel VERSION 0.1.0 LANGUAGES CXX)
 DeclareProjectInstallDirectories()
 
+set(OpenGL_GL_PREFERENCE GLVND)
+find_package(OpenGL REQUIRED OpenGL)
 add_library(Hazel SHARED)
 add_library(Hazel::Hazel ALIAS Hazel)
 
@@ -11,8 +13,14 @@ target_link_libraries(Hazel
     PUBLIC
         spdlog::spdlog
     PRIVATE
+        # OpenGL::GL
+        $<$<BOOL:${OPENGL_gl_LIBRARY}>:OpenGL::GL>
+        $<$<NOT:$<BOOL:${OPENGL_gl_LIBRARY}>>:OpenGL::OpenGL>
+        $<$<BOOL:${OPENGL_GLU_FOUND}>:OpenGL::GLU>
+        $<$<BOOL:${OpenGL_GLX_FOUND}>:OpenGL::GLX>
+        $<$<BOOL:${OpenGL_EGL_FOUND}>:OpenGL::EGL>
         glfw
-        opengl32.lib
+        glad
         HzBuildFlags
 )
 add_subdirectory(src)
@@ -20,6 +28,7 @@ add_subdirectory(src)
 target_compile_definitions(Hazel
     PUBLIC
         HZ_PLATFORM_WINDOWS
+        GLFW_INCLUDE_NONE   # Configure GLFW not to include OpenGL headers since we want glad to do it
         $<$<CONFIG:Debug>:HZ_DEBUG>
         $<$<CONFIG:RelWithDebInfo>:HZ_RELEASE>
         $<$<CONFIG:Release>:HZ_DIST>

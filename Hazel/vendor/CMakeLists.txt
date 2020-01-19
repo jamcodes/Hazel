@@ -12,11 +12,7 @@ add_subdirectory(GLFW)
 set(BUILD_SHARED_LIBS ${hazel_build_shared_libs})
 unset(hazel_build_shared_libs)
 target_link_libraries(glfw PRIVATE HzBuildFlags)
-target_compile_options(glfw
-    PRIVATE
-        $<$<CXX_COMPILER_ID:MSVC>:/permissive>
-        $<$<C_COMPILER_ID:MSVC>:/permissive>
-)
+
 install(
     TARGETS glfw
     EXPORT ${Hazel_export_targets}
@@ -28,3 +24,6 @@ install(
     ARCHIVE DESTINATION     ${Hazel_library_dir}
         COMPONENT           Hazel_Development
 )
+
+add_subdirectory(glad)
+target_link_libraries(glad PRIVATE HzBuildFlags)

@@ -5,6 +5,8 @@
 #include "Hazel/Events/KeyEvent.h"
 #include "Hazel/Events/MouseEvent.h"
 
+#include <glad/glad.h>
+
 namespace Hazel {
 
 struct WindowsWindowAssertionHandler : CoreLoggingHandler, Hazel::Enforce {
@@ -29,8 +31,8 @@ WindowsWindow::WindowsWindow(const WindowProps& props)
 
     if (!s_GLFWInitialized) {
         // TODO: glfwTerminate on system shutdown
-        const int success = glfwInit();
-        HZ_EXPECT(success, WindowsWindowAssertionHandler{}, "Could not intialize GLFW!");
+        const int rc = glfwInit();
+        HZ_EXPECT(rc, WindowsWindowAssertionHandler{}, "Could not intialize GLFW!");
 
         glfwSetErrorCallback(GLFWErrorCallback);
         s_GLFWInitialized = true;
@@ -38,9 +40,17 @@ WindowsWindow::WindowsWindow(const WindowProps& props)
     window_.reset(glfwCreateWindow(static_cast<int>(props.width), static_cast<int>(props.height),
                                    props.title.c_str(), nullptr, nullptr));
     glfwMakeContextCurrent(window_.get());
+    initGlLoader();
     glfwSetWindowUserPointer(window_.get(), &data_);
     SetVSync(true);
     setGlfwCallbacks();
+}
+
+void WindowsWindow::initGlLoader() noexcept
+{
+    auto const rc{gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))};
+    HZ_EXPECT(rc, WindowsWindowAssertionHandler{}, "Could not initialize glad!");
+
 }
 
 void WindowsWindow::setGlfwCallbacks() noexcept
