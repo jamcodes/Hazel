@@ -7,7 +7,7 @@ namespace Hazel {
     class HAZEL_API MouseMovedEvent : public Event
     {
     public:
-        MouseMovedEvent(float x, float y)
+        MouseMovedEvent(float x, float y) noexcept
             : mouseX_(x), mouseY_(y) {}
 
         inline float getX() const { return mouseX_; }
@@ -29,7 +29,7 @@ namespace Hazel {
     class HAZEL_API MouseScrolledEvent : public Event
     {
     public:
-        MouseScrolledEvent(float xOffset, float yOffset)
+        MouseScrolledEvent(float xOffset, float yOffset) noexcept
             : xOffset_{xOffset}, yOffset_{yOffset} {}
 
         inline float getXOffset() const { return xOffset_; }

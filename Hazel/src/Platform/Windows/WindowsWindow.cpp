@@ -50,7 +50,6 @@ void WindowsWindow::initGlLoader() noexcept
 {
     auto const rc{gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))};
     HZ_EXPECT(rc, WindowsWindowAssertionHandler{}, "Could not initialize glad!");
-
 }
 
 void WindowsWindow::setGlfwCallbacks() noexcept
@@ -91,6 +90,12 @@ void WindowsWindow::setGlfwCallbacks() noexcept
                            }
                            }
                        });
+
+    glfwSetCharCallback(window_.get(), [](GLFWwindow* window, unsigned int keycode) {
+        auto& data = getWindowData(window);
+        KeyTypedEvent e{static_cast<int>(keycode)};
+        data.eventCallback(e);
+    });
 
     glfwSetMouseButtonCallback(window_.get(),
                                [](GLFWwindow* window, int button, int action, int mods) {

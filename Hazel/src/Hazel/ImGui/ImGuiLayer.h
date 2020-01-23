@@ -27,8 +27,8 @@ private:
     bool onMouseScrolledEvent(MouseScrolledEvent& e);
     bool onKeyPressedEvent(KeyPressedEvent& e);
     bool onKeyReleasedEvent(KeyReleasedEvent& e);
-    // bool onKeyTypedEvent(KeyTypedEvent& e);
-    bool onWindowResizeEvent(WindowResizeEvent& e);
+    bool onKeyTypedEvent(KeyTypedEvent& e);
+    bool onWindowResizedEvent(WindowResizeEvent& e);
 };
 
 }  // namespace Hazel
