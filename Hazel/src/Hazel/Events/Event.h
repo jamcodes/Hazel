@@ -41,24 +41,24 @@ enum EventCategory {
 };
 
 #define EVENT_CLASS_TYPE(type)                                                  \
-    static EventType GetStaticType() { return EventType::##type; }              \
-    virtual EventType GetEventType() const override { return GetStaticType(); } \
-    virtual const char* GetName() const override { return #type; }
+    static EventType getStaticType() { return EventType::##type; }              \
+    virtual EventType getEventType() const override { return getStaticType(); } \
+    virtual const char* getName() const override { return #type; }
 
 #define EVENT_CLASS_CATEGORY(category) \
-    virtual int GetCategoryFlags() const override { return category; }
+    virtual int getCategoryFlags() const override { return category; }
 
 class HAZEL_API Event {
 public:
     bool handled{false};
 
-    virtual EventType GetEventType() const = 0;
-    virtual const char* GetName() const = 0;
-    virtual int GetCategoryFlags() const = 0;
-    virtual std::string ToString() const { return GetName(); }
+    virtual EventType getEventType() const = 0;
+    virtual const char* getName() const = 0;
+    virtual int getCategoryFlags() const = 0;
+    virtual std::string toString() const { return getName(); }
     virtual ~Event() = default;
 
-    inline bool IsInCategory(EventCategory category) { return GetCategoryFlags() & category; }
+    inline bool isInCategory(EventCategory category) { return getCategoryFlags() & category; }
 };
 
 class EventDispatcher {
@@ -70,7 +70,7 @@ public:
     template <typename EventT, typename EventFunction>
     bool dispatch(EventFunction&& f) noexcept(std::is_nothrow_invocable_v<EventFunction, EventT&>)
     {
-        if (event_.GetEventType() == EventT::GetStaticType())
+        if (event_.getEventType() == EventT::getStaticType())
         {
             event_.handled = f(static_cast<EventT&>(event_));
             return true;
@@ -82,5 +82,5 @@ private:
     Event& event_;
 };
 
-inline std::ostream& operator<<(std::ostream& os, const Event& e) { return os << e.ToString(); }
+inline std::ostream& operator<<(std::ostream& os, const Event& e) { return os << e.toString(); }
 }  // namespace Hazel

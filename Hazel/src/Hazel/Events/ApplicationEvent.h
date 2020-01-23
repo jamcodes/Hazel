@@ -6,22 +6,22 @@ namespace Hazel {
 
 class HAZEL_API WindowResizeEvent : public Event {
 public:
-    WindowResizeEvent(unsigned int width, unsigned int height) : m_Width(width), m_Height(height) {}
+    WindowResizeEvent(unsigned int width, unsigned int height) : width_(width), height_(height) {}
 
-    inline unsigned int getWidth() const { return m_Width; }
-    inline unsigned int getHeight() const { return m_Height; }
+    inline unsigned int getWidth() const { return width_; }
+    inline unsigned int getHeight() const { return height_; }
 
-    std::string ToString() const override
+    std::string toString() const override
     {
         std::stringstream ss;
-        ss << "WindowResizeEvent: " << m_Width << ", " << m_Height;
+        ss << "WindowResizeEvent: " << width_ << ", " << height_;
         return ss.str();
     }
 
     EVENT_CLASS_TYPE(WindowResize)
     EVENT_CLASS_CATEGORY(EventCategoryApplication)
 private:
-    unsigned int m_Width, m_Height;
+    unsigned int width_, height_;
 };
 
 class HAZEL_API WindowCloseEvent : public Event {

@@ -68,6 +68,70 @@ void ImGuiLayer::onUpdate()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void ImGuiLayer::onEvent(Event&) {}
+void ImGuiLayer::onEvent(Event& e)
+{
+    EventDispatcher dispatcher{e};
+    dispatcher.dispatch<MouseButtonPressedEvent>(
+        [this](auto& e) { return this->onMouseButtonPressedEvent(e); });
+    dispatcher.dispatch<MouseButtonReleasedEvent>(
+        [this](auto& e) { return this->onMouseButtonReleasedEvent(e); });
+    dispatcher.dispatch<MouseMovedEvent>(
+        [this](auto& e) { return this->onMouseMovedEvent(e); });
+    dispatcher.dispatch<MouseScrolledEvent>(
+        [this](auto& e) { return this->onMouseScrolledEvent(e); });
+    dispatcher.dispatch<KeyPressedEvent>([this](auto& e) { return this->onKeyPressedEvent(e); });
+    dispatcher.dispatch<KeyReleasedEvent>([this](auto& e) { return this->onKeyReleasedEvent(e); });
+    // dispatcher.dispatch<KeyTypedEvent>([this](auto& e) { return this->onKeyTypedEvent(e); });
+    dispatcher.dispatch<WindowResizeEvent>([this](auto& e) { return this->onWindowResizeEvent(e); });
+}
+
+bool ImGuiLayer::onMouseButtonPressedEvent(MouseButtonPressedEvent& e)
+{
+    ImGuiIO& io{ImGui::GetIO()};
+    io.MouseDown[e.getMouseButton()] = true;
+    return false;
+}
+
+bool ImGuiLayer::onMouseButtonReleasedEvent(MouseButtonReleasedEvent& e)
+{
+    ImGuiIO& io{ImGui::GetIO()};
+    return false;
+}
+
+bool ImGuiLayer::onMouseMovedEvent(MouseMovedEvent& e)
+{
+    ImGuiIO& io{ImGui::GetIO()};
+    return false;
+}
+
+bool ImGuiLayer::onMouseScrolledEvent(MouseScrolledEvent& e)
+{
+    ImGuiIO& io{ImGui::GetIO()};
+    return false;
+}
+
+bool ImGuiLayer::onKeyPressedEvent(KeyPressedEvent& e)
+{
+    ImGuiIO& io{ImGui::GetIO()};
+    return false;
+}
+
+bool ImGuiLayer::onKeyReleasedEvent(KeyReleasedEvent& e)
+{
+    ImGuiIO& io{ImGui::GetIO()};
+    return false;
+}
+
+// bool ImGuiLayer::onKeyTypedEvent(KeyTypedEvent& e)
+// {
+//     ImGuiIO& io{ImGui::GetIO()};
+//     return false;
+// }
+
+bool ImGuiLayer::onWindowResizeEvent(WindowResizeEvent& e)
+{
+    ImGuiIO& io{ImGui::GetIO()};
+    return false;
+}
 
 }  // namespace Hazel
