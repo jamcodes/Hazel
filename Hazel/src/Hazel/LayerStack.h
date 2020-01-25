@@ -1,11 +1,10 @@
 #pragma once
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "Hazel/Core.h"
 #include "Layer.h"
-
 
 namespace Hazel {
 
@@ -39,6 +38,5 @@ public:
 
 private:
     std::vector<value_type> layers_;
-    iterator layerInsert_{layers_.begin()};
 };
 }  // namespace Hazel

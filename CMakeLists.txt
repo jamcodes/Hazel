@@ -15,3 +15,5 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 
 add_subdirectory(Hazel)
 add_subdirectory(Sandbox)
+
+set(VS_STARTUP_PROJECT Sandbox)
