@@ -32,6 +32,8 @@ public:
     virtual void setVSync(bool enabled) = 0;
     virtual bool isVSync() const = 0;
 
+    virtual void* getNativeWindow() const noexcept = 0;
+
     static std::unique_ptr<Window> create(const WindowProps& props = WindowProps());
 };
 

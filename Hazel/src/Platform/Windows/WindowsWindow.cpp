@@ -142,4 +142,10 @@ void WindowsWindow::setVSync(bool enabled) noexcept
 
 bool WindowsWindow::isVSync() const noexcept { return data_.vSync; }
 
+void* WindowsWindow::getNativeWindow() const noexcept
+{
+    return window_.get();
+}
+
+
 }  // namespace Hazel

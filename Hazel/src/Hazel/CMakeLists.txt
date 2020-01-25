@@ -9,6 +9,7 @@ target_sources(Hazel
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/Window.h>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/Layer.h>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/LayerStack.h>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/Input.h>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/Events/Event.h>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/Events/ApplicationEvent.h>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/Events/KeyEvent.h>
@@ -21,6 +22,7 @@ target_sources(Hazel
         $<INSTALL_INTERFACE:${Hazel_install_include_dir}/Hazel/Window.h>
         $<INSTALL_INTERFACE:${Hazel_install_include_dir}/Hazel/Layer.h>
         $<INSTALL_INTERFACE:${Hazel_install_include_dir}/Hazel/LayerStack.h>
+        $<INSTALL_INTERFACE:${Hazel_install_include_dir}/Hazel/Input.h>
         $<INSTALL_INTERFACE:${Hazel_install_include_dir}/Hazel/Events/Event.h>
         $<INSTALL_INTERFACE:${Hazel_install_include_dir}/Hazel/Events/ApplicationEvent.h>
         $<INSTALL_INTERFACE:${Hazel_install_include_dir}/Hazel/Events/KeyEvent.h>

@@ -27,6 +27,8 @@ public:
     void setVSync(bool enabled) noexcept override;
     bool isVSync() const noexcept override;
 
+    inline void* getNativeWindow() const noexcept override;
+
 private:
     inline void initGlLoader() noexcept;
     void setGlfwCallbacks() noexcept;
