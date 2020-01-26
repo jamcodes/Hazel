@@ -3,6 +3,8 @@
 
 #include "Hazel/Input.h"
 #include "Hazel/Log.h"
+#include "Hazel/KeyCodes.h"
+#include "Hazel/MouseButtonCodes.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -56,12 +58,12 @@ inline void poll_keys_status(std::chrono::milliseconds interval)
 {
     static auto last_report_time{std::chrono::steady_clock::now()};
     if (std::chrono::steady_clock().now() - last_report_time >= interval) {
-        auto const lmb_status{Input::isMouseButtonPressed(GLFW_MOUSE_BUTTON_1)};
-        auto const rmb_status{Input::isMouseButtonPressed(GLFW_MOUSE_BUTTON_2)};
+        auto const lmb_status{Input::isMouseButtonPressed(toInteger<int>(MouseButton::Left))};
+        auto const rmb_status{Input::isMouseButtonPressed(toInteger<int>(MouseButton::Right))};
         auto const [mouse_x, mouse_y]{Input::getMousePosition()};
-        auto const ctrl_status{Input::isKeyPressed(GLFW_KEY_LEFT_CONTROL)};
-        auto const alt_status{Input::isKeyPressed(GLFW_KEY_LEFT_ALT)};
-        auto const shift_status{Input::isKeyPressed(GLFW_KEY_LEFT_SHIFT)};
+        auto const ctrl_status{Input::isKeyPressed(toInteger<int>(KeyCode::Left_control))};
+        auto const alt_status{Input::isKeyPressed(toInteger<int>(KeyCode::Left_alt))};
+        auto const shift_status{Input::isKeyPressed(toInteger<int>(KeyCode::Left_shift))};
         HZ_CORE_INFO("LMB: {0}, RMB: {1}, Pos: {{{2},{3}}}", lmb_status, rmb_status, mouse_x,
                      mouse_y);
         HZ_CORE_INFO("CTRL: {0}, ALT: {1}, SHIFT: {2}", ctrl_status, alt_status, shift_status);
