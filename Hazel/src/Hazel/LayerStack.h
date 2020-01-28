@@ -38,5 +38,6 @@ public:
 
 private:
     std::vector<value_type> layers_;
+    int layer_index_{0};
 };
 }  // namespace Hazel

@@ -4,15 +4,13 @@ add_subdirectory(Hazel)
 add_subdirectory(Platform)
 
 target_sources(Hazel
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/Hazel.h>
-        $<INSTALL_INTERFACE:${Hazel_install_include_dir}/Hazel.h>
+    PRIVATE
+        Hazel.h
 )
-
 target_include_directories(Hazel
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
-    PRIVATE
+        $<INSTALL_INTERFACE:${Hazel_install_include_dir}>
 )
 
 target_precompile_headers(Hazel

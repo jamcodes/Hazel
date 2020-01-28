@@ -5,7 +5,7 @@ DeclareProjectInstallDirectories()
 
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED OpenGL)
-add_library(Hazel SHARED)
+add_library(Hazel)
 add_library(Hazel::Hazel ALIAS Hazel)
 
 add_subdirectory(vendor)
@@ -13,7 +13,7 @@ add_subdirectory(vendor)
 target_link_libraries(Hazel
     PUBLIC
         spdlog::spdlog
-    PRIVATE
+        imgui
         $<$<BOOL:${OPENGL_gl_LIBRARY}>:OpenGL::GL>
         $<$<NOT:$<BOOL:${OPENGL_gl_LIBRARY}>>:OpenGL::OpenGL>
         $<$<BOOL:${OPENGL_GLU_FOUND}>:OpenGL::GLU>
@@ -21,9 +21,11 @@ target_link_libraries(Hazel
         $<$<BOOL:${OpenGL_EGL_FOUND}>:OpenGL::EGL>
         glfw
         glad
-        imgui
+        glm::glm
+    PRIVATE
         HzBuildFlags
 )
+
 add_subdirectory(src)
 
 target_compile_definitions(Hazel
@@ -33,15 +35,20 @@ target_compile_definitions(Hazel
         $<$<CONFIG:Debug>:HZ_DEBUG>
         $<$<CONFIG:RelWithDebInfo>:HZ_RELEASE>
         $<$<CONFIG:Release>:HZ_DIST>
+        $<$<BOOL:${BUILD_SHARED_LIBS}>:HZ_DYNAMIC_LINK>
     PRIVATE
-        HZ_BUILD_DLL
+        $<$<BOOL:${BUILD_SHARED_LIBS}>:HZ_BUILD_DLL>
+    # Hacky solution to compiling Hazel with ImGui as a shared library
+    INTERFACE
+        $<$<BOOL:${BUILD_SHARED_LIBS}>: "IMGUI_API=__declspec(dllimport)" >
+        $<$<BOOL:${BUILD_SHARED_LIBS}>: "IMGUI_IMPL_API=__declspec(dllimport)" >
 )
 
 set_target_properties(Hazel
     PROPERTIES
         SOVERSION ${PROJECT_VERSION_MAJOR}
         VERSION ${PROJECT_VERSION}
-        MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL
+        MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>
         RUNTIME_OUTPUT_DIRECTORY                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Hazel
         RUNTIME_OUTPUT_DIRECTORY_DEBUG          ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Hazel
         RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO}/Hazel
@@ -62,4 +69,4 @@ install(
     FILES_MATCHING PATTERN "*.h"
 )
 
-InstallProject(TARGETS Hazel)
+InstallProject(TARGETS Hazel imgui glfw glad glm HzBuildFlags)

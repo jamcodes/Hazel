@@ -1,4 +1,5 @@
 #include <Hazel.h>
+#include <imgui/imgui.h>
 
 class ExampleLayer : public Hazel::Layer
 {
@@ -19,6 +20,13 @@ public:
     {
         HZ_TRACE("ExampleLayer: {0}", event);
     }
+
+    void onImGuiRender() override
+    {
+        ImGui::Begin("Test");
+        ImGui::Text("Hello world", IMGUI_VERSION);
+        ImGui::End();
+    }
 };
 
 class Sandbox : public Hazel::Application
@@ -27,7 +35,6 @@ public:
     Sandbox()
     {
         pushLayer(std::make_unique<ExampleLayer>());
-        pushOverlay(std::make_unique<Hazel::ImGuiLayer>());
     }
     ~Sandbox() = default;
     Sandbox& operator=(Sandbox&&) noexcept = delete;

@@ -25,18 +25,21 @@ Application::Application() : window_{Window::create()}
               "Hazel::Application already instantiated");
     Application::instance_ = this;
     window_->setEventCallback([this](Event& e) { this->onEvent(e); });
+    auto imgui_layer{std::make_unique<ImGuiLayer>()};
+    imgui_layer_ = imgui_layer.get();
+    pushOverlay(std::move(imgui_layer));
 }
 Application::~Application() = default;
 
 void Application::pushLayer(std::unique_ptr<Layer> layer)
 {
-    layer->onAttach();
+    // layer->onAttach();
     layerStack_.pushLayer(std::move(layer));
 }
 
 void Application::pushOverlay(std::unique_ptr<Layer> layer)
 {
-    layer->onAttach();
+    // layer->onAttach();
     layerStack_.pushOverlay(std::move(layer));
 }
 
@@ -82,8 +85,15 @@ void Application::run()
             layer->onUpdate();
         }
 
-        poll_keys_status(std::chrono::milliseconds{500});
+        // TODO: "Preaction - postaction" style code, refactor the begin/end
+        // it should probably be called from within onImGuiRender
+        imgui_layer_->begin();
+        for (auto& layer : layerStack_) {
+            layer->onImGuiRender();
+        }
+        imgui_layer_->end();
 
+        poll_keys_status(std::chrono::milliseconds{500});
         window_->onUpdate();
     }
 }
