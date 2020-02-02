@@ -70,7 +70,7 @@ void WindowsWindow::setGlfwCallbacks() noexcept
     });
 
     glfwSetKeyCallback(window_.get(),
-                       [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+                       [](GLFWwindow* window, int key, int /* scancode */, int action, int /* mods */) {
                            auto& data = getWindowData(window);
                            switch (action) {
                            case GLFW_PRESS: {
@@ -98,7 +98,7 @@ void WindowsWindow::setGlfwCallbacks() noexcept
     });
 
     glfwSetMouseButtonCallback(window_.get(),
-                               [](GLFWwindow* window, int button, int action, int mods) {
+                               [](GLFWwindow* window, int button, int action, int /* mods */) {
                                    auto& data = getWindowData(window);
 
                                    switch (action) {

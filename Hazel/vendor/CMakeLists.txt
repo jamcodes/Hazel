@@ -12,6 +12,15 @@ add_subdirectory(GLFW)
 set(BUILD_SHARED_LIBS ${hazel_build_shared_libs})
 unset(hazel_build_shared_libs)
 target_link_libraries(glfw PRIVATE HzBuildFlags)
+target_compile_options(glfw
+    PRIVATE
+        $<$<PLATFORM_ID:Windows>:/wd4100
+                                 /wd4152
+                                 /wd4201
+                                 /wd4204
+                                 /wd4244
+                                 /wd4456>
+)
 
 add_subdirectory(glad)
 target_link_libraries(glad PRIVATE HzBuildFlags)

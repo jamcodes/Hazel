@@ -15,13 +15,12 @@ target_sources(${PROJECT_NAME}
         imgui/imgui_widgets.cpp
         imgui/imgui_demo.cpp
 )
+
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/imgui>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
-
-
 target_compile_definitions(${PROJECT_NAME}
     # Hacky solution to compiling Hazel with ImGui as a shared library
     PRIVATE

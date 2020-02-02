@@ -5,6 +5,8 @@ DeclareProjectInstallDirectories()
 
 set(OpenGL_GL_PREFERENCE GLVND)
 find_package(OpenGL REQUIRED OpenGL)
+
+
 add_library(Hazel)
 add_library(Hazel::Hazel ALIAS Hazel)
 
@@ -27,11 +29,11 @@ target_link_libraries(Hazel
 )
 
 add_subdirectory(src)
-
 target_compile_definitions(Hazel
     PUBLIC
-        HZ_PLATFORM_WINDOWS
-        GLFW_INCLUDE_NONE   # Configure GLFW not to include OpenGL headers since we want glad to do it
+        HZ_PLATFORM_$<UPPER_CASE:$<PLATFORM_ID>>
+        # Configure GLFW not to include OpenGL headers since we want glad to do it
+        GLFW_INCLUDE_NONE
         $<$<CONFIG:Debug>:HZ_DEBUG>
         $<$<CONFIG:RelWithDebInfo>:HZ_RELEASE>
         $<$<CONFIG:Release>:HZ_DIST>
@@ -61,6 +63,12 @@ set_target_properties(Hazel
         LIBRARY_OUTPUT_DIRECTORY_DEBUG          ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/Hazel
         LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO}/Hazel
         LIBRARY_OUTPUT_DIRECTORY_RELEASE        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE}/Hazel
+)
+
+set_source_files_properties(
+    src/Hazel/ImGui/ImGuiBuild.cpp
+    PROPERTIES
+        COMPILE_OPTIONS "/wd4996;"  # Argument given to COMPILE_OPTIONS needs to be a list
 )
 
 install(

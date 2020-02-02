@@ -64,7 +64,8 @@ void ImGuiLayer::end()
 {
     ImGuiIO& io = ImGui::GetIO();
     auto& window = Application::get().getWindow();
-    io.DisplaySize = ImVec2(window.getWidth(), window.getHeight());
+    io.DisplaySize =
+        ImVec2(static_cast<float>(window.getWidth()), static_cast<float>(window.getHeight()));
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
