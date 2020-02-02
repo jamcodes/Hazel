@@ -1,11 +1,11 @@
-#include "WindowsWindow.h"
 #include "hzpch.h"
+
+#include "WindowsWindow.h"
 
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/Events/KeyEvent.h"
 #include "Hazel/Events/MouseEvent.h"
-
-#include <glad/glad.h>
+#include "Platform/OpenGL/OpenGLContext.h"
 
 namespace Hazel {
 
@@ -39,17 +39,11 @@ WindowsWindow::WindowsWindow(const WindowProps& props)
     }
     window_.reset(glfwCreateWindow(static_cast<int>(props.width), static_cast<int>(props.height),
                                    props.title.c_str(), nullptr, nullptr));
-    glfwMakeContextCurrent(window_.get());
-    initGlLoader();
+    context_ = std::make_unique<OpenGLContext>(window_.get());
+
     glfwSetWindowUserPointer(window_.get(), &data_);
     setVSync(true);
     setGlfwCallbacks();
-}
-
-void WindowsWindow::initGlLoader() noexcept
-{
-    auto const rc{gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))};
-    HZ_EXPECT(rc, WindowsWindowAssertionHandler{}, "Could not initialize glad!");
 }
 
 void WindowsWindow::setGlfwCallbacks() noexcept
@@ -128,10 +122,10 @@ void WindowsWindow::setGlfwCallbacks() noexcept
     });
 }
 
-void WindowsWindow::onUpdate()
+void WindowsWindow::onUpdate() noexcept
 {
     glfwPollEvents();
-    glfwSwapBuffers(window_.get());
+    context_->swapBuffers();
 }
 
 void WindowsWindow::setVSync(bool enabled) noexcept

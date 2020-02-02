@@ -20,7 +20,7 @@ public:
     using EventCallbackFn = std::function<void(Event&)>;
 
     virtual ~Window() = default;
-    Window& operator=(Window&&) = delete;
+    Window& operator=(Window&&) noexcept = delete;
 
     virtual void onUpdate() = 0;
 

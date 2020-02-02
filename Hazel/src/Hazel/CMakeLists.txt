@@ -19,3 +19,4 @@ target_sources(Hazel
 )
 add_subdirectory(Events)
 add_subdirectory(ImGui)
+add_subdirectory(Renderer)

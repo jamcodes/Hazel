@@ -1,19 +1,21 @@
 #pragma once
 
-#include <type_traits>
-
 #include "Hazel/Window.h"
 
+#include "Hazel/Renderer/GraphicsContext.h"
+
 #include <GLFW/glfw3.h>
+
+#include <type_traits>
 
 namespace Hazel {
 
 class WindowsWindow : public Window {
 public:
     WindowsWindow(const WindowProps& props);
-    virtual ~WindowsWindow() = default;
+    ~WindowsWindow() override = default;
 
-    void onUpdate() override;
+    void onUpdate() noexcept override;
 
     inline unsigned int getWidth() const noexcept override { return data_.width; }
     inline unsigned int getHeight() const noexcept override { return data_.height; }
@@ -30,11 +32,10 @@ public:
     inline void* getNativeWindow() const noexcept override;
 
 private:
-    inline void initGlLoader() noexcept;
     void setGlfwCallbacks() noexcept;
 
-    struct GLFWwindowDestructor {
-        inline void operator()(GLFWwindow* p) noexcept { glfwDestroyWindow(p); }
+    struct GLFWwindowDestructor final {
+        inline void operator()(GLFWwindow* p) const noexcept { glfwDestroyWindow(p); }
     };
 
     struct WindowData {
@@ -51,6 +52,7 @@ private:
 
     std::unique_ptr<GLFWwindow, GLFWwindowDestructor> window_{nullptr};
     WindowData data_;
+    std::unique_ptr<GraphicsContext> context_{nullptr};
 };
 
 }  // namespace Hazel
