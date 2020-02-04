@@ -16,6 +16,8 @@ public:
 private:
     inline void initGLLoader() noexcept;
 
+    static void glInfo() noexcept;
+
     GLFWwindow* window_handle_;
 };
 

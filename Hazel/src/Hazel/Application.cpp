@@ -16,6 +16,19 @@ namespace Hazel {
 struct ApplicationAssertionHandler : Hazel::CoreLoggingHandler, Hazel::Enforce {
 };
 
+template<typename T, std::size_t N>
+constexpr auto array_sizeof(T const(&)[N]) noexcept
+{
+    return sizeof(T) * N;
+}
+
+template<typename T, std::size_t N>
+constexpr auto array_sizeof(std::array<T, N> const&) noexcept
+{
+    return sizeof(T) * N;
+}
+
+
 Application* Application::instance_{nullptr};
 
 Application::Application() : window_{Window::create()}
@@ -28,8 +41,40 @@ Application::Application() : window_{Window::create()}
     auto imgui_layer{std::make_unique<ImGuiLayer>()};
     imgui_layer_ = imgui_layer.get();
     pushOverlay(std::move(imgui_layer));
+    initGLData();
 }
 Application::~Application() = default;
+
+bool Application::onWindowClose(WindowCloseEvent&) noexcept
+{
+    running_ = false;
+    return true;
+}
+
+void Application::initGLData() noexcept
+{
+    glGenVertexArrays(1, &vertex_array_);
+    glBindVertexArray(vertex_array_);
+
+    glGenBuffers(1, &vertex_buffer_);
+    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_);
+
+    const std::array<float, 3*3> vertices {
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+         0.0f,  0.5f, 0.0f
+    };
+
+    glBufferData(GL_ARRAY_BUFFER, array_sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+
+    glGenBuffers(1, &index_buffer_);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_);
+
+    const std::array<unsigned int, 3> indices{0, 1, 2};
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, array_sizeof(indices), indices.data(), GL_STATIC_DRAW);
+}
 
 void Application::pushLayer(std::unique_ptr<Layer> layer)
 {
@@ -49,7 +94,7 @@ void Application::onEvent(Event& e)
     dispatcher.dispatch<WindowCloseEvent>(
         [this](WindowCloseEvent& e) { return this->onWindowClose(e); });
 
-    HZ_CORE_TRACE("{0}", e);
+    // HZ_CORE_TRACE("{0}", e);
 
     for (auto it{layerStack_.end()}; it != layerStack_.begin() && !e.handled;) {
         (--it)->get()->onEvent(e);
@@ -78,8 +123,11 @@ inline void poll_keys_status(std::chrono::milliseconds interval)
 void Application::run()
 {
     while (running_) {
-        glClearColor(0, 1, 1, 1);
+        glClearColor(0.1f, 0.1f, 0.1f, 1);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glBindVertexArray(vertex_array_);
+        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
         for (auto& layer : layerStack_) {
             layer->onUpdate();
@@ -96,12 +144,6 @@ void Application::run()
         poll_keys_status(std::chrono::milliseconds{500});
         window_->onUpdate();
     }
-}
-
-bool Application::onWindowClose(WindowCloseEvent&) noexcept
-{
-    running_ = false;
-    return true;
 }
 
 }  // namespace Hazel

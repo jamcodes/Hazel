@@ -25,14 +25,21 @@ public:
     inline Window const& getWindow() const noexcept { return *window_; }
 
     static inline Application& get() noexcept { return *instance_; }
+
 private:
     bool onWindowClose(WindowCloseEvent& e) noexcept;
+    void initGLData() noexcept;
 
     std::unique_ptr<Window> window_;
     bool running_{true};
     ImGuiLayer* imgui_layer_;
     LayerStack layerStack_;
 
+    unsigned int vertex_array_;
+    unsigned int vertex_buffer_;
+    unsigned int index_buffer_;
+
+// --- static member data
     static Application* instance_;
 };
 

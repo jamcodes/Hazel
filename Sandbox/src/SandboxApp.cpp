@@ -16,9 +16,9 @@ public:
         // HZ_TRACE("ExampleLayer::Update");
     }
 
-    void onEvent(Hazel::Event& event) override
+    void onEvent(Hazel::Event& /* event */) override
     {
-        HZ_TRACE("ExampleLayer: {0}", event);
+        // HZ_TRACE("ExampleLayer: {0}", event);
     }
 
     void onImGuiRender() override
