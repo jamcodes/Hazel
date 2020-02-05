@@ -3,8 +3,9 @@
 #include "Core.h"
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/Events/Event.h"
-#include "Hazel/LayerStack.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
+#include "Hazel/LayerStack.h"
+#include "Hazel/Renderer/Shader.h"
 #include "Window.h"
 
 namespace Hazel {
@@ -39,7 +40,9 @@ private:
     unsigned int vertex_buffer_;
     unsigned int index_buffer_;
 
-// --- static member data
+    std::unique_ptr<Shader> shader_;
+
+    // --- static member data
     static Application* instance_;
 };
 

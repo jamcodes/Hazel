@@ -2,32 +2,62 @@
 #include "hzpch.h"
 
 #include "Hazel/Input.h"
-#include "Hazel/Log.h"
 #include "Hazel/KeyCodes.h"
+#include "Hazel/Log.h"
 #include "Hazel/MouseButtonCodes.h"
+#include "Hazel/Renderer/Shader.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
 #include <chrono>
+#include <string_view>
+
+namespace {
+const std::string vertex_src(R"(
+    #version 450 core
+    
+    layout(location = 0) in vec3 a_position;
+
+    out vec3 v_position;
+
+    void main()
+    {
+        v_position = a_position;
+        gl_Position = vec4(a_position, 1.0);
+    }
+)");
+
+const std::string fragment_src(R"(
+    #version 450 core
+    
+    layout(location = 0) out vec4 color;
+
+    in vec3 v_position;
+
+    void main()
+    {
+        color = vec4(v_position * 0.5 + 0.3, 1.0);
+    }
+)");
+}  // namespace
 
 namespace Hazel {
 
 struct ApplicationAssertionHandler : Hazel::CoreLoggingHandler, Hazel::Enforce {
 };
 
-template<typename T, std::size_t N>
-constexpr auto array_sizeof(T const(&)[N]) noexcept
+template <typename T, std::size_t N>
+constexpr auto array_sizeof(T const (&)[N]) noexcept
 {
     return sizeof(T) * N;
 }
 
-template<typename T, std::size_t N>
+template <typename T, std::size_t N>
 constexpr auto array_sizeof(std::array<T, N> const&) noexcept
 {
     return sizeof(T) * N;
 }
-
 
 Application* Application::instance_{nullptr};
 
@@ -42,6 +72,7 @@ Application::Application() : window_{Window::create()}
     imgui_layer_ = imgui_layer.get();
     pushOverlay(std::move(imgui_layer));
     initGLData();
+    shader_.reset(new Shader{vertex_src, fragment_src});
 }
 Application::~Application() = default;
 
@@ -59,11 +90,8 @@ void Application::initGLData() noexcept
     glGenBuffers(1, &vertex_buffer_);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_);
 
-    const std::array<float, 3*3> vertices {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f
-    };
+    const std::array<float, 3 * 3> vertices{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
+                                            0.0f,  0.0f,  0.5f, 0.0f};
 
     glBufferData(GL_ARRAY_BUFFER, array_sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
@@ -126,6 +154,7 @@ void Application::run()
         glClearColor(0.1f, 0.1f, 0.1f, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        shader_->bind();
         glBindVertexArray(vertex_array_);
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
