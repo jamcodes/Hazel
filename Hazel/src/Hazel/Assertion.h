@@ -182,6 +182,17 @@ CONTRACT_FORCE_INLINE constexpr void do_contract_assertion(
         Hazel::ContractAssert<hANDLER, lEVEL>::do_assert([&]() noexcept { return eXPR; }, \
                                                          CONTRACT_SRC_LOC(), #eXPR, __VA_ARGS__))
 
-#define HZ_EXPECT(eXPR, ...)                                                        \
-    static_cast<void>(Hazel::do_contract_assertion([&]() noexcept { return eXPR; }, \
-                                                   CONTRACT_SRC_LOC(), #eXPR, __VA_ARGS__))
+// #define HZ_EXPECT(eXPR, hANDLER, lEVEL, ...)                                              \
+//     static_cast<void>(                                                                    \
+//         Hazel::ContractAssert<hANDLER, lEVEL>::do_assert([&]() noexcept { return eXPR; }, \
+//                                                          CONTRACT_SRC_LOC(), #eXPR, __VA_ARGS__))
+
+#define HZ_ENSURE(eXPR, hANDLER, lEVEL, ...)                                              \
+    static_cast<void>(                                                                    \
+        Hazel::ContractAssert<hANDLER, lEVEL>::do_assert([&]() noexcept { return eXPR; }, \
+                                                         CONTRACT_SRC_LOC(), #eXPR, __VA_ARGS__))
+
+#define HZ_EXPECT(eXPR, ...)                                                                     \
+    static_cast<void>(Hazel::do_contract_assertion([&]() noexcept { return eXPR; },              \
+                                                   CONTRACT_SRC_LOC(), CONTRACT_STRINGIFY(eXPR), \
+                                                   __VA_ARGS__))

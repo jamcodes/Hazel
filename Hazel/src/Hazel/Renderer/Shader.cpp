@@ -1,6 +1,7 @@
 #include "Shader.h"
 
 #include "Hazel/Log.h"
+#include "Hazel/AssertionHandler.h"
 
 #include <string_view>
 #include <vector>

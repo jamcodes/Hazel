@@ -1,6 +1,6 @@
 #pragma once
 
-#include "asserts.h"
+#include "Assertion.h"
 
 // Building Hazel as a dynamic library doesn't work at the moment
 // not quite sure why - IMGUI symbols are not exported

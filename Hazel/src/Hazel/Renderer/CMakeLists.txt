@@ -5,4 +5,8 @@ target_sources(${PROJECT_NAME}
         GraphicsContext.h
         Shader.h
         Shader.cpp
+        Buffer.h
+        Buffer.cpp
+        Renderer.h
+        Renderer.cpp
 )

@@ -4,6 +4,8 @@ target_sources(Hazel
     PRIVATE
         Application.cpp
         Application.h
+        Assertion.h
+        AssertionHandler.h
         Core.h
         EntryPoint.h
         EnumOperators.h

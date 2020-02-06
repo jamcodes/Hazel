@@ -2,6 +2,7 @@
 
 #include "Hazel/Core.h"
 #include "Hazel/Log.h"
+#include "Hazel/AssertionHandler.h"
 
 #include <glad/glad.h>
 

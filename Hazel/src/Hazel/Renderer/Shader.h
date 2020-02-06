@@ -1,7 +1,6 @@
 #pragma once
 
-namespace Hazel
-{
+namespace Hazel {
 class Shader {
 public:
     Shader(const std::string& vertex_src, const std::string& fragment_src);
@@ -17,4 +16,4 @@ public:
 private:
     std::uint32_t renderer_id_;
 };
-} // namespace Hazel
+}  // namespace Hazel

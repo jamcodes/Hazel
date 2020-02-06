@@ -1,10 +1,13 @@
 #include "Application.h"
 #include "hzpch.h"
 
+#include "Hazel/AssertionHandler.h"
 #include "Hazel/Input.h"
 #include "Hazel/KeyCodes.h"
 #include "Hazel/Log.h"
 #include "Hazel/MouseButtonCodes.h"
+
+#include "Hazel/Renderer/Buffer.h"
 #include "Hazel/Renderer/Shader.h"
 
 #include <GLFW/glfw3.h>
@@ -84,35 +87,26 @@ bool Application::onWindowClose(WindowCloseEvent&) noexcept
 
 void Application::initGLData() noexcept
 {
-    glGenVertexArrays(1, &vertex_array_);
-    glBindVertexArray(vertex_array_);
-
-    glGenBuffers(1, &vertex_buffer_);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_);
-
-    const std::array<float, 3 * 3> vertices{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
+    constexpr std::array<float, 3 * 3> vertices{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
                                             0.0f,  0.0f,  0.5f, 0.0f};
 
-    glBufferData(GL_ARRAY_BUFFER, array_sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
+    vertex_buffer_ =
+        VertexBuffer::create(vertices);
+
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 
-    glGenBuffers(1, &index_buffer_);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_);
-
-    const std::array<unsigned int, 3> indices{0, 1, 2};
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, array_sizeof(indices), indices.data(), GL_STATIC_DRAW);
+    constexpr std::array<unsigned int, 3> indices{0, 1, 2};
+    index_buffer_ = IndexBuffer::create(indices);
 }
 
 void Application::pushLayer(std::unique_ptr<Layer> layer)
 {
-    // layer->onAttach();
     layerStack_.pushLayer(std::move(layer));
 }
 
 void Application::pushOverlay(std::unique_ptr<Layer> layer)
 {
-    // layer->onAttach();
     layerStack_.pushOverlay(std::move(layer));
 }
 
@@ -156,7 +150,7 @@ void Application::run()
 
         shader_->bind();
         glBindVertexArray(vertex_array_);
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, index_buffer_->getCount(), GL_UNSIGNED_INT, nullptr);
 
         for (auto& layer : layerStack_) {
             layer->onUpdate();

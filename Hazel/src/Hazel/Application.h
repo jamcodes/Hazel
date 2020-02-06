@@ -5,8 +5,11 @@
 #include "Hazel/Events/Event.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
 #include "Hazel/LayerStack.h"
-#include "Hazel/Renderer/Shader.h"
 #include "Window.h"
+
+#include "Hazel/Renderer/Shader.h"
+#include "Hazel/Renderer/Buffer.h"
+
 
 namespace Hazel {
 
@@ -37,9 +40,11 @@ private:
     LayerStack layerStack_;
 
     unsigned int vertex_array_;
-    unsigned int vertex_buffer_;
-    unsigned int index_buffer_;
+    // unsigned int vertex_buffer_;
+    // unsigned int index_buffer_;
 
+    std::unique_ptr<VertexBuffer> vertex_buffer_;
+    std::unique_ptr<IndexBuffer> index_buffer_;
     std::unique_ptr<Shader> shader_;
 
     // --- static member data
