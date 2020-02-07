@@ -67,7 +67,7 @@ Application* Application::instance_{nullptr};
 Application::Application() : window_{Window::create()}
 {
     // TODO: Make this a sane singleton
-    HZ_EXPECT(Application::instance_ == nullptr, ApplicationAssertionHandler{},
+    HZ_EXPECT(Application::instance_ == nullptr, ApplicationAssertionHandler{}, Hazel::Enforce{},
               "Hazel::Application already instantiated");
     Application::instance_ = this;
     window_->setEventCallback([this](Event& e) { this->onEvent(e); });
@@ -88,10 +88,9 @@ bool Application::onWindowClose(WindowCloseEvent&) noexcept
 void Application::initGLData() noexcept
 {
     constexpr std::array<float, 3 * 3> vertices{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
-                                            0.0f,  0.0f,  0.5f, 0.0f};
+                                                0.0f,  0.0f,  0.5f, 0.0f};
 
-    vertex_buffer_ =
-        VertexBuffer::create(vertices);
+    vertex_buffer_ = VertexBuffer::create(vertices);
 
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);

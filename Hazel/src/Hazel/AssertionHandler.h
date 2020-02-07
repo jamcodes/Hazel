@@ -10,8 +10,8 @@ struct LoggingHandler {
     static void handle(Hazel::source_location const& loc, const char* const expr, Logger& logger,
                        Args&&... args)
     {
-        logger->error("Assertion failed [{0}:{1}]: '{2}' -> {3}", loc.file, loc.line, expr,
-                      std::forward<Args>(args)...);
+        logger->error("Assertion failed [{0}:{1}]: '{2}' -> ", loc.file, loc.line, expr);
+        logger->error(std::forward<Args>(args)...);
     }
 };
 
