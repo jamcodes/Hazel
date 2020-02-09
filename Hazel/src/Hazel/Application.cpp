@@ -21,12 +21,15 @@ const std::string vertex_src(R"(
     #version 450 core
     
     layout(location = 0) in vec3 a_position;
+    layout(location = 1) in vec4 a_color;
 
     out vec3 v_position;
+    out vec4 v_color;
 
     void main()
     {
         v_position = a_position;
+        v_color = a_color;
         gl_Position = vec4(a_position, 1.0);
     }
 )");
@@ -37,10 +40,12 @@ const std::string fragment_src(R"(
     layout(location = 0) out vec4 color;
 
     in vec3 v_position;
+    in vec4 v_color;
 
     void main()
     {
         color = vec4(v_position * 0.5 + 0.3, 1.0);
+        color = v_color;
     }
 )");
 }  // namespace
@@ -60,6 +65,28 @@ template <typename T, std::size_t N>
 constexpr auto array_sizeof(std::array<T, N> const&) noexcept
 {
     return sizeof(T) * N;
+}
+
+template <>
+constexpr GLenum shaderDataTypeToPlatformType<GLenum>(ShaderDataType type) noexcept {
+    // clang-format off
+    switch(type) {
+        case ShaderDataType::None  :    return GL_NONE;
+        case ShaderDataType::Float :    return GL_FLOAT;
+        case ShaderDataType::Float2:    return GL_FLOAT;
+        case ShaderDataType::Float3:    return GL_FLOAT;
+        case ShaderDataType::Float4:    return GL_FLOAT;
+        case ShaderDataType::Mat3  :    return GL_FLOAT;
+        case ShaderDataType::Mat4  :    return GL_FLOAT;
+        case ShaderDataType::Int   :    return GL_INT;
+        case ShaderDataType::Int2  :    return GL_INT;
+        case ShaderDataType::Int3  :    return GL_INT;
+        case ShaderDataType::Int4  :    return GL_INT;
+        case ShaderDataType::Bool  :    return GL_BOOL;
+    }
+    // clang-format on
+    HZ_ASSERT(false, DefaultCoreHandler, Enforce, "Unknown ShaderDataType");
+    return GL_NONE;
 }
 
 Application* Application::instance_{nullptr};
@@ -87,13 +114,31 @@ bool Application::onWindowClose(WindowCloseEvent&) noexcept
 
 void Application::initGLData() noexcept
 {
-    constexpr std::array<float, 3 * 3> vertices{-0.5f, -0.5f, 0.0f, 0.5f, -0.5f,
-                                                0.0f,  0.0f,  0.5f, 0.0f};
+    constexpr std::array<float, 3 * 7> vertices {
+        -0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
+        0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
+        0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
+    };
 
-    vertex_buffer_ = VertexBuffer::create(vertices);
+    const BufferLayout layout = {
+        {ShaderDataType::Float3, "a_position"},
+        {ShaderDataType::Float4, "a_color"},
+    };
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    vertex_buffer_ = VertexBuffer::create(vertices, layout);
+
+    auto const& vb_layout{vertex_buffer_->getLayout()};
+    for (std::uint32_t i{0}; i != vb_layout.getElements().size(); ++i) {
+        auto const& el{vb_layout.getElements()[i]};
+        glEnableVertexAttribArray(i);
+        glVertexAttribPointer(
+            i,
+            componentCount(el.type),
+            shaderDataTypeToPlatformType<GLenum>(el.type),
+            el.normalized ? GL_TRUE : GL_FALSE,
+            vb_layout.getStride(),
+            reinterpret_cast<const void*>(el.offset));
+    }
 
     constexpr std::array<unsigned int, 3> indices{0, 1, 2};
     index_buffer_ = IndexBuffer::create(indices);
