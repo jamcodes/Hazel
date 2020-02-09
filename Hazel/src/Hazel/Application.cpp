@@ -48,6 +48,33 @@ const std::string fragment_src(R"(
         color = v_color;
     }
 )");
+
+const std::string blue_vertex_src(R"(
+    #version 450 core
+    
+    layout(location = 0) in vec3 a_position;
+
+    out vec3 v_position;
+
+    void main()
+    {
+        v_position = a_position;
+        gl_Position = vec4(a_position, 1.0);
+    }
+)");
+
+const std::string blue_fragment_src(R"(
+    #version 450 core
+    
+    layout(location = 0) out vec4 color;
+
+    in vec3 v_position;
+
+    void main()
+    {
+        color = vec4(0.2, 0.3, 0.8, 1.0);
+    }
+)");
 }  // namespace
 
 namespace Hazel {
@@ -67,27 +94,27 @@ constexpr auto array_sizeof(std::array<T, N> const&) noexcept
     return sizeof(T) * N;
 }
 
-template <>
-constexpr GLenum shaderDataTypeToPlatformType<GLenum>(ShaderDataType type) noexcept {
-    // clang-format off
-    switch(type) {
-        case ShaderDataType::None  :    return GL_NONE;
-        case ShaderDataType::Float :    return GL_FLOAT;
-        case ShaderDataType::Float2:    return GL_FLOAT;
-        case ShaderDataType::Float3:    return GL_FLOAT;
-        case ShaderDataType::Float4:    return GL_FLOAT;
-        case ShaderDataType::Mat3  :    return GL_FLOAT;
-        case ShaderDataType::Mat4  :    return GL_FLOAT;
-        case ShaderDataType::Int   :    return GL_INT;
-        case ShaderDataType::Int2  :    return GL_INT;
-        case ShaderDataType::Int3  :    return GL_INT;
-        case ShaderDataType::Int4  :    return GL_INT;
-        case ShaderDataType::Bool  :    return GL_BOOL;
-    }
-    // clang-format on
-    HZ_ASSERT(false, DefaultCoreHandler, Enforce, "Unknown ShaderDataType");
-    return GL_NONE;
-}
+// template <>
+// constexpr GLenum shaderDataTypeToPlatformType<GLenum>(ShaderDataType type) noexcept {
+//     // clang-format off
+//     switch(type) {
+//         case ShaderDataType::None  :    return GL_NONE;
+//         case ShaderDataType::Float :    return GL_FLOAT;
+//         case ShaderDataType::Float2:    return GL_FLOAT;
+//         case ShaderDataType::Float3:    return GL_FLOAT;
+//         case ShaderDataType::Float4:    return GL_FLOAT;
+//         case ShaderDataType::Mat3  :    return GL_FLOAT;
+//         case ShaderDataType::Mat4  :    return GL_FLOAT;
+//         case ShaderDataType::Int   :    return GL_INT;
+//         case ShaderDataType::Int2  :    return GL_INT;
+//         case ShaderDataType::Int3  :    return GL_INT;
+//         case ShaderDataType::Int4  :    return GL_INT;
+//         case ShaderDataType::Bool  :    return GL_BOOL;
+//     }
+//     // clang-format on
+//     HZ_ASSERT(false, DefaultCoreHandler, Enforce, "Unknown ShaderDataType");
+//     return GL_NONE;
+// }
 
 Application* Application::instance_{nullptr};
 
@@ -102,7 +129,6 @@ Application::Application() : window_{Window::create()}
     imgui_layer_ = imgui_layer.get();
     pushOverlay(std::move(imgui_layer));
     initGLData();
-    shader_.reset(new Shader{vertex_src, fragment_src});
 }
 Application::~Application() = default;
 
@@ -114,34 +140,41 @@ bool Application::onWindowClose(WindowCloseEvent&) noexcept
 
 void Application::initGLData() noexcept
 {
-    constexpr std::array<float, 3 * 7> vertices {
+    shader_.reset(new Shader{vertex_src, fragment_src});
+    tr_vertex_array_ = VertexArray::create();
+    constexpr std::array<float, 3 * 7> tr_vertices {
         -0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
         0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
         0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
     };
 
-    const BufferLayout layout = {
+    const BufferLayout tr_layout = {
         {ShaderDataType::Float3, "a_position"},
         {ShaderDataType::Float4, "a_color"},
     };
 
-    vertex_buffer_ = VertexBuffer::create(vertices, layout);
+    auto tr_vertex_buffer = VertexBuffer::create(tr_vertices, tr_layout);
+    tr_vertex_array_->addVertexBuffer(std::move(tr_vertex_buffer));
 
-    auto const& vb_layout{vertex_buffer_->getLayout()};
-    for (std::uint32_t i{0}; i != vb_layout.getElements().size(); ++i) {
-        auto const& el{vb_layout.getElements()[i]};
-        glEnableVertexAttribArray(i);
-        glVertexAttribPointer(
-            i,
-            componentCount(el.type),
-            shaderDataTypeToPlatformType<GLenum>(el.type),
-            el.normalized ? GL_TRUE : GL_FALSE,
-            vb_layout.getStride(),
-            reinterpret_cast<const void*>(el.offset));
-    }
+    constexpr std::array<unsigned int, 3> tr_indices{0, 1, 2};
+    auto tr_index_buffer = IndexBuffer::create(tr_indices);
+    tr_vertex_array_->setIndexBuffer(std::move(tr_index_buffer));
 
-    constexpr std::array<unsigned int, 3> indices{0, 1, 2};
-    index_buffer_ = IndexBuffer::create(indices);
+    shader_sq_.reset(new Shader{blue_vertex_src, blue_fragment_src});
+    sq_vertex_array_ = VertexArray::create();
+    constexpr std::array<float, 3 * 4> sq_vertices {
+        -0.75f, -0.75f, 0.0f,
+        0.75f, -0.75f, 0.0f,
+        0.75f,  0.75f, 0.0f,
+        -0.75f,  0.75f, 0.0f,
+    };
+    const BufferLayout sq_layout = {
+        {ShaderDataType::Float3, "a_position"},
+    };
+    sq_vertex_array_->addVertexBuffer(VertexBuffer::create(sq_vertices, sq_layout));
+
+    constexpr std::array<unsigned int, 6> sq_indices{0, 1, 2, 2, 3, 0};
+    sq_vertex_array_->setIndexBuffer(IndexBuffer::create(sq_indices));
 }
 
 void Application::pushLayer(std::unique_ptr<Layer> layer)
@@ -192,9 +225,13 @@ void Application::run()
         glClearColor(0.1f, 0.1f, 0.1f, 1);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        shader_sq_->bind();
+        sq_vertex_array_->bind();
+        glDrawElements(GL_TRIANGLES, sq_vertex_array_->getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
+
         shader_->bind();
-        glBindVertexArray(vertex_array_);
-        glDrawElements(GL_TRIANGLES, index_buffer_->getCount(), GL_UNSIGNED_INT, nullptr);
+        tr_vertex_array_->bind();
+        glDrawElements(GL_TRIANGLES, tr_vertex_array_->getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
 
         for (auto& layer : layerStack_) {
             layer->onUpdate();

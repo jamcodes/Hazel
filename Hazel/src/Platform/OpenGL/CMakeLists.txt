@@ -6,4 +6,6 @@ target_sources(${PROJECT_NAME}
         OpenGLContext.cpp
         OpenGLBuffer.h
         OpenGLBuffer.cpp
+        OpenGLVertexArray.h
+        OpenGLVertexArray.cpp
 )

@@ -3,6 +3,25 @@
 #include "Assertion.h"
 #include "Log.h"
 
+#if defined(_MSC_VER)
+#define DEBUG_TRAP() __debugbreak()
+#elif defined(__has_builtin)
+#if __has_builtin(__builtin_debugtrap)
+#define DEBUG_TRAP() __builtin_debugtrap()
+#else
+#define DEBUG_TRAP()
+#endif
+#elif defined(__GNUC__)
+#include <signal.h>
+#if defined(SIGTRAP)
+#define DEBUG_TRAP() raise(SIGTRAP)
+#else
+#define DEBUG_TRAP()
+#endif
+#else
+#define DEBUG_TRAP()
+#endif
+
 namespace Hazel
 {
 struct LoggingHandler {
@@ -12,6 +31,7 @@ struct LoggingHandler {
     {
         logger->error("Assertion failed [{0}:{1}]: '{2}' -> ", loc.file, loc.line, expr);
         logger->error(std::forward<Args>(args)...);
+        DEBUG_TRAP();
     }
 };
 

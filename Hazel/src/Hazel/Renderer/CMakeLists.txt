@@ -9,4 +9,6 @@ target_sources(${PROJECT_NAME}
         Buffer.cpp
         Renderer.h
         Renderer.cpp
+        VertexArray.h
+        VertexArray.cpp
 )
