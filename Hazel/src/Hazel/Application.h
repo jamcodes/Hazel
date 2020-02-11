@@ -10,7 +10,7 @@
 #include "Hazel/Renderer/Shader.h"
 #include "Hazel/Renderer/Buffer.h"
 #include "Hazel/Renderer/VertexArray.h"
-
+#include "Hazel/Renderer/OrtographicCamera.h"
 
 namespace Hazel {
 
@@ -45,6 +45,8 @@ private:
 
     std::unique_ptr<Shader> shader_sq_;
     std::unique_ptr<VertexArray> sq_vertex_array_;
+
+    OrtographicCamera camera_;
 
     // --- static member data
     static Application* instance_;

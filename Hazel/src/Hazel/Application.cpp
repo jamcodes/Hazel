@@ -8,8 +8,8 @@
 #include "Hazel/MouseButtonCodes.h"
 
 #include "Hazel/Renderer/Buffer.h"
-#include "Hazel/Renderer/Shader.h"
 #include "Hazel/Renderer/Renderer.h"
+#include "Hazel/Renderer/Shader.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -24,6 +24,8 @@ const std::string vertex_src(R"(
     layout(location = 0) in vec3 a_position;
     layout(location = 1) in vec4 a_color;
 
+    uniform mat4 u_view_projection;
+
     out vec3 v_position;
     out vec4 v_color;
 
@@ -31,7 +33,7 @@ const std::string vertex_src(R"(
     {
         v_position = a_position;
         v_color = a_color;
-        gl_Position = vec4(a_position, 1.0);
+        gl_Position = u_view_projection * vec4(a_position, 1.0);
     }
 )");
 
@@ -55,12 +57,14 @@ const std::string blue_vertex_src(R"(
     
     layout(location = 0) in vec3 a_position;
 
+    uniform mat4 u_view_projection;
+
     out vec3 v_position;
 
     void main()
     {
         v_position = a_position;
-        gl_Position = vec4(a_position, 1.0);
+        gl_Position = u_view_projection * vec4(a_position, 1.0);
     }
 )");
 
@@ -97,7 +101,7 @@ constexpr auto array_sizeof(std::array<T, N> const&) noexcept
 
 Application* Application::instance_{nullptr};
 
-Application::Application() : window_{Window::create()}
+Application::Application() : window_{Window::create()}, camera_{-1.6f, 1.6f, -0.9f, 0.9f}
 {
     // TODO: Make this a sane singleton
     HZ_EXPECT(Application::instance_ == nullptr, ApplicationAssertionHandler{}, Hazel::Enforce{},
@@ -121,11 +125,9 @@ void Application::initGLData() noexcept
 {
     shader_.reset(new Shader{vertex_src, fragment_src});
     tr_vertex_array_ = VertexArray::create();
-    constexpr std::array<float, 3 * 7> tr_vertices {
-        -0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
-        0.5f, -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
-        0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f
-    };
+    constexpr std::array<float, 3 * 7> tr_vertices{-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
+                                                   0.5f,  -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
+                                                   0.0f,  0.5f,  0.0f, 0.8f, 0.8f, 0.2f, 1.0f};
 
     const BufferLayout tr_layout = {
         {ShaderDataType::Float3, "a_position"},
@@ -141,11 +143,8 @@ void Application::initGLData() noexcept
 
     shader_sq_.reset(new Shader{blue_vertex_src, blue_fragment_src});
     sq_vertex_array_ = VertexArray::create();
-    constexpr std::array<float, 3 * 4> sq_vertices {
-        -0.75f, -0.75f, 0.0f,
-        0.75f, -0.75f, 0.0f,
-        0.75f,  0.75f, 0.0f,
-        -0.75f,  0.75f, 0.0f,
+    constexpr std::array<float, 3 * 4> sq_vertices{
+        -0.75f, -0.75f, 0.0f, 0.75f, -0.75f, 0.0f, 0.75f, 0.75f, 0.0f, -0.75f, 0.75f, 0.0f,
     };
     const BufferLayout sq_layout = {
         {ShaderDataType::Float3, "a_position"},
@@ -204,17 +203,17 @@ void Application::run()
         RenderCommand::setClearColor({0.1f, 0.1f, 0.1f, 1});
         RenderCommand::clear();
 
-        Renderer::beginScene();
+        Renderer::beginScene(camera_);
 
-        shader_sq_->bind();
-        // sq_vertex_array_->bind();
-        // glDrawElements(GL_TRIANGLES, sq_vertex_array_->getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
-        Renderer::submit(*sq_vertex_array_);
+        camera_.setPosition({0.2f, -0.25f, 0.0f});
+        camera_.setRotation(45.0f);
+        // shader_sq_->bind();
+        // shader_sq_->uploadUniform("u_view_projection", camera_.getViewProjection());
+        Renderer::submit(*shader_sq_, *sq_vertex_array_);
 
-        shader_->bind();
-        // tr_vertex_array_->bind();
-        // glDrawElements(GL_TRIANGLES, tr_vertex_array_->getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
-        Renderer::submit(*tr_vertex_array_);
+        // shader_->bind();
+        // shader_->uploadUniform("u_view_projection", camera_.getViewProjection());
+        Renderer::submit(*shader_, *tr_vertex_array_);
 
         Renderer::endScene();
 

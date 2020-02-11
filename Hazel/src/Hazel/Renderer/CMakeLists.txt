@@ -15,4 +15,6 @@ target_sources(${PROJECT_NAME}
         RendererAPI.cpp
         RenderCommand.h
         RenderCommand.cpp
+        OrtographicCamera.h
+        OrtographicCamera.cpp
 )

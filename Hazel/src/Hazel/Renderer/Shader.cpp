@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace {
 struct ShaderAssertHandler final : Hazel::CoreLoggingHandler, Hazel::Enforce {
@@ -126,5 +127,12 @@ Shader::~Shader() noexcept { glDeleteProgram(renderer_id_); }
 void Shader::bind() const { glUseProgram(renderer_id_); }
 
 void Shader::unbind() const { glUseProgram(0); }
+
+void Shader::uploadUniform(std::string const& name, glm::mat4 const& matrix) const
+{
+    auto location{glGetUniformLocation(renderer_id_, name.c_str())};
+    HZ_ASSERT(-1 != location, DefaultCoreHandler, Enforce, "Unknown uniform name");
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+}
 
 }  // namespace Hazel
