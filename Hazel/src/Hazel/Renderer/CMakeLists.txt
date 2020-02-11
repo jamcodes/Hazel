@@ -11,4 +11,8 @@ target_sources(${PROJECT_NAME}
         Renderer.cpp
         VertexArray.h
         VertexArray.cpp
+        RendererAPI.h
+        RendererAPI.cpp
+        RenderCommand.h
+        RenderCommand.cpp
 )

@@ -2,6 +2,21 @@
 
 namespace Hazel {
 
-RendererAPI Renderer::s_renderer_api{RendererAPI::OpenGL};
+void Renderer::beginScene()
+{
+
+}
+
+void Renderer::endScene()
+{
+
+}
+
+void Renderer::submit(VertexArray const& vertex_array)
+{
+    vertex_array.bind();
+    RenderCommand::drawIndexed(vertex_array);
+}
+
 
 }  // namespace Hazel

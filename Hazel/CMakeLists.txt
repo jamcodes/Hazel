@@ -11,6 +11,7 @@ add_library(Hazel)
 add_library(Hazel::Hazel ALIAS Hazel)
 
 add_subdirectory(vendor)
+add_subdirectory(src)
 
 target_link_libraries(Hazel
     PUBLIC
@@ -28,7 +29,6 @@ target_link_libraries(Hazel
         HzBuildFlags
 )
 
-add_subdirectory(src)
 target_compile_definitions(Hazel
     PUBLIC
         HZ_PLATFORM_$<UPPER_CASE:$<PLATFORM_ID>>

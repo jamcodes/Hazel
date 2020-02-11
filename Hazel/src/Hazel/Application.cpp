@@ -9,6 +9,7 @@
 
 #include "Hazel/Renderer/Buffer.h"
 #include "Hazel/Renderer/Shader.h"
+#include "Hazel/Renderer/Renderer.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -93,28 +94,6 @@ constexpr auto array_sizeof(std::array<T, N> const&) noexcept
 {
     return sizeof(T) * N;
 }
-
-// template <>
-// constexpr GLenum shaderDataTypeToPlatformType<GLenum>(ShaderDataType type) noexcept {
-//     // clang-format off
-//     switch(type) {
-//         case ShaderDataType::None  :    return GL_NONE;
-//         case ShaderDataType::Float :    return GL_FLOAT;
-//         case ShaderDataType::Float2:    return GL_FLOAT;
-//         case ShaderDataType::Float3:    return GL_FLOAT;
-//         case ShaderDataType::Float4:    return GL_FLOAT;
-//         case ShaderDataType::Mat3  :    return GL_FLOAT;
-//         case ShaderDataType::Mat4  :    return GL_FLOAT;
-//         case ShaderDataType::Int   :    return GL_INT;
-//         case ShaderDataType::Int2  :    return GL_INT;
-//         case ShaderDataType::Int3  :    return GL_INT;
-//         case ShaderDataType::Int4  :    return GL_INT;
-//         case ShaderDataType::Bool  :    return GL_BOOL;
-//     }
-//     // clang-format on
-//     HZ_ASSERT(false, DefaultCoreHandler, Enforce, "Unknown ShaderDataType");
-//     return GL_NONE;
-// }
 
 Application* Application::instance_{nullptr};
 
@@ -222,16 +201,22 @@ inline void poll_keys_status(std::chrono::milliseconds interval)
 void Application::run()
 {
     while (running_) {
-        glClearColor(0.1f, 0.1f, 0.1f, 1);
-        glClear(GL_COLOR_BUFFER_BIT);
+        RenderCommand::setClearColor({0.1f, 0.1f, 0.1f, 1});
+        RenderCommand::clear();
+
+        Renderer::beginScene();
 
         shader_sq_->bind();
-        sq_vertex_array_->bind();
-        glDrawElements(GL_TRIANGLES, sq_vertex_array_->getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
+        // sq_vertex_array_->bind();
+        // glDrawElements(GL_TRIANGLES, sq_vertex_array_->getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
+        Renderer::submit(*sq_vertex_array_);
 
         shader_->bind();
-        tr_vertex_array_->bind();
-        glDrawElements(GL_TRIANGLES, tr_vertex_array_->getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
+        // tr_vertex_array_->bind();
+        // glDrawElements(GL_TRIANGLES, tr_vertex_array_->getIndexBuffer().getCount(), GL_UNSIGNED_INT, nullptr);
+        Renderer::submit(*tr_vertex_array_);
+
+        Renderer::endScene();
 
         for (auto& layer : layerStack_) {
             layer->onUpdate();

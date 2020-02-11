@@ -10,13 +10,13 @@ namespace Hazel {
 std::unique_ptr<VertexArray> VertexArray::create()
 {
     switch (Renderer::getApi()) {
-    case RendererAPI::None:
+    case RendererAPI::API::None:
         HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce,
-                  "RendererAPI::None is currently not supported");
-    case RendererAPI::OpenGL:
+                  "RendererAPI::API::None is currently not supported");
+    case RendererAPI::API::OpenGL:
         return std::make_unique<OpenGLVertexArray>();
     default:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI");
+        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
     }
 
     return nullptr;
