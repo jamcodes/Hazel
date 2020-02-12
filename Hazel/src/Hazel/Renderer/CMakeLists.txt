@@ -2,19 +2,19 @@ cmake_minimum_required(VERSION 3.15)
 
 target_sources(${PROJECT_NAME}
     PRIVATE
-        GraphicsContext.h
-        Shader.h
-        Shader.cpp
-        Buffer.h
         Buffer.cpp
-        Renderer.h
-        Renderer.cpp
-        VertexArray.h
-        VertexArray.cpp
-        RendererAPI.h
-        RendererAPI.cpp
-        RenderCommand.h
-        RenderCommand.cpp
-        OrtographicCamera.h
+        GraphicsContext.h
         OrtographicCamera.cpp
+        OrtographicCamera.h
+        RenderCommand.cpp
+        RenderCommand.h
+        Renderer.cpp
+        Renderer.h
+        RendererAPI.cpp
+        RendererAPI.h
+        Shader.cpp
+        Shader.h
+        VertexArray.cpp
+        VertexArray.h
+        Buffer.h
 )

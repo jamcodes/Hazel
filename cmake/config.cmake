@@ -34,7 +34,7 @@ macro(SetGlobalFlags)
     endif()
 
     # TODO: Reliably detect target architecture for other paltforms and compilers
-    if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND CMAKE_VS_MSBUILD_COMMAND)
         set(setglobalflags_arch "-${CMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE}")
     endif()
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY                ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}-${CMAKE_SYSTEM_NAME}${setglobalflags_arch})
