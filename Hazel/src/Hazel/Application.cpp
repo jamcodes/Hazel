@@ -12,10 +12,8 @@
 #include "Hazel/Renderer/Shader.h"
 
 #include <GLFW/glfw3.h>
-#include <glad/glad.h>
 
 #include <chrono>
-#include <string_view>
 
 namespace {
 const std::string vertex_src(R"(
@@ -80,6 +78,75 @@ const std::string blue_fragment_src(R"(
         color = vec4(0.2, 0.3, 0.8, 1.0);
     }
 )");
+
+inline void handleCameraPan(Hazel::OrtographicCamera& camera, Hazel::KeyCode const code) noexcept
+{
+    switch (auto const& current_position{camera.getPosition()}; code) {
+    case Hazel::KeyCode::D: {
+        camera.setPosition(current_position + glm::vec3{0.02f, 0.0f, 0.0f});
+        return;
+    }
+    case Hazel::KeyCode::A: {
+        camera.setPosition(current_position - glm::vec3{0.02f, 0.0f, 0.0f});
+        return;
+    }
+    case Hazel::KeyCode::S: {
+        camera.setPosition(current_position - glm::vec3{0.0f, 0.02f, 0.0f});
+        return;
+    }
+    case Hazel::KeyCode::W: {
+        camera.setPosition(current_position + glm::vec3{0.0f, 0.02f, 0.0f});
+        return;
+    }
+    default:
+        return;
+    }
+    return;
+}
+
+inline void handleCameraRotate(Hazel::OrtographicCamera& camera, Hazel::KeyCode const code) noexcept
+{
+    switch (auto const& current_rotation{camera.getRotation()}; code) {
+    case Hazel::KeyCode::D: {
+        camera.setRotation(current_rotation + 1.0f);
+        return;
+    }
+    case Hazel::KeyCode::A: {
+        camera.setRotation(current_rotation - 1.0f);
+        return;
+    }
+    case Hazel::KeyCode::S: {
+        camera.setRotation(current_rotation - 1.0f);
+        return;
+    }
+    case Hazel::KeyCode::W: {
+        camera.setRotation(current_rotation + 1.0f);
+        return;
+    }
+    default:
+        return;
+    }
+    return;
+}
+
+inline void poll_keys_status(std::chrono::milliseconds interval)
+{
+    using namespace Hazel;
+    static auto last_report_time{std::chrono::steady_clock::now()};
+    if (std::chrono::steady_clock().now() - last_report_time >= interval) {
+        auto const lmb_status{Hazel::Input::isMouseButtonPressed(toInteger<int>(MouseButton::Left))};
+        auto const rmb_status{Hazel::Input::isMouseButtonPressed(toInteger<int>(MouseButton::Right))};
+        auto const [mouse_x, mouse_y]{Hazel::Input::getMousePosition()};
+        auto const ctrl_status{Hazel::Input::isKeyPressed(toInteger<int>(KeyCode::Left_control))};
+        auto const alt_status{Hazel::Input::isKeyPressed(toInteger<int>(KeyCode::Left_alt))};
+        auto const shift_status{Hazel::Input::isKeyPressed(toInteger<int>(KeyCode::Left_shift))};
+        HZ_CORE_INFO("LMB: {0}, RMB: {1}, Pos: {{{2},{3}}}", lmb_status, rmb_status, mouse_x,
+                     mouse_y);
+        HZ_CORE_INFO("CTRL: {0}, ALT: {1}, SHIFT: {2}", ctrl_status, alt_status, shift_status);
+        last_report_time = std::chrono::steady_clock::now();
+    }
+}
+
 }  // namespace
 
 namespace Hazel {
@@ -170,32 +237,21 @@ void Application::onEvent(Event& e)
     EventDispatcher dispatcher{e};
     dispatcher.dispatch<WindowCloseEvent>(
         [this](WindowCloseEvent& e) { return this->onWindowClose(e); });
-
-    // HZ_CORE_TRACE("{0}", e);
+    dispatcher.dispatch<KeyPressedEvent>([this](KeyPressedEvent& e) {
+        // return camera_.onKeyPressed(e);
+        if (not Input::isKeyPressed(toInteger<int>(KeyCode::Left_control))) {
+            handleCameraPan(this->camera_, KeyCode{e.getKeyCode()});
+        }
+        else {
+            handleCameraRotate(camera_, KeyCode{e.getKeyCode()});
+        }
+        return false;   // don't consume the event
+    });
 
     for (auto it{layerStack_.end()}; it != layerStack_.begin() && !e.handled;) {
         (--it)->get()->onEvent(e);
     }
 }
-
-namespace {
-inline void poll_keys_status(std::chrono::milliseconds interval)
-{
-    static auto last_report_time{std::chrono::steady_clock::now()};
-    if (std::chrono::steady_clock().now() - last_report_time >= interval) {
-        auto const lmb_status{Input::isMouseButtonPressed(toInteger<int>(MouseButton::Left))};
-        auto const rmb_status{Input::isMouseButtonPressed(toInteger<int>(MouseButton::Right))};
-        auto const [mouse_x, mouse_y]{Input::getMousePosition()};
-        auto const ctrl_status{Input::isKeyPressed(toInteger<int>(KeyCode::Left_control))};
-        auto const alt_status{Input::isKeyPressed(toInteger<int>(KeyCode::Left_alt))};
-        auto const shift_status{Input::isKeyPressed(toInteger<int>(KeyCode::Left_shift))};
-        HZ_CORE_INFO("LMB: {0}, RMB: {1}, Pos: {{{2},{3}}}", lmb_status, rmb_status, mouse_x,
-                     mouse_y);
-        HZ_CORE_INFO("CTRL: {0}, ALT: {1}, SHIFT: {2}", ctrl_status, alt_status, shift_status);
-        last_report_time = std::chrono::steady_clock::now();
-    }
-}
-}  // namespace
 
 void Application::run()
 {
@@ -205,8 +261,8 @@ void Application::run()
 
         Renderer::beginScene(camera_);
 
-        camera_.setPosition({0.2f, -0.25f, 0.0f});
-        camera_.setRotation(45.0f);
+        // camera_.setPosition({0.2f, -0.25f, 0.0f});
+        // camera_.setRotation(45.0f);
         // shader_sq_->bind();
         // shader_sq_->uploadUniform("u_view_projection", camera_.getViewProjection());
         Renderer::submit(*shader_sq_, *sq_vertex_array_);
