@@ -79,29 +79,64 @@ const std::string blue_fragment_src(R"(
     }
 )");
 
-inline void handleCameraPan(Hazel::OrtographicCamera& camera, Hazel::KeyCode const code) noexcept
+glm::vec3 camera_pan_move{0.0f, 0.0f, 0.0f};
+
+inline glm::vec3 getCameraMove(Hazel::KeyCode const code) noexcept
 {
-    switch (auto const& current_position{camera.getPosition()}; code) {
-    case Hazel::KeyCode::D: {
-        camera.setPosition(current_position + glm::vec3{0.02f, 0.0f, 0.0f});
-        return;
+    auto move{camera_pan_move};
+    switch (code) {
+        case Hazel::KeyCode::W:{
+            move.y = 0.02f;
+            break;
+            }
+        case Hazel::KeyCode::A:
+            move.x = -0.02f;
+            break;
+        case Hazel::KeyCode::D:
+            move.x = 0.02f;
+            break;
+        case Hazel::KeyCode::S:
+            move.y = -0.02f;
+            break;
+        default:
+            break;
+        }
+        return move;
+}
+
+inline void handleCameraPan(Hazel::OrtographicCamera& camera,
+                            Hazel::KeyPressedEvent const event) noexcept
+{
+    auto const move{getCameraMove(Hazel::KeyCode{event.getKeyCode()})};
+    auto const& current_position{camera.getPosition()};
+    camera.setPosition(current_position + move);
+    if (event.getRepeatCount() != 0) {
+        camera_pan_move = glm::clamp(move, -0.02f, 0.02f);
     }
-    case Hazel::KeyCode::A: {
-        camera.setPosition(current_position - glm::vec3{0.02f, 0.0f, 0.0f});
-        return;
-    }
-    case Hazel::KeyCode::S: {
-        camera.setPosition(current_position - glm::vec3{0.0f, 0.02f, 0.0f});
-        return;
-    }
-    case Hazel::KeyCode::W: {
-        camera.setPosition(current_position + glm::vec3{0.0f, 0.02f, 0.0f});
-        return;
-    }
-    default:
-        return;
-    }
-    return;
+}
+
+inline void handleCameraPan(Hazel::KeyReleasedEvent const event) noexcept
+{
+    // auto const move{getCameraMove(Hazel::KeyCode{event.getKeyCode()})};
+    // camera_pan_move = glm::clamp(camera_pan_move - move, -0.2f, 0.2f);
+        switch (Hazel::KeyCode code{event.getKeyCode()}; code) {
+        case Hazel::KeyCode::W:{
+            camera_pan_move.y -= 0.02f;
+            break;
+            }
+        case Hazel::KeyCode::A:
+            camera_pan_move.x -= -0.02f;
+            break;
+        case Hazel::KeyCode::D:
+            camera_pan_move.x -= 0.02f;
+            break;
+        case Hazel::KeyCode::S:
+            camera_pan_move.y -= -0.02f;
+            break;
+        default:
+            break;
+        }
+        camera_pan_move = glm::clamp(camera_pan_move, -0.02f, 0.02f);
 }
 
 inline void handleCameraRotate(Hazel::OrtographicCamera& camera, Hazel::KeyCode const code) noexcept
@@ -134,8 +169,10 @@ inline void poll_keys_status(std::chrono::milliseconds interval)
     using namespace Hazel;
     static auto last_report_time{std::chrono::steady_clock::now()};
     if (std::chrono::steady_clock().now() - last_report_time >= interval) {
-        auto const lmb_status{Hazel::Input::isMouseButtonPressed(toInteger<int>(MouseButton::Left))};
-        auto const rmb_status{Hazel::Input::isMouseButtonPressed(toInteger<int>(MouseButton::Right))};
+        auto const lmb_status{
+            Hazel::Input::isMouseButtonPressed(toInteger<int>(MouseButton::Left))};
+        auto const rmb_status{
+            Hazel::Input::isMouseButtonPressed(toInteger<int>(MouseButton::Right))};
         auto const [mouse_x, mouse_y]{Hazel::Input::getMousePosition()};
         auto const ctrl_status{Hazel::Input::isKeyPressed(toInteger<int>(KeyCode::Left_control))};
         auto const alt_status{Hazel::Input::isKeyPressed(toInteger<int>(KeyCode::Left_alt))};
@@ -238,14 +275,17 @@ void Application::onEvent(Event& e)
     dispatcher.dispatch<WindowCloseEvent>(
         [this](WindowCloseEvent& e) { return this->onWindowClose(e); });
     dispatcher.dispatch<KeyPressedEvent>([this](KeyPressedEvent& e) {
-        // return camera_.onKeyPressed(e);
         if (not Input::isKeyPressed(toInteger<int>(KeyCode::Left_control))) {
-            handleCameraPan(this->camera_, KeyCode{e.getKeyCode()});
+            handleCameraPan(this->camera_, e);
         }
         else {
             handleCameraRotate(camera_, KeyCode{e.getKeyCode()});
         }
-        return false;   // don't consume the event
+        return false;  // don't consume the event
+    });
+    dispatcher.dispatch<KeyReleasedEvent>([this](KeyReleasedEvent& e) {
+        handleCameraPan(e);
+        return false;
     });
 
     for (auto it{layerStack_.end()}; it != layerStack_.begin() && !e.handled;) {
@@ -261,14 +301,7 @@ void Application::run()
 
         Renderer::beginScene(camera_);
 
-        // camera_.setPosition({0.2f, -0.25f, 0.0f});
-        // camera_.setRotation(45.0f);
-        // shader_sq_->bind();
-        // shader_sq_->uploadUniform("u_view_projection", camera_.getViewProjection());
         Renderer::submit(*shader_sq_, *sq_vertex_array_);
-
-        // shader_->bind();
-        // shader_->uploadUniform("u_view_projection", camera_.getViewProjection());
         Renderer::submit(*shader_, *tr_vertex_array_);
 
         Renderer::endScene();
