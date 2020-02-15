@@ -40,13 +40,13 @@ private:
     ImGuiLayer* imgui_layer_;
     LayerStack layerStack_;
 
-    std::unique_ptr<Shader> shader_;
-    std::unique_ptr<VertexArray> tr_vertex_array_;
+    // std::unique_ptr<Shader> shader_;
+    // std::unique_ptr<VertexArray> tr_vertex_array_;
 
-    std::unique_ptr<Shader> shader_sq_;
-    std::unique_ptr<VertexArray> sq_vertex_array_;
+    // std::unique_ptr<Shader> shader_sq_;
+    // std::unique_ptr<VertexArray> sq_vertex_array_;
 
-    OrtographicCamera camera_;
+    // OrtographicCamera camera_;
 
     // --- static member data
     static Application* instance_;

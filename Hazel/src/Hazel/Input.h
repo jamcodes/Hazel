@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "Hazel/Core.h"
+#include "Hazel/KeyCodes.h"
 
 namespace Hazel {
 class HAZEL_API Input {
@@ -12,6 +13,10 @@ public:
     Input& operator=(Input&&) noexcept = delete;
 
     inline static bool isKeyPressed(int keycode) { return s_instance_->isKeyPressedImpl(keycode); }
+    inline static bool isKeyPressed(KeyCode keycode)
+    {
+        return s_instance_->isKeyPressedImpl(toInteger<int>(keycode));
+    }
 
     inline static bool isMouseButtonPressed(int button)
     {
