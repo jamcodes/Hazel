@@ -61,7 +61,7 @@ Application* Application::instance_{nullptr};
 Application::Application() : window_{Window::create()}
 {
     // TODO: Make this a sane singleton
-    HZ_EXPECT(Application::instance_ == nullptr, ApplicationAssertionHandler{}, Hazel::Enforce{},
+    HZ_EXPECTS(Application::instance_ == nullptr, ApplicationAssertionHandler, Hazel::Enforce,
               "Hazel::Application already instantiated");
     Application::instance_ = this;
     window_->setEventCallback([this](Event& e) { this->onEvent(e); });

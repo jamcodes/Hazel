@@ -70,6 +70,10 @@ set_source_files_properties(
     PROPERTIES
         COMPILE_OPTIONS "/wd4996;"  # Argument given to COMPILE_OPTIONS needs to be a list
 )
+set_property(SOURCE src/Platform/OpenGL/OpenGLVertexArray.cpp
+    PROPERTY
+        COMPILE_OPTIONS "/wd4312;"  # Ignore reinterpret_cast warning
+)
 
 install(
     DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/src/
