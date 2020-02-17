@@ -62,7 +62,7 @@ Application::Application() : window_{Window::create()}
 {
     // TODO: Make this a sane singleton
     HZ_EXPECTS(Application::instance_ == nullptr, ApplicationAssertionHandler, Hazel::Enforce,
-              "Hazel::Application already instantiated");
+               "Hazel::Application already instantiated");
     Application::instance_ = this;
     window_->setEventCallback([this](Event& e) { this->onEvent(e); });
     auto imgui_layer{std::make_unique<ImGuiLayer>()};
@@ -101,8 +101,10 @@ void Application::onEvent(Event& e)
 void Application::run()
 {
     while (running_) {
+        auto const time_delta{last_frame_time_.tick()};
+
         for (auto& layer : layerStack_) {
-            layer->onUpdate();
+            layer->onUpdate(Timestep::asFloat(time_delta));
         }
 
         // TODO: "Preaction - postaction" style code, refactor the begin/end

@@ -13,7 +13,7 @@ public:
 
     virtual void onAttach() = 0;
     virtual void onDetach() = 0;
-    virtual void onUpdate() = 0;
+    virtual void onUpdate(float time_delta_seconds) = 0;
     virtual void onImGuiRender() = 0;
     virtual void onEvent(Event&) = 0;
 

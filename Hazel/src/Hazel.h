@@ -10,6 +10,7 @@
 #include "Hazel/Log.h"
 #include "Hazel/MouseButtonCodes.h"
 #include "Hazel/AssertionHandler.h"
+#include "Hazel/Timestep.h"
 
 // ---Events--------------------------
 #include "Hazel/Events/Event.h"

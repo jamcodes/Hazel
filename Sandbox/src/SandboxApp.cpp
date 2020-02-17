@@ -76,9 +76,10 @@ public:
     void onAttach() override {}
     void onDetach() override {}
 
-    void onUpdate() override
+    void onUpdate(float const time_delta_seconds) override
     {
-        cameraMove();
+        HZ_TRACE("time_delta_seconds = {}", time_delta_seconds);
+        cameraMove(time_delta_seconds);
 
         Hazel::RenderCommand::setClearColor({0.1f, 0.1f, 0.1f, 1});
         Hazel::RenderCommand::clear();
@@ -137,28 +138,28 @@ private:
         sq_vertex_array_->setIndexBuffer(Hazel::IndexBuffer::create(sq_indices));
     }
 
-    void cameraMove() noexcept
+    void cameraMove(float const time_delta_seconds) noexcept
     {
         if (not Hazel::Input::isKeyPressed(Hazel::KeyCode::Left_control)) {
             if (Hazel::Input::isKeyPressed(Hazel::KeyCode::W)) {
-                camera_position_.y += camera_move_speed_;
+                camera_position_.y += camera_move_speed_ * time_delta_seconds;
             }
             if (Hazel::Input::isKeyPressed(Hazel::KeyCode::S)) {
-                camera_position_.y -= camera_move_speed_;
+                camera_position_.y -= camera_move_speed_ * time_delta_seconds;
             }
             if (Hazel::Input::isKeyPressed(Hazel::KeyCode::A)) {
-                camera_position_.x -= camera_move_speed_;
+                camera_position_.x -= camera_move_speed_ * time_delta_seconds;
             }
             if (Hazel::Input::isKeyPressed(Hazel::KeyCode::D)) {
-                camera_position_.x += camera_move_speed_;
+                camera_position_.x += camera_move_speed_ * time_delta_seconds;
             }
             camera_.setPosition(camera_position_);
         } else {
             if (Hazel::Input::isKeyPressed(Hazel::KeyCode::A)) {
-                camera_rotation_ += camera_rotation_speed_;
+                camera_rotation_ += camera_rotation_speed_ * time_delta_seconds;
             }
             else if (Hazel::Input::isKeyPressed(Hazel::KeyCode::D)) {
-                camera_rotation_ -= camera_rotation_speed_;
+                camera_rotation_ -= camera_rotation_speed_ * time_delta_seconds;
             }
             camera_.setRotation(camera_rotation_);
         }
@@ -175,8 +176,8 @@ private:
     glm::vec3 camera_position_{0.0f};
     float camera_rotation_{0.0f};
 
-    static constexpr float camera_move_speed_{0.01f};
-    static constexpr float camera_rotation_speed_{1.0f};
+    static constexpr float camera_move_speed_{1.0f};
+    static constexpr float camera_rotation_speed_{90.0f};
 };
 
 class Sandbox : public Hazel::Application {

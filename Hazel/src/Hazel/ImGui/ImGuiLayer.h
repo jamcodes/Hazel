@@ -14,7 +14,7 @@ public:
 
     void onAttach() override;
     void onDetach() override;
-    void onUpdate() override { }
+    void onUpdate(float /* time_delta */) override { }
     void onImGuiRender() override;
     void onEvent(Event&) noexcept override { }
 

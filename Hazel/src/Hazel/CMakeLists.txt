@@ -18,6 +18,7 @@ target_sources(Hazel
         Log.h
         MouseButtonCodes.h
         Window.h
+        Timestep.h
 )
 add_subdirectory(Events)
 add_subdirectory(ImGui)

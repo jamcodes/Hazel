@@ -1,10 +1,13 @@
 #pragma once
 
+#include <chrono>
+
 #include "Core.h"
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/Events/Event.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
 #include "Hazel/LayerStack.h"
+#include "Hazel/Timestep.h"
 #include "Window.h"
 
 #include "Hazel/Renderer/Shader.h"
@@ -39,6 +42,10 @@ private:
     bool running_{true};
     ImGuiLayer* imgui_layer_;
     LayerStack layerStack_;
+
+    // std::chrono::system_clock::time_point last_frame_time_;
+    Timestep last_frame_time_;
+    
 
     // --- static member data
     static Application* instance_;
