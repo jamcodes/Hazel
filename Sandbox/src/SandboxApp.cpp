@@ -1,5 +1,6 @@
 #include <Hazel.h>
 #include <imgui/imgui.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace {
 const std::string vertex_src(R"(
@@ -9,6 +10,7 @@ const std::string vertex_src(R"(
     layout(location = 1) in vec4 a_color;
 
     uniform mat4 u_view_projection;
+    uniform mat4 u_transform;
 
     out vec3 v_position;
     out vec4 v_color;
@@ -17,7 +19,7 @@ const std::string vertex_src(R"(
     {
         v_position = a_position;
         v_color = a_color;
-        gl_Position = u_view_projection * vec4(a_position, 1.0);
+        gl_Position = u_view_projection * u_transform * vec4(a_position, 1.0);
     }
 )");
 
@@ -42,13 +44,14 @@ const std::string blue_vertex_src(R"(
     layout(location = 0) in vec3 a_position;
 
     uniform mat4 u_view_projection;
+    uniform mat4 u_transform;
 
     out vec3 v_position;
 
     void main()
     {
         v_position = a_position;
-        gl_Position = u_view_projection * vec4(a_position, 1.0);
+        gl_Position = u_view_projection * u_transform * vec4(a_position, 1.0);
     }
 )");
 
@@ -86,15 +89,21 @@ public:
 
         Hazel::Renderer::beginScene(camera_);
 
-        Hazel::Renderer::submit(*sq_shader_, *sq_vertex_array_);
+        const glm::mat4 scale{glm::scale(glm::mat4{1.0f}, glm::vec3{0.1f})};
+
+        for (auto y{0}; y != 20; ++y) {
+            for (auto x{0}; x != 20; ++x) {
+                glm::vec3 pos{-1.1f + x * 0.11f, -1.1f + y * 0.11f, 0.0f};
+                glm::mat4 transform{glm::translate(glm::mat4{1.0f}, pos) * scale};
+                Hazel::Renderer::submit(*sq_shader_, *sq_vertex_array_, transform);
+            }
+        }
         Hazel::Renderer::submit(*tr_shader_, *tr_vertex_array_);
 
         Hazel::Renderer::endScene();
     }
 
-    void onEvent(Hazel::Event&) override
-    {
-    }
+    void onEvent(Hazel::Event&) override {}
 
     void onImGuiRender() override
     {
@@ -108,10 +117,13 @@ private:
     {
         tr_shader_.reset(new Hazel::Shader{vertex_src, fragment_src});
         tr_vertex_array_ = Hazel::VertexArray::create();
-        constexpr std::array<float, 3 * 7> tr_vertices{-0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
-                                                       0.5f,  -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
-                                                       0.0f,  0.5f,  0.0f, 0.8f, 0.8f, 0.2f, 1.0f};
-
+        // clang-format off
+        constexpr std::array<float, 3 * 7> tr_vertices{
+            -0.5f, -0.5f, 0.0f, 0.8f, 0.2f, 0.8f, 1.0f,
+            0.5f,  -0.5f, 0.0f, 0.2f, 0.3f, 0.8f, 1.0f,
+            0.0f,  0.5f,  0.0f, 0.8f, 0.8f, 0.2f, 1.0f
+        };
+        // clang-format on
         const Hazel::BufferLayout tr_layout = {
             {Hazel::ShaderDataType::Float3, "a_position"},
             {Hazel::ShaderDataType::Float4, "a_color"},
@@ -126,9 +138,14 @@ private:
 
         sq_shader_.reset(new Hazel::Shader{blue_vertex_src, blue_fragment_src});
         sq_vertex_array_ = Hazel::VertexArray::create();
+        // clang-format off
         constexpr std::array<float, 3 * 4> sq_vertices{
-            -0.75f, -0.75f, 0.0f, 0.75f, -0.75f, 0.0f, 0.75f, 0.75f, 0.0f, -0.75f, 0.75f, 0.0f,
+            -0.5f, -0.5f, 0.0f,
+             0.5f, -0.5f, 0.0f,
+             0.5f,  0.5f, 0.0f,
+            -0.5f, 0.5f, 0.0f,
         };
+        // clang-format on
         const Hazel::BufferLayout sq_layout = {
             {Hazel::ShaderDataType::Float3, "a_position"},
         };
@@ -154,7 +171,8 @@ private:
                 camera_position_.x += camera_move_speed_ * time_delta_seconds;
             }
             camera_.setPosition(camera_position_);
-        } else {
+        }
+        else {
             if (Hazel::Input::isKeyPressed(Hazel::KeyCode::A)) {
                 camera_rotation_ += camera_rotation_speed_ * time_delta_seconds;
             }
