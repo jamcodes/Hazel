@@ -135,4 +135,11 @@ void Shader::uploadUniform(std::string const& name, glm::mat4 const& matrix) con
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
+void Shader::uploadUniform(std::string const& name, glm::vec4 const& values) const
+{
+    GLint location{glGetUniformLocation(renderer_id_, name.c_str())};
+    glUniform4f(location, values.x, values.y, values.z, values.w);
+}
+
+
 }  // namespace Hazel

@@ -55,16 +55,18 @@ const std::string blue_vertex_src(R"(
     }
 )");
 
-const std::string blue_fragment_src(R"(
+const std::string flat_color_fragment_src(R"(
     #version 450 core
     
     layout(location = 0) out vec4 color;
 
     in vec3 v_position;
 
+    uniform vec4 u_color;
+
     void main()
     {
-        color = vec4(0.2, 0.3, 0.8, 1.0);
+        color = u_color;
     }
 )");
 }  // namespace
@@ -91,9 +93,20 @@ public:
 
         const glm::mat4 scale{glm::scale(glm::mat4{1.0f}, glm::vec3{0.1f})};
 
+        const glm::vec4 color_red{0.8f, 0.2f, 0.3f, 1.0f};
+        const glm::vec4 color_blue{0.2f, 0.3f, 0.8f, 1.0f};
+
         for (auto y{0}; y != 20; ++y) {
             for (auto x{0}; x != 20; ++x) {
                 glm::vec3 pos{-1.1f + x * 0.11f, -1.1f + y * 0.11f, 0.0f};
+                if (x%2 == 0) {
+                    const auto color{[c{color_red}, x, y]() mutable { c.x += y*0.01f; c.y += x * 0.1f; c.z += x * y * 0.01f; return c; }()};
+                    sq_shader_->uploadUniform("u_color", color);
+                }
+                else {
+                    const auto color{[c{color_blue}, x, y]() mutable { c.x += x*0.1f; c.y += y * 0.04f; c.z += x * 0.01f; return c; }()};
+                    sq_shader_->uploadUniform("u_color", color);
+                }
                 glm::mat4 transform{glm::translate(glm::mat4{1.0f}, pos) * scale};
                 Hazel::Renderer::submit(*sq_shader_, *sq_vertex_array_, transform);
             }
@@ -136,7 +149,7 @@ private:
         auto tr_index_buffer = Hazel::IndexBuffer::create(tr_indices);
         tr_vertex_array_->setIndexBuffer(std::move(tr_index_buffer));
 
-        sq_shader_.reset(new Hazel::Shader{blue_vertex_src, blue_fragment_src});
+        sq_shader_.reset(new Hazel::Shader{blue_vertex_src, flat_color_fragment_src});
         sq_vertex_array_ = Hazel::VertexArray::create();
         // clang-format off
         constexpr std::array<float, 3 * 4> sq_vertices{

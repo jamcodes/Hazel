@@ -16,6 +16,7 @@ public:
     void unbind() const;
 
     void uploadUniform(std::string const& name, glm::mat4 const& uniform) const;
+    void uploadUniform(std::string const& name, glm::vec4 const& values) const;
 
 private:
     std::uint32_t renderer_id_;
