@@ -10,4 +10,6 @@ target_sources(${PROJECT_NAME}
         OpenGLVertexArray.cpp
         OpenGLRendererAPI.h
         OpenGLRendererAPI.cpp
+        OpenGLShader.h
+        OpenGLShader.cpp
 )

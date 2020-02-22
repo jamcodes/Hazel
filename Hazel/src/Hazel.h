@@ -33,3 +33,7 @@
 // ---Entry Point---------------------
 #include "Hazel/EntryPoint.h"
 // -----------------------------------
+
+// --- Temporary ---------------------
+#include "Platform/OpenGL/OpenGLShader.h"
+// -----------------------------------

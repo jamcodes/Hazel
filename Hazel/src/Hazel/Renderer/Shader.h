@@ -5,20 +5,17 @@
 namespace Hazel {
 class Shader {
 public:
-    Shader(const std::string& vertex_src, const std::string& fragment_src);
-    Shader(Shader const&) noexcept = default;
-    Shader(Shader&&) noexcept = default;
-    Shader& operator=(Shader const&) noexcept = default;
-    Shader& operator=(Shader&&) noexcept = default;
-    ~Shader() noexcept;
+    virtual ~Shader() noexcept = default;
+    Shader& operator=(Shader&&) noexcept = delete;
 
-    void bind() const;
-    void unbind() const;
+    virtual void bind() const = 0;
+    virtual void unbind() const = 0;
 
-    void uploadUniform(std::string const& name, glm::mat4 const& uniform) const;
-    void uploadUniform(std::string const& name, glm::vec4 const& values) const;
+    template <typename T>
+    static std::unique_ptr<T> create(const std::string& vertex_src,
+                                     const std::string& fragment_src);
 
-private:
-    std::uint32_t renderer_id_;
+    static std::unique_ptr<Shader> create(const std::string& vertex_src,
+                                          const std::string& fragment_src);
 };
 }  // namespace Hazel

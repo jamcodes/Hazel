@@ -1,6 +1,8 @@
 #include <Hazel.h>
+
 #include <imgui/imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace {
 const std::string vertex_src(R"(
@@ -62,11 +64,11 @@ const std::string flat_color_fragment_src(R"(
 
     in vec3 v_position;
 
-    uniform vec4 u_color;
+    uniform vec3 u_color;
 
     void main()
     {
-        color = u_color;
+        color = vec4(u_color, 1.0);
     }
 )");
 }  // namespace
@@ -93,20 +95,12 @@ public:
 
         const glm::mat4 scale{glm::scale(glm::mat4{1.0f}, glm::vec3{0.1f})};
 
-        const glm::vec4 color_red{0.8f, 0.2f, 0.3f, 1.0f};
-        const glm::vec4 color_blue{0.2f, 0.3f, 0.8f, 1.0f};
+        sq_shader_->bind();
+        sq_shader_->uploadUniform("u_color", sq_color_);
 
         for (auto y{0}; y != 20; ++y) {
             for (auto x{0}; x != 20; ++x) {
                 glm::vec3 pos{-1.1f + x * 0.11f, -1.1f + y * 0.11f, 0.0f};
-                if (x%2 == 0) {
-                    const auto color{[c{color_red}, x, y]() mutable { c.x += y*0.01f; c.y += x * 0.1f; c.z += x * y * 0.01f; return c; }()};
-                    sq_shader_->uploadUniform("u_color", color);
-                }
-                else {
-                    const auto color{[c{color_blue}, x, y]() mutable { c.x += x*0.1f; c.y += y * 0.04f; c.z += x * 0.01f; return c; }()};
-                    sq_shader_->uploadUniform("u_color", color);
-                }
                 glm::mat4 transform{glm::translate(glm::mat4{1.0f}, pos) * scale};
                 Hazel::Renderer::submit(*sq_shader_, *sq_vertex_array_, transform);
             }
@@ -120,15 +114,15 @@ public:
 
     void onImGuiRender() override
     {
-        // ImGui::Begin("Test");
-        // ImGui::Text("Hello world", IMGUI_VERSION);
-        // ImGui::End();
+        ImGui::Begin("Settings");
+        ImGui::ColorEdit3("Square Color", glm::value_ptr(sq_color_));
+        ImGui::End();
     }
 
 private:
     void initRenderer() noexcept
     {
-        tr_shader_.reset(new Hazel::Shader{vertex_src, fragment_src});
+        tr_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>(vertex_src, fragment_src);
         tr_vertex_array_ = Hazel::VertexArray::create();
         // clang-format off
         constexpr std::array<float, 3 * 7> tr_vertices{
@@ -149,7 +143,7 @@ private:
         auto tr_index_buffer = Hazel::IndexBuffer::create(tr_indices);
         tr_vertex_array_->setIndexBuffer(std::move(tr_index_buffer));
 
-        sq_shader_.reset(new Hazel::Shader{blue_vertex_src, flat_color_fragment_src});
+        sq_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>(blue_vertex_src, flat_color_fragment_src);
         sq_vertex_array_ = Hazel::VertexArray::create();
         // clang-format off
         constexpr std::array<float, 3 * 4> sq_vertices{
@@ -196,11 +190,14 @@ private:
         }
     }
 
-    std::unique_ptr<Hazel::Shader> tr_shader_;
+    // Temporary - should be generic Hazel::Shader
+    std::unique_ptr<Hazel::OpenGLShader> tr_shader_;
     std::unique_ptr<Hazel::VertexArray> tr_vertex_array_;
 
-    std::unique_ptr<Hazel::Shader> sq_shader_;
+    // Temporary - should be generic Hazel::Shader
+    std::unique_ptr<Hazel::OpenGLShader> sq_shader_;
     std::unique_ptr<Hazel::VertexArray> sq_vertex_array_;
+    glm::vec3 sq_color_{0.2f, 0.3f, 0.8f};
 
     Hazel::OrtographicCamera camera_;
 
