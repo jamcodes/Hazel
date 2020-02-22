@@ -25,6 +25,7 @@ target_link_libraries(Hazel
         glfw
         glad
         glm::glm
+        stb::stb
     PRIVATE
         HzBuildFlags
 )
@@ -81,4 +82,4 @@ install(
     FILES_MATCHING PATTERN "*.h"
 )
 
-InstallProject(TARGETS Hazel imgui glfw glad glm HzBuildFlags)
+InstallProject(TARGETS Hazel imgui glfw glad glm stb HzBuildFlags)

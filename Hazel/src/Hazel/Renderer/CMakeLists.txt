@@ -17,4 +17,6 @@ target_sources(${PROJECT_NAME}
         VertexArray.cpp
         VertexArray.h
         Buffer.h
+        Texture.h
+        Texture.cpp
 )

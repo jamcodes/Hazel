@@ -12,4 +12,6 @@ target_sources(${PROJECT_NAME}
         OpenGLRendererAPI.cpp
         OpenGLShader.h
         OpenGLShader.cpp
+        OpenGLTexture.h
+        OpenGLTexture.cpp
 )

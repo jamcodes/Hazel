@@ -29,3 +29,6 @@ add_subdirectory(imgui)
 target_link_libraries(imgui PRIVATE HzBuildFlags)
 
 add_subdirectory(glm)
+
+add_subdirectory(stb)
+target_link_libraries(stb PRIVATE HzBuildFlags)

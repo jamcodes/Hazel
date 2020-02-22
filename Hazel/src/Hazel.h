@@ -28,6 +28,7 @@
 #include "Hazel/Renderer/RendererAPI.h"
 #include "Hazel/Renderer/Shader.h"
 #include "Hazel/Renderer/VertexArray.h"
+#include "Hazel/Renderer/Texture.h"
 // -----------------------------------
 
 // ---Entry Point---------------------

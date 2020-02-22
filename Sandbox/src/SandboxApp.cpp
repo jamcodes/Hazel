@@ -40,7 +40,7 @@ const std::string fragment_src(R"(
     }
 )");
 
-const std::string blue_vertex_src(R"(
+const std::string flat_color_vertex_src(R"(
     #version 450 core
     
     layout(location = 0) in vec3 a_position;
@@ -69,6 +69,39 @@ const std::string flat_color_fragment_src(R"(
     void main()
     {
         color = vec4(u_color, 1.0);
+    }
+)");
+
+const std::string texture_shader_vertex_src(R"(
+    #version 450 core
+
+    layout(location = 0) in vec3 a_position;
+    layout(location = 1) in vec2 a_tex_coord;
+
+    uniform mat4 u_view_projection;
+    uniform mat4 u_transform;
+
+    out vec2 v_tex_coord;
+
+    void main()
+    {
+        v_tex_coord = a_tex_coord;
+        gl_Position = u_view_projection * u_transform * vec4(a_position, 1.0);
+    }
+)");
+
+const std::string texture_shader_fragment_src(R"(
+    #version 450 core
+    
+    layout(location = 0) out vec4 color;
+
+    in vec2 v_tex_coord;
+
+    uniform sampler2D u_texture;
+
+    void main()
+    {
+        color = texture(u_texture, v_tex_coord);
     }
 )");
 }  // namespace
@@ -105,7 +138,14 @@ public:
                 Hazel::Renderer::submit(*sq_shader_, *sq_vertex_array_, transform);
             }
         }
-        Hazel::Renderer::submit(*tr_shader_, *tr_vertex_array_);
+
+        // Hazel::Renderer::submit(*sq_shader_, *sq_vertex_array_, glm::scale(glm::mat4{1.0f}, glm::vec3{1.5f}));
+        texture_->bind();
+        Hazel::Renderer::submit(*texture_shader_, *sq_vertex_array_, glm::scale(glm::mat4{1.0f}, glm::vec3{1.5f}));
+
+
+        // Triangle
+        // Hazel::Renderer::submit(*tr_shader_, *tr_vertex_array_);
 
         Hazel::Renderer::endScene();
     }
@@ -143,23 +183,29 @@ private:
         auto tr_index_buffer = Hazel::IndexBuffer::create(tr_indices);
         tr_vertex_array_->setIndexBuffer(std::move(tr_index_buffer));
 
-        sq_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>(blue_vertex_src, flat_color_fragment_src);
+        sq_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>(flat_color_vertex_src, flat_color_fragment_src);
         sq_vertex_array_ = Hazel::VertexArray::create();
         // clang-format off
-        constexpr std::array<float, 3 * 4> sq_vertices{
-            -0.5f, -0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
-             0.5f,  0.5f, 0.0f,
-            -0.5f, 0.5f, 0.0f,
+        constexpr std::array<float, 5 * 4> sq_vertices{
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+             0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+             0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+            -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
         };
         // clang-format on
         const Hazel::BufferLayout sq_layout = {
             {Hazel::ShaderDataType::Float3, "a_position"},
+            {Hazel::ShaderDataType::Float2, "a_tex_coord"},
         };
         sq_vertex_array_->addVertexBuffer(Hazel::VertexBuffer::create(sq_vertices, sq_layout));
 
         constexpr std::array<unsigned int, 6> sq_indices{0, 1, 2, 2, 3, 0};
         sq_vertex_array_->setIndexBuffer(Hazel::IndexBuffer::create(sq_indices));
+
+        texture_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>(texture_shader_vertex_src, texture_shader_fragment_src);
+        texture_ = Hazel::Texture2D::create("assets/textures/Checkerboard.png");
+        texture_shader_->bind();
+        texture_shader_->uploadUniform("u_texture", 0);
     }
 
     void cameraMove(float const time_delta_seconds) noexcept
@@ -196,8 +242,11 @@ private:
 
     // Temporary - should be generic Hazel::Shader
     Hazel::Scope<Hazel::OpenGLShader> sq_shader_;
+    Hazel::Scope<Hazel::OpenGLShader> texture_shader_;
     Hazel::Scope<Hazel::VertexArray> sq_vertex_array_;
     glm::vec3 sq_color_{0.2f, 0.3f, 0.8f};
+
+    Hazel::Ref<Hazel::Texture2D> texture_;
 
     Hazel::OrtographicCamera camera_;
 
