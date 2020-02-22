@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <utility>
+
 #include "Assertion.h"
 
 // Building Hazel as a dynamic library doesn't work at the moment
@@ -20,3 +23,16 @@
 #endif
 
 #define BIT(x) (1 << (x))
+
+namespace Hazel
+{
+template<typename T>
+using Scope = std::unique_ptr<T>;
+// template<typename T>
+// using makeScope = std::make_unique<T>;
+
+template<typename T>
+using Ref = std::shared_ptr<T>;
+// template<typename T>
+// using makeRef = std::make_shared<T>;
+} // namespace Hazel

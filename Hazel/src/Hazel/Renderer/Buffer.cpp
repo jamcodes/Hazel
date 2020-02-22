@@ -7,7 +7,7 @@
 
 namespace Hazel {
 
-std::unique_ptr<VertexBuffer> VertexBuffer::create(const float* vertices, std::uint32_t size)
+Scope<VertexBuffer> VertexBuffer::create(const float* vertices, std::uint32_t size)
 {
     switch (Renderer::getApi()) {
     case RendererAPI::API::None:
@@ -22,7 +22,7 @@ std::unique_ptr<VertexBuffer> VertexBuffer::create(const float* vertices, std::u
     return nullptr;
 }
 
-std::unique_ptr<IndexBuffer> IndexBuffer::create(const std::uint32_t* indices, std::uint32_t size)
+Scope<IndexBuffer> IndexBuffer::create(const std::uint32_t* indices, std::uint32_t size)
 {
     switch (Renderer::getApi()) {
     case RendererAPI::API::None:

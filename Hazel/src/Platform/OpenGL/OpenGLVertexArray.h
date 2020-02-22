@@ -15,10 +15,10 @@ public:
     void bind() const override;
     void unbind() const override;
 
-    void addVertexBuffer(std::unique_ptr<VertexBuffer>) override;
-    void setIndexBuffer(std::unique_ptr<IndexBuffer>) override;
+    void addVertexBuffer(Scope<VertexBuffer>) override;
+    void setIndexBuffer(Scope<IndexBuffer>) override;
 
-    std::vector<std::unique_ptr<VertexBuffer>> const& getVertexBuffers() const noexcept override { return vertex_buffers_; }
+    std::vector<Scope<VertexBuffer>> const& getVertexBuffers() const noexcept override { return vertex_buffers_; }
     IndexBuffer const& getIndexBuffer() const noexcept override {
         HZ_ASSERT(index_buffer_ != nullptr, DefaultCoreHandler, Enforce, "Index buffer not set");
         return *index_buffer_;
@@ -26,7 +26,7 @@ public:
 
 private:
     std::uint32_t renderer_id_{0};
-    std::vector<std::unique_ptr<VertexBuffer>> vertex_buffers_{};
-    std::unique_ptr<IndexBuffer> index_buffer_{nullptr};
+    std::vector<Scope<VertexBuffer>> vertex_buffers_{};
+    Scope<IndexBuffer> index_buffer_{nullptr};
 };
 }  // namespace Hazel

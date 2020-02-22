@@ -38,7 +38,7 @@ void OpenGLVertexArray::bind() const { glBindVertexArray(renderer_id_); }
 
 void OpenGLVertexArray::unbind() const { glBindVertexArray(0); }
 
-void OpenGLVertexArray::addVertexBuffer(std::unique_ptr<VertexBuffer> p_vertex_buffer)
+void OpenGLVertexArray::addVertexBuffer(Scope<VertexBuffer> p_vertex_buffer)
 {
     HZ_ASSERT(p_vertex_buffer != nullptr, DefaultCoreHandler, Enforce, "VertexBuffer* may not be nullptr");
     HZ_ASSERT(!p_vertex_buffer->getLayout().getElements().empty(), DefaultCoreHandler, Enforce, "VertexBuffer must have a layout set");
@@ -59,7 +59,7 @@ void OpenGLVertexArray::addVertexBuffer(std::unique_ptr<VertexBuffer> p_vertex_b
     vertex_buffers_.push_back(std::move(p_vertex_buffer));
 }
 
-void OpenGLVertexArray::setIndexBuffer(std::unique_ptr<IndexBuffer> p_index_buffer)
+void OpenGLVertexArray::setIndexBuffer(Scope<IndexBuffer> p_index_buffer)
 {
     glBindVertexArray(renderer_id_);
     p_index_buffer->bind();

@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+#include "Hazel/Core.h"
+
 namespace Hazel {
 class Shader {
 public:
@@ -11,11 +13,11 @@ public:
     virtual void bind() const = 0;
     virtual void unbind() const = 0;
 
-    template <typename T>
-    static std::unique_ptr<T> create(const std::string& vertex_src,
+    template <typename ShaderT>
+    static Scope<ShaderT> create(const std::string& vertex_src,
                                      const std::string& fragment_src);
 
-    static std::unique_ptr<Shader> create(const std::string& vertex_src,
+    static Scope<Shader> create(const std::string& vertex_src,
                                           const std::string& fragment_src);
 };
 }  // namespace Hazel

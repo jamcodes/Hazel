@@ -4,6 +4,7 @@
 #include <type_traits>
 
 #include "Hazel/AssertionHandler.h"
+#include "Hazel/Core.h"
 
 namespace Hazel {
 
@@ -165,7 +166,7 @@ public:
         return create(vertices.data(), static_cast<std::uint32_t>(vertices.size()));
     }
 
-    template<typename Container>
+    template <typename Container>
     static auto create(Container const& vertices, BufferLayout const& layout)
     {
         static_assert(std::is_same_v<Container::value_type, float>,
@@ -175,7 +176,7 @@ public:
         return buffer;
     }
 
-    static std::unique_ptr<VertexBuffer> create(const float* vertices, std::uint32_t size);
+    static Scope<VertexBuffer> create(const float* vertices, std::uint32_t size);
 
     virtual const BufferLayout& getLayout() const noexcept = 0;
     virtual void setLayout(BufferLayout const&) = 0;
@@ -189,7 +190,7 @@ public:
     IndexBuffer& operator=(IndexBuffer&&) = delete;
 
     template <typename Container>
-    static std::unique_ptr<IndexBuffer> create(Container const& indices)
+    static Scope<IndexBuffer> create(Container const& indices)
     {
         static_assert(
             std::is_same_v<Container::value_type, std::uint32_t>,
@@ -197,7 +198,7 @@ public:
         return create(indices.data(), static_cast<std::uint32_t>(indices.size()));
     }
 
-    static std::unique_ptr<IndexBuffer> create(const std::uint32_t* indices, std::uint32_t size);
+    static Scope<IndexBuffer> create(const std::uint32_t* indices, std::uint32_t size);
 
     virtual void bind() const = 0;
     virtual void unbind() const = 0;

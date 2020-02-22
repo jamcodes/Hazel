@@ -7,7 +7,7 @@
 
 namespace Hazel {
 
-std::unique_ptr<VertexArray> VertexArray::create()
+Scope<VertexArray> VertexArray::create()
 {
     switch (Renderer::getApi()) {
     case RendererAPI::API::None:

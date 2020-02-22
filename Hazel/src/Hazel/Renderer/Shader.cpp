@@ -7,7 +7,7 @@
 
 namespace Hazel {
 
-std::unique_ptr<Shader> Shader::create(const std::string& vertex_src,
+Scope<Shader> Shader::create(const std::string& vertex_src,
                                        const std::string& fragment_src)
 {
     switch (Renderer::getApi()) {
@@ -24,7 +24,7 @@ std::unique_ptr<Shader> Shader::create(const std::string& vertex_src,
 }
 
 template<>
-std::unique_ptr<OpenGLShader>
+Scope<OpenGLShader>
 Shader::create<OpenGLShader>(const std::string& vertex_src, const std::string& fragment_src)
 {
     HZ_ASSERT(Renderer::getApi() == RendererAPI::API::OpenGL, DefaultCoreHandler, Hazel::Enforce,

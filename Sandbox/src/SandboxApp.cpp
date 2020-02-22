@@ -191,12 +191,12 @@ private:
     }
 
     // Temporary - should be generic Hazel::Shader
-    std::unique_ptr<Hazel::OpenGLShader> tr_shader_;
-    std::unique_ptr<Hazel::VertexArray> tr_vertex_array_;
+    Hazel::Scope<Hazel::OpenGLShader> tr_shader_;
+    Hazel::Scope<Hazel::VertexArray> tr_vertex_array_;
 
     // Temporary - should be generic Hazel::Shader
-    std::unique_ptr<Hazel::OpenGLShader> sq_shader_;
-    std::unique_ptr<Hazel::VertexArray> sq_vertex_array_;
+    Hazel::Scope<Hazel::OpenGLShader> sq_shader_;
+    Hazel::Scope<Hazel::VertexArray> sq_vertex_array_;
     glm::vec3 sq_color_{0.2f, 0.3f, 0.8f};
 
     Hazel::OrtographicCamera camera_;
