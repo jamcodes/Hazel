@@ -142,6 +142,8 @@ public:
         // Hazel::Renderer::submit(*sq_shader_, *sq_vertex_array_, glm::scale(glm::mat4{1.0f}, glm::vec3{1.5f}));
         texture_->bind();
         Hazel::Renderer::submit(*texture_shader_, *sq_vertex_array_, glm::scale(glm::mat4{1.0f}, glm::vec3{1.5f}));
+        texture_cherno_logo_->bind();
+        Hazel::Renderer::submit(*texture_shader_, *sq_vertex_array_, glm::scale(glm::mat4{1.0f}, glm::vec3{1.5f}));
 
 
         // Triangle
@@ -204,6 +206,7 @@ private:
 
         texture_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>(texture_shader_vertex_src, texture_shader_fragment_src);
         texture_ = Hazel::Texture2D::create("assets/textures/Checkerboard.png");
+        texture_cherno_logo_ = Hazel::Texture2D::create("assets/textures/ChernoLogo.png");
         texture_shader_->bind();
         texture_shader_->uploadUniform("u_texture", 0);
     }
@@ -247,6 +250,7 @@ private:
     glm::vec3 sq_color_{0.2f, 0.3f, 0.8f};
 
     Hazel::Ref<Hazel::Texture2D> texture_;
+    Hazel::Ref<Hazel::Texture2D> texture_cherno_logo_;
 
     Hazel::OrtographicCamera camera_;
 

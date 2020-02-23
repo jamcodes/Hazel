@@ -10,8 +10,11 @@ namespace Hazel {
 
 class Renderer {
 public:
+    static void init();
+
     static void beginScene(OrtographicCamera const&);
     static void endScene();
+
     static void submit(Shader const& shader, VertexArray const& vertexArray,
                        const glm::mat4& transform = glm::mat4{1.0f});
     static inline RendererAPI::API getApi() noexcept { return RendererAPI::getAPI(); }

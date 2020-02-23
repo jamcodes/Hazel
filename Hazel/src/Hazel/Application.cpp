@@ -65,6 +65,9 @@ Application::Application() : window_{Window::create()}
                "Hazel::Application already instantiated");
     Application::instance_ = this;
     window_->setEventCallback([this](Event& e) { this->onEvent(e); });
+
+    Renderer::init();
+
     auto imgui_layer{std::make_unique<ImGuiLayer>()};
     imgui_layer_ = imgui_layer.get();
     pushOverlay(std::move(imgui_layer));
