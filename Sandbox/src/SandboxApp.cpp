@@ -72,38 +72,38 @@ const std::string flat_color_fragment_src(R"(
     }
 )");
 
-const std::string texture_shader_vertex_src(R"(
-    #version 450 core
+// const std::string texture_shader_vertex_src(R"(
+//     #version 450 core
 
-    layout(location = 0) in vec3 a_position;
-    layout(location = 1) in vec2 a_tex_coord;
+//     layout(location = 0) in vec3 a_position;
+//     layout(location = 1) in vec2 a_tex_coord;
 
-    uniform mat4 u_view_projection;
-    uniform mat4 u_transform;
+//     uniform mat4 u_view_projection;
+//     uniform mat4 u_transform;
 
-    out vec2 v_tex_coord;
+//     out vec2 v_tex_coord;
 
-    void main()
-    {
-        v_tex_coord = a_tex_coord;
-        gl_Position = u_view_projection * u_transform * vec4(a_position, 1.0);
-    }
-)");
+//     void main()
+//     {
+//         v_tex_coord = a_tex_coord;
+//         gl_Position = u_view_projection * u_transform * vec4(a_position, 1.0);
+//     }
+// )");
 
-const std::string texture_shader_fragment_src(R"(
-    #version 450 core
+// const std::string texture_shader_fragment_src(R"(
+//     #version 450 core
     
-    layout(location = 0) out vec4 color;
+//     layout(location = 0) out vec4 color;
 
-    in vec2 v_tex_coord;
+//     in vec2 v_tex_coord;
 
-    uniform sampler2D u_texture;
+//     uniform sampler2D u_texture;
 
-    void main()
-    {
-        color = texture(u_texture, v_tex_coord);
-    }
-)");
+//     void main()
+//     {
+//         color = texture(u_texture, v_tex_coord);
+//     }
+// )");
 }  // namespace
 
 class ExampleLayer : public Hazel::Layer {
@@ -204,7 +204,8 @@ private:
         constexpr std::array<unsigned int, 6> sq_indices{0, 1, 2, 2, 3, 0};
         sq_vertex_array_->setIndexBuffer(Hazel::IndexBuffer::create(sq_indices));
 
-        texture_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>(texture_shader_vertex_src, texture_shader_fragment_src);
+        // texture_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>(texture_shader_vertex_src, texture_shader_fragment_src);
+        texture_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>("assets/shaders/Texture.glsl");
         texture_ = Hazel::Texture2D::create("assets/textures/Checkerboard.png");
         texture_cherno_logo_ = Hazel::Texture2D::create("assets/textures/ChernoLogo.png");
         texture_shader_->bind();

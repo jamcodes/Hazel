@@ -130,12 +130,12 @@ public:
     inline const std::vector<BufferElement>& getElements() const noexcept { return elements_; }
     inline auto getStride() const noexcept { return stride_; }
 
-    iterator begin() { return elements_.begin(); }
-    iterator end() { return elements_.end(); }
-    const_iterator begin() const { return elements_.begin(); }
-    const_iterator end() const { return elements_.end(); }
-    const_iterator cbegin() const { return elements_.cbegin(); }
-    const_iterator cend() const { return elements_.cend(); }
+    iterator begin() noexcept { return elements_.begin(); }
+    iterator end() noexcept { return elements_.end(); }
+    const_iterator begin() const noexcept { return elements_.begin(); }
+    const_iterator end() const noexcept { return elements_.end(); }
+    const_iterator cbegin() const noexcept { return elements_.cbegin(); }
+    const_iterator cend() const noexcept { return elements_.cend(); }
 
 private:
     void calculateOffsetAndStride() noexcept

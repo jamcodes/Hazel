@@ -1,12 +1,16 @@
 #pragma once
 
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 
 #include <Hazel/Renderer/Shader.h>
 
+#include <unordered_map>
+
 namespace Hazel {
 class OpenGLShader : public Shader {
 public:
+    OpenGLShader(const std::string& filepath);
     OpenGLShader(const std::string& vertex_src, const std::string& fragment_src);
     OpenGLShader(OpenGLShader const&) noexcept = default;
     OpenGLShader(OpenGLShader&&) noexcept = default;
@@ -28,6 +32,10 @@ public:
     void uploadUniform(std::string const& name, glm::mat4 const& uniform) const;
 
 private:
+    std::string readFile(const std::string& filepath);
+    std::unordered_map<GLenum, std::string> preProcess(const std::string shader_src);
+    void compile(const std::unordered_map<GLenum, std::string>& shader_src);
+
     std::uint32_t renderer_id_;
 };
 }  // namespace Hazel

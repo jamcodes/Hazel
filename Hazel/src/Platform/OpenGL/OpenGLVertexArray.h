@@ -26,6 +26,7 @@ public:
 
 private:
     std::uint32_t renderer_id_{0};
+    std::uint32_t vertex_buffer_index_{0};
     std::vector<Scope<VertexBuffer>> vertex_buffers_{};
     Scope<IndexBuffer> index_buffer_{nullptr};
 };

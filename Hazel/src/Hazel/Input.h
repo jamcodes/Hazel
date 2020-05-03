@@ -4,6 +4,7 @@
 
 #include "Hazel/Core.h"
 #include "Hazel/KeyCodes.h"
+#include "Hazel/MouseButtonCodes.h"
 
 namespace Hazel {
 class HAZEL_API Input {
@@ -21,6 +22,10 @@ public:
     inline static bool isMouseButtonPressed(int button)
     {
         return s_instance_->isMouseButtonPressedImpl(button);
+    }
+    inline static bool isMouseButtonPressed(MouseButton button)
+    {
+        return s_instance_->isMouseButtonPressedImpl(toInteger<int>(button));
     }
 
     inline static float getMouseX() { return s_instance_->getMouseXImpl(); }

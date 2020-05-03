@@ -73,7 +73,7 @@ public:
     {
         if (event_.getEventType() == EventT::getStaticType())
         {
-            event_.handled = f(static_cast<EventT&>(event_));
+            event_.handled = std::forward<EventFunction>(f)(static_cast<EventT&>(event_));
             return true;
         }
         return false;

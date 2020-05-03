@@ -47,13 +47,16 @@ void OpenGLVertexArray::addVertexBuffer(Scope<VertexBuffer> p_vertex_buffer)
     p_vertex_buffer->bind();
 
     auto const& vb_layout{p_vertex_buffer->getLayout()};
-    for (std::uint32_t i{0}; i != vb_layout.getElements().size(); ++i) {
-        auto const& el{vb_layout.getElements()[i]};
-        glEnableVertexAttribArray(i);
-        glVertexAttribPointer(i, componentCount(el.type),
-                              shaderDataTypeToPlatformType<GLenum>(el.type),
-                              el.normalized ? GL_TRUE : GL_FALSE, vb_layout.getStride(),
-                              reinterpret_cast<const void*>(el.offset));
+    for (const auto& element : vb_layout) {
+        glEnableVertexAttribArray(vertex_buffer_index_);
+        glVertexAttribPointer(vertex_buffer_index_,
+            componentCount(element.type),
+            shaderDataTypeToPlatformType<GLenum>(element.type),
+            element.normalized ? GL_TRUE : GL_FALSE,
+            vb_layout.getStride(),
+            reinterpret_cast<const void*>(element.offset)
+        );
+        ++vertex_buffer_index_;
     }
 
     vertex_buffers_.push_back(std::move(p_vertex_buffer));

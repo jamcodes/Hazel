@@ -26,6 +26,7 @@ target_link_libraries(Hazel
         glad
         glm::glm
         stb::stb
+        # stdc++fs
     PRIVATE
         HzBuildFlags
 )

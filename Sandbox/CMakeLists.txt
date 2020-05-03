@@ -36,6 +36,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy
         $<TARGET_FILE:Hazel>
         $<TARGET_FILE_DIR:Sandbox>
+    DEPENDS Hazel
     VERBATIM
     USES_TERMINAL
     COMMAND_EXPAND_LISTS
@@ -45,6 +46,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${Sandbox_SOURCE_DIR}/assets
         $<TARGET_FILE_DIR:Sandbox>/assets
+    DEPENDS Hazel
     VERBATIM
     USES_TERMINAL
     COMMAND_EXPAND_LISTS

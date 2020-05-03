@@ -35,8 +35,8 @@ OpenGLIndexBuffer::OpenGLIndexBuffer(const std::uint32_t* indices, const std::ui
     : count_{size}
 {
     glCreateBuffers(1, &renderer_id_);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderer_id_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size * sizeof(*indices), indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, renderer_id_);
+    glBufferData(GL_ARRAY_BUFFER, size * sizeof(*indices), indices, GL_STATIC_DRAW);
 }
 
 OpenGLIndexBuffer::~OpenGLIndexBuffer()

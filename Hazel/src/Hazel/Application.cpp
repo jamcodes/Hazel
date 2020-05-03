@@ -23,13 +23,13 @@ inline void poll_keys_status(std::chrono::milliseconds interval)
     static auto last_report_time{std::chrono::steady_clock::now()};
     if (std::chrono::steady_clock().now() - last_report_time >= interval) {
         auto const lmb_status{
-            Hazel::Input::isMouseButtonPressed(toInteger<int>(MouseButton::Left))};
+            Hazel::Input::isMouseButtonPressed(MouseButton::Left)};
         auto const rmb_status{
-            Hazel::Input::isMouseButtonPressed(toInteger<int>(MouseButton::Right))};
+            Hazel::Input::isMouseButtonPressed(MouseButton::Right)};
         auto const [mouse_x, mouse_y]{Hazel::Input::getMousePosition()};
-        auto const ctrl_status{Hazel::Input::isKeyPressed(toInteger<int>(KeyCode::Left_control))};
-        auto const alt_status{Hazel::Input::isKeyPressed(toInteger<int>(KeyCode::Left_alt))};
-        auto const shift_status{Hazel::Input::isKeyPressed(toInteger<int>(KeyCode::Left_shift))};
+        auto const ctrl_status{Hazel::Input::isKeyPressed(KeyCode::Left_control)};
+        auto const alt_status{Hazel::Input::isKeyPressed(KeyCode::Left_alt)};
+        auto const shift_status{Hazel::Input::isKeyPressed(KeyCode::Left_shift)};
         HZ_CORE_INFO("LMB: {0}, RMB: {1}, Pos: {{{2},{3}}}", lmb_status, rmb_status, mouse_x,
                      mouse_y);
         HZ_CORE_INFO("CTRL: {0}, ALT: {1}, SHIFT: {2}", ctrl_status, alt_status, shift_status);
@@ -111,7 +111,7 @@ void Application::run()
         }
 
         // TODO: "Preaction - postaction" style code, refactor the begin/end
-        // it should probably be called from within onImGuiRender
+        // Introduce a scope guard?
         imgui_layer_->begin();
         for (auto& layer : layerStack_) {
             layer->onImGuiRender();
