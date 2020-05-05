@@ -164,7 +164,7 @@ public:
 private:
     void initRenderer() noexcept
     {
-        tr_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>(vertex_src, fragment_src);
+        tr_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>("VertexPosColor", vertex_src, fragment_src);
         tr_vertex_array_ = Hazel::VertexArray::create();
         // clang-format off
         constexpr std::array<float, 3 * 7> tr_vertices{
@@ -185,7 +185,7 @@ private:
         auto tr_index_buffer = Hazel::IndexBuffer::create(tr_indices);
         tr_vertex_array_->setIndexBuffer(std::move(tr_index_buffer));
 
-        sq_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>(flat_color_vertex_src, flat_color_fragment_src);
+        sq_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>("FlatColor", flat_color_vertex_src, flat_color_fragment_src);
         sq_vertex_array_ = Hazel::VertexArray::create();
         // clang-format off
         constexpr std::array<float, 5 * 4> sq_vertices{
@@ -239,6 +239,9 @@ private:
             camera_.setRotation(camera_rotation_);
         }
     }
+
+
+    Hazel::ShaderLibrary shader_library_;
 
     // Temporary - should be generic Hazel::Shader
     Hazel::Scope<Hazel::OpenGLShader> tr_shader_;

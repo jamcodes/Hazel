@@ -5,13 +5,11 @@
 
 #include <Hazel/Renderer/Shader.h>
 
-#include <unordered_map>
-
 namespace Hazel {
 class OpenGLShader : public Shader {
 public:
     OpenGLShader(const std::string& filepath);
-    OpenGLShader(const std::string& vertex_src, const std::string& fragment_src);
+    OpenGLShader(const std::string& name, const std::string& vertex_src, const std::string& fragment_src);
     OpenGLShader(OpenGLShader const&) noexcept = default;
     OpenGLShader(OpenGLShader&&) noexcept = default;
     OpenGLShader& operator=(OpenGLShader const&) noexcept = default;
@@ -20,6 +18,8 @@ public:
 
     void bind() const override;
     void unbind() const override;
+
+    const std::string& getName() const noexcept override { return name_; }
 
     void uploadUniform(std::string const& name, int value) const;
 
@@ -37,5 +37,6 @@ private:
     void compile(const std::unordered_map<GLenum, std::string>& shader_src);
 
     std::uint32_t renderer_id_;
+    std::string name_;
 };
 }  // namespace Hazel

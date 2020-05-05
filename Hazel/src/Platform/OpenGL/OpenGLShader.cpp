@@ -31,10 +31,20 @@ OpenGLShader::OpenGLShader(const std::string& filepath)
     const std::string source = readFile(filepath);
     const auto shader_sources{preProcess(source)};
     compile(shader_sources);
+
+    // get name from filepath
+    auto last_slash{filepath.find_last_of("/\\")};
+    last_slash = last_slash == std::string::npos ? 0 : last_slash + 1;
+    auto const last_dot{filepath.rfind('.')};
+    auto count{last_dot == std::string::npos ? filepath.size() - last_slash
+                                             : last_dot - last_slash};
+    name_ = filepath.substr(last_slash, count);
 }
 
-OpenGLShader::OpenGLShader(const std::string& vertex_src, const std::string& fragment_src)
-// TODO: Make this noexcept conditionally -> if ShaderAssertHandler::handle is nothrow
+OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertex_src,
+                           const std::string& fragment_src)
+    // TODO: Make this noexcept conditionally -> if ShaderAssertHandler::handle is nothrow
+    : name_{name}
 {
     std::unordered_map<GLenum, std::string> sources;
     sources.insert({GL_VERTEX_SHADER, vertex_src});
@@ -93,12 +103,13 @@ std::unordered_map<GLenum, std::string> OpenGLShader::preProcess(const std::stri
 
 void OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& shader_src)
 {
-    std::vector<GLenum> gl_shader_ids(shader_src.size());
-    // GLuint program{glCreateProgram()};
+    std::array<GLenum, 4> gl_shader_ids;
+    HZ_ASSERT(shader_src.size() <= gl_shader_ids.size(), ShaderAssertHandler, Hazel::Enforce,
+              "Shader ID buffer overflow. Allocate a larger buffer");
+    // std::vector<GLenum> gl_shader_ids{};
+    // gl_shader_ids.reserve(shader_src.size());
+    auto index{0};
     for (const auto& [type, src] : shader_src) {
-        // GLenum type{kv.first};
-        // const std::string& src{kv.second};
-
         GLuint shader = glCreateShader(type);
 
         const GLchar* gl_src = static_cast<const GLchar*>(src.c_str());
@@ -126,23 +137,26 @@ void OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& shader
             break;
         }
         // attach the shader to our program
-        // glAttachShader(program, shader);
-        gl_shader_ids.push_back(std::move(shader));
+        gl_shader_ids[index++] = std::move(shader);
     }
+
+    // maybe this?
+    // const auto foreach_shader =
+    //     [&shaders = std::as_const(gl_shader_ids), idx=index](auto&& func) noexcept {
+    //         for (auto i{0}; i < idx; ++i) {
+    //             func(shaders[i]);
+    //         }
+    //     };
+    // foreach_shader([p=program](auto const id) noexcept {glAttachShader(p, id);});
 
     // Vertex and fragment shaders are successfully compiled.
     // Now time to link them together into a program.
     // Get a program object.
     const GLuint program{glCreateProgram()};
-    // renderer_id_ = program;
-
     // Attach our shaders to our program
-    for (auto id : gl_shader_ids) {
-        glAttachShader(program, id);
+    for (auto i{0}; i < index; ++i) {
+        glAttachShader(program, gl_shader_ids[i]);
     }
-    // glAttachShader(program, vertex_shader);
-    // glAttachShader(program, fragment_shader);
-
     // Link our program
     glLinkProgram(program);
 
@@ -160,12 +174,9 @@ void OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& shader
         // We don't need the program anymore.
         glDeleteProgram(program);
         // Don't leak shaders either.
-        for (auto id : gl_shader_ids) {
-            glDeleteShader(id);
+        for (auto i{0}; i < index; ++i) {
+            glDeleteShader(gl_shader_ids[i]);
         }
-        // glDeleteShader(vertex_shader);
-        // glDeleteShader(fragment_shader);
-
         // Use the info_log as you see fit.
 
         // In this simple program, we'll just leave
@@ -176,11 +187,9 @@ void OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& shader
     }
 
     // Always detach shaders after a successful link.
-    for (auto id : gl_shader_ids) {
-            glDetachShader(program ,id);
+    while (index) {
+        glDetachShader(program, gl_shader_ids[--index]);
     }
-    // glDetachShader(program, vertex_shader);
-    // glDetachShader(program, fragment_shader);
     renderer_id_ = program;
 }
 
