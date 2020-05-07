@@ -45,7 +45,8 @@ namespace Hazel {
         EVENT_CLASS_TYPE(MouseScrolled)
         EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
     private:
-        float xOffset_, yOffset_;
+        float xOffset_;
+        float yOffset_;
     };
 
     class HAZEL_API MouseButtonEvent : public Event

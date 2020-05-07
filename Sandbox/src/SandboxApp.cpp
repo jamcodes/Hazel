@@ -1,6 +1,6 @@
 #include <Hazel.h>
-
 #include <imgui/imgui.h>
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -92,7 +92,7 @@ const std::string flat_color_fragment_src(R"(
 
 // const std::string texture_shader_fragment_src(R"(
 //     #version 450 core
-    
+
 //     layout(location = 0) out vec4 color;
 
 //     in vec2 v_tex_coord;
@@ -108,7 +108,13 @@ const std::string flat_color_fragment_src(R"(
 
 class ExampleLayer : public Hazel::Layer {
 public:
-    ExampleLayer() : Layer{"ExampleLayer"}, camera_{-1.6f, 1.6f, -0.9f, 0.9f} { initRenderer(); }
+    ExampleLayer()
+    : Layer{"ExampleLayer"}
+    // , camera_controller_{-1.6f, 1.6f, -0.9f, 0.9f}
+    , camera_controller_{1280.0f/720.0f, true}
+    {
+        initRenderer();
+    }
 
     ~ExampleLayer() = default;
     ExampleLayer& operator=(ExampleLayer&&) = delete;
@@ -119,12 +125,12 @@ public:
     void onUpdate(float const time_delta_seconds) override
     {
         HZ_TRACE("time_delta_seconds = {}", time_delta_seconds);
-        cameraMove(time_delta_seconds);
+        camera_controller_.onUpdate(time_delta_seconds);
 
         Hazel::RenderCommand::setClearColor({0.1f, 0.1f, 0.1f, 1});
         Hazel::RenderCommand::clear();
 
-        Hazel::Renderer::beginScene(camera_);
+        Hazel::Renderer::beginScene(camera_controller_.getCamera());
 
         const glm::mat4 scale{glm::scale(glm::mat4{1.0f}, glm::vec3{0.1f})};
 
@@ -139,12 +145,14 @@ public:
             }
         }
 
-        // Hazel::Renderer::submit(*sq_shader_, *sq_vertex_array_, glm::scale(glm::mat4{1.0f}, glm::vec3{1.5f}));
+        // Hazel::Renderer::submit(*sq_shader_, *sq_vertex_array_, glm::scale(glm::mat4{1.0f},
+        // glm::vec3{1.5f}));
         texture_->bind();
-        Hazel::Renderer::submit(*texture_shader_, *sq_vertex_array_, glm::scale(glm::mat4{1.0f}, glm::vec3{1.5f}));
+        Hazel::Renderer::submit(*texture_shader_, *sq_vertex_array_,
+                                glm::scale(glm::mat4{1.0f}, glm::vec3{1.5f}));
         texture_cherno_logo_->bind();
-        Hazel::Renderer::submit(*texture_shader_, *sq_vertex_array_, glm::scale(glm::mat4{1.0f}, glm::vec3{1.5f}));
-
+        Hazel::Renderer::submit(*texture_shader_, *sq_vertex_array_,
+                                glm::scale(glm::mat4{1.0f}, glm::vec3{1.5f}));
 
         // Triangle
         // Hazel::Renderer::submit(*tr_shader_, *tr_vertex_array_);
@@ -152,7 +160,10 @@ public:
         Hazel::Renderer::endScene();
     }
 
-    void onEvent(Hazel::Event&) override {}
+    void onEvent(Hazel::Event& e) override
+    {
+        camera_controller_.onEvent(e);
+    }
 
     void onImGuiRender() override
     {
@@ -164,7 +175,8 @@ public:
 private:
     void initRenderer() noexcept
     {
-        tr_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>("VertexPosColor", vertex_src, fragment_src);
+        tr_shader_ =
+            Hazel::Shader::create<Hazel::OpenGLShader>("VertexPosColor", vertex_src, fragment_src);
         tr_vertex_array_ = Hazel::VertexArray::create();
         // clang-format off
         constexpr std::array<float, 3 * 7> tr_vertices{
@@ -185,7 +197,8 @@ private:
         auto tr_index_buffer = Hazel::IndexBuffer::create(tr_indices);
         tr_vertex_array_->setIndexBuffer(std::move(tr_index_buffer));
 
-        sq_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>("FlatColor", flat_color_vertex_src, flat_color_fragment_src);
+        sq_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>("FlatColor", flat_color_vertex_src,
+                                                                flat_color_fragment_src);
         sq_vertex_array_ = Hazel::VertexArray::create();
         // clang-format off
         constexpr std::array<float, 5 * 4> sq_vertices{
@@ -204,42 +217,14 @@ private:
         constexpr std::array<unsigned int, 6> sq_indices{0, 1, 2, 2, 3, 0};
         sq_vertex_array_->setIndexBuffer(Hazel::IndexBuffer::create(sq_indices));
 
-        // texture_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>(texture_shader_vertex_src, texture_shader_fragment_src);
+        // texture_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>(texture_shader_vertex_src,
+        // texture_shader_fragment_src);
         texture_shader_ = Hazel::Shader::create<Hazel::OpenGLShader>("assets/shaders/Texture.glsl");
         texture_ = Hazel::Texture2D::create("assets/textures/Checkerboard.png");
         texture_cherno_logo_ = Hazel::Texture2D::create("assets/textures/ChernoLogo.png");
         texture_shader_->bind();
         texture_shader_->uploadUniform("u_texture", 0);
     }
-
-    void cameraMove(float const time_delta_seconds) noexcept
-    {
-        if (not Hazel::Input::isKeyPressed(Hazel::KeyCode::Left_control)) {
-            if (Hazel::Input::isKeyPressed(Hazel::KeyCode::W)) {
-                camera_position_.y += camera_move_speed_ * time_delta_seconds;
-            }
-            if (Hazel::Input::isKeyPressed(Hazel::KeyCode::S)) {
-                camera_position_.y -= camera_move_speed_ * time_delta_seconds;
-            }
-            if (Hazel::Input::isKeyPressed(Hazel::KeyCode::A)) {
-                camera_position_.x -= camera_move_speed_ * time_delta_seconds;
-            }
-            if (Hazel::Input::isKeyPressed(Hazel::KeyCode::D)) {
-                camera_position_.x += camera_move_speed_ * time_delta_seconds;
-            }
-            camera_.setPosition(camera_position_);
-        }
-        else {
-            if (Hazel::Input::isKeyPressed(Hazel::KeyCode::A)) {
-                camera_rotation_ += camera_rotation_speed_ * time_delta_seconds;
-            }
-            else if (Hazel::Input::isKeyPressed(Hazel::KeyCode::D)) {
-                camera_rotation_ -= camera_rotation_speed_ * time_delta_seconds;
-            }
-            camera_.setRotation(camera_rotation_);
-        }
-    }
-
 
     Hazel::ShaderLibrary shader_library_;
 
@@ -256,13 +241,13 @@ private:
     Hazel::Ref<Hazel::Texture2D> texture_;
     Hazel::Ref<Hazel::Texture2D> texture_cherno_logo_;
 
-    Hazel::OrtographicCamera camera_;
+    Hazel::OrtographicCameraController camera_controller_;
 
-    glm::vec3 camera_position_{0.0f};
-    float camera_rotation_{0.0f};
+    // glm::vec3 camera_position_{0.0f};
+    // float camera_rotation_{0.0f};
 
-    static constexpr float camera_move_speed_{1.0f};
-    static constexpr float camera_rotation_speed_{90.0f};
+    // static constexpr float camera_move_speed_{1.0f};
+    // static constexpr float camera_rotation_speed_{90.0f};
 };
 
 class Sandbox : public Hazel::Application {

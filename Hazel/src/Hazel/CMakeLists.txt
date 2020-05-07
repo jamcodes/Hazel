@@ -19,6 +19,8 @@ target_sources(Hazel
         MouseButtonCodes.h
         Window.h
         Timestep.h
+        OrtographicCameraController.h
+        OrtographicCameraController.cpp
 )
 add_subdirectory(Events)
 add_subdirectory(ImGui)

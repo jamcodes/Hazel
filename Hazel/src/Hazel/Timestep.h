@@ -3,6 +3,7 @@
 #include <chrono>
 
 namespace Hazel {
+
 class Timestep {
 public:
     using clock_type = std::chrono::system_clock;
@@ -24,4 +25,5 @@ public:
 private:
     time_point_type time_{clock_type::now()};
 };
+
 }  // namespace Hazel

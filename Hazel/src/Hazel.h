@@ -11,6 +11,7 @@
 #include "Hazel/MouseButtonCodes.h"
 #include "Hazel/AssertionHandler.h"
 #include "Hazel/Timestep.h"
+#include "Hazel/OrtographicCameraController.h"
 
 // ---Events--------------------------
 #include "Hazel/Events/Event.h"

@@ -7,6 +7,8 @@ class OrtographicCamera {
 public:
     OrtographicCamera(float left, float right, float bottom, float top);
 
+    void setProjection(float left, float right, float bottom, float top) noexcept;
+
     void setPosition(glm::vec3 const& position)
     {
         position_ = position;
