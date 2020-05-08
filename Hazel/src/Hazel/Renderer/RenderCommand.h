@@ -5,9 +5,11 @@
 namespace Hazel {
 class RenderCommand {
 public:
-    static inline void init()
+    static inline void init() { s_renderer_api_->init(); }
+
+    static inline void setViewport(unsigned x, unsigned y, unsigned width, unsigned height) noexcept
     {
-        s_renderer_api_->init();
+        s_renderer_api_->setViewport(x, y, width, height);
     }
 
     static inline void setClearColor(glm::vec4 const& color)

@@ -12,6 +12,8 @@ class Renderer {
 public:
     static void init();
 
+    static void onWindowResize(unsigned width, unsigned height) noexcept;
+
     static void beginScene(OrtographicCamera const&);
     static void endScene();
 

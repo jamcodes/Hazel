@@ -36,16 +36,15 @@ public:
 
 private:
     bool onWindowClose(WindowCloseEvent& e) noexcept;
+    bool onWindowResize(WindowResizeEvent& e) noexcept;
     void initGLData() noexcept;
 
     std::unique_ptr<Window> window_;
     bool running_{true};
+    Timestep last_frame_time_;
+    bool minimized_{false};
     ImGuiLayer* imgui_layer_;
     LayerStack layerStack_;
-
-    // std::chrono::system_clock::time_point last_frame_time_;
-    Timestep last_frame_time_;
-    
 
     // --- static member data
     static Application* instance_;

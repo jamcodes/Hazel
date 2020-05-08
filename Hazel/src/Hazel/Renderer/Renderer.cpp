@@ -11,6 +11,11 @@ void Renderer::init()
     RenderCommand::init();
 }
 
+void Renderer::onWindowResize(unsigned width, unsigned height) noexcept
+{
+    RenderCommand::setViewport(0, 0, width, height);
+}
+
 void Renderer::beginScene(OrtographicCamera const& camera)
 {
     s_scene_data_->view_projection = camera.getViewProjection();
