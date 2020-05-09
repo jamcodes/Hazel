@@ -2,15 +2,17 @@
 
 // For use by Hazel applications
 
-#include "Hazel/Application.h"
+// ---Core--------------------------
+#include "Hazel/Core/Application.h"
+#include "Hazel/Core/Input.h"
+#include "Hazel/Core/KeyCodes.h"
+#include "Hazel/Core/Layer.h"
+#include "Hazel/Core/Log.h"
+#include "Hazel/Core/MouseButtonCodes.h"
+#include "Hazel/Core/AssertionHandler.h"
+#include "Hazel/Core/Timestep.h"
+
 #include "Hazel/ImGui/ImGuiLayer.h"
-#include "Hazel/Input.h"
-#include "Hazel/KeyCodes.h"
-#include "Hazel/Layer.h"
-#include "Hazel/Log.h"
-#include "Hazel/MouseButtonCodes.h"
-#include "Hazel/AssertionHandler.h"
-#include "Hazel/Timestep.h"
 #include "Hazel/OrtographicCameraController.h"
 
 // ---Events--------------------------
@@ -33,7 +35,7 @@
 // -----------------------------------
 
 // ---Entry Point---------------------
-#include "Hazel/EntryPoint.h"
+#include "Hazel/Core/EntryPoint.h"
 // -----------------------------------
 
 // --- Temporary ---------------------

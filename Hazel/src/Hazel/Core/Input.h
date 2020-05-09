@@ -2,9 +2,9 @@
 
 #include <utility>
 
-#include "Hazel/Core.h"
-#include "Hazel/KeyCodes.h"
-#include "Hazel/MouseButtonCodes.h"
+#include "Hazel/Core/Core.h"
+#include "Hazel/Core/KeyCodes.h"
+#include "Hazel/Core/MouseButtonCodes.h"
 
 namespace Hazel {
 class HAZEL_API Input {

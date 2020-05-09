@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EnumOperators.h"
+#include "Hazel/Core/EnumOperators.h"
 
 namespace Hazel {
 enum class KeyCode;

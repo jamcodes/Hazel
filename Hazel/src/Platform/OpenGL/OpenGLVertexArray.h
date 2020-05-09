@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Hazel/AssertionHandler.h"
+#include "Hazel/Core/AssertionHandler.h"
 
 #include "Hazel/Renderer/Buffer.h"
 #include "Hazel/Renderer/VertexArray.h"

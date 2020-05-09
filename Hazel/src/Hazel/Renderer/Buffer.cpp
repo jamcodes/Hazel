@@ -2,7 +2,7 @@
 
 #include "Renderer.h"
 
-#include "Hazel/AssertionHandler.h"
+#include "Hazel/Core/AssertionHandler.h"
 #include "Platform/OpenGL/OpenGLBuffer.h"
 
 namespace Hazel {

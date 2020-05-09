@@ -5,7 +5,7 @@
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/Events/KeyEvent.h"
 #include "Hazel/Events/MouseEvent.h"
-#include "Hazel/AssertionHandler.h"
+#include "Hazel/Core/AssertionHandler.h"
 
 #include "Platform/OpenGL/OpenGLContext.h"
 

@@ -1,8 +1,8 @@
 #include "OpenGLContext.h"
 
-#include "Hazel/AssertionHandler.h"
-#include "Hazel/Core.h"
-#include "Hazel/Log.h"
+#include "Hazel/Core/AssertionHandler.h"
+#include "Hazel/Core/Core.h"
+#include "Hazel/Core/Log.h"
 
 #include <glad/glad.h>
 

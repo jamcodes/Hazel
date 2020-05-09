@@ -1,10 +1,7 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-
-#include "Hazel/Core.h"
-#include "Layer.h"
+#include "Hazel/Core/Core.h"
+#include "Hazel/Core/Layer.h"
 
 namespace Hazel {
 

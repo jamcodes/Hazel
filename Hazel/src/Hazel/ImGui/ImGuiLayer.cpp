@@ -1,6 +1,6 @@
 #include "ImGuiLayer.h"
 
-#include "Hazel/Application.h"
+#include "Hazel/Core/Application.h"
 
 #include "imgui/imgui.h"
 #include "imgui/examples/imgui_impl_glfw.h"

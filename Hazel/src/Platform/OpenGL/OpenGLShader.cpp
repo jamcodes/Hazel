@@ -1,14 +1,14 @@
 #include "OpenGLShader.h"
 
-#include <glad/glad.h>
-
 #include <fstream>
-#include <glm/gtc/type_ptr.hpp>
 #include <string_view>
 #include <vector>
 
-#include "Hazel/AssertionHandler.h"
-#include "Hazel/Log.h"
+#include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "Hazel/Core/AssertionHandler.h"
+#include "Hazel/Core/Log.h"
 
 namespace {
 struct ShaderAssertHandler final : Hazel::CoreLoggingHandler, Hazel::Enforce {

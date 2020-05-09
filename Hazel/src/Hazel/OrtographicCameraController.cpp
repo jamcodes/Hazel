@@ -1,7 +1,7 @@
 #include "OrtographicCameraController.h"
 
-#include <Hazel/Input.h>
-#include <Hazel/KeyCodes.h>
+#include <Hazel/Core/Input.h>
+#include <Hazel/Core/KeyCodes.h>
 
 namespace Hazel {
 OrtographicCameraController::OrtographicCameraController(float aspect_ratio, bool rotation)

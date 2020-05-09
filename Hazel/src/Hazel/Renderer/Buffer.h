@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <type_traits>
 
-#include "Hazel/AssertionHandler.h"
-#include "Hazel/Core.h"
+#include "Hazel/Core/AssertionHandler.h"
+#include "Hazel/Core/Core.h"
 
 namespace Hazel {
 

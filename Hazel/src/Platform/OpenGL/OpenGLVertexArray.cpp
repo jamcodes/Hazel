@@ -1,6 +1,6 @@
 #include "OpenGLVertexArray.h"
 
-#include "Hazel/AssertionHandler.h"
+#include "Hazel/Core/AssertionHandler.h"
 
 #include <glad/glad.h>
 

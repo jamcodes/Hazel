@@ -3,7 +3,7 @@
 #include <memory>
 #include <utility>
 
-#include "Assertion.h"
+#include "Hazel/Core/Assertion.h"
 
 // Building Hazel as a dynamic library doesn't work at the moment
 // not quite sure why - IMGUI symbols are not exported

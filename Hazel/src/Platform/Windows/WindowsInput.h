@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Hazel/Input.h"
 #include <GLFW/glfw3.h>
+
+#include "Hazel/Core/Input.h"
 
 namespace Hazel {
 class WindowsInput : public Input {

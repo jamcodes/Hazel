@@ -1,11 +1,11 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include <Hazel/Events/ApplicationEvent.h>
 #include <Hazel/Events/MouseEvent.h>
 #include <Hazel/Renderer/OrtographicCamera.h>
-#include <Hazel/Timestep.h>
-
-#include <glm/glm.hpp>
+#include <Hazel/Core/Timestep.h>
 
 namespace Hazel {
 

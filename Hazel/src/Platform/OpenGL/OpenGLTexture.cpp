@@ -5,7 +5,7 @@
 #include <glad/glad.h>
 #include <stb/stb_image.h>
 
-#include "Hazel/AssertionHandler.h"
+#include "Hazel/Core/AssertionHandler.h"
 
 namespace Hazel {
 

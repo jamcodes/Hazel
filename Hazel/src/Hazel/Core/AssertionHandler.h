@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Assertion.h"
-#include "Log.h"
+#include "Hazel/Core/Assertion.h"
+#include "Hazel/Core/Log.h"
 
 #if defined(_MSC_VER)
 #define DEBUG_TRAP() __debugbreak()
