@@ -34,10 +34,6 @@
 #include "Hazel/Renderer/Texture.h"
 // -----------------------------------
 
-// ---Entry Point---------------------
-#include "Hazel/Core/EntryPoint.h"
-// -----------------------------------
-
 // --- Temporary ---------------------
 #include "Platform/OpenGL/OpenGLShader.h"
 // -----------------------------------

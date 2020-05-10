@@ -1,0 +1,29 @@
+#pragma once
+
+#include "Hazel.h"
+
+
+namespace Sandbox
+{
+
+class Sandbox2D : public Hazel::Layer {
+public:
+    Sandbox2D();
+    ~Sandbox2D() override = default;
+
+    void onAttach() override;
+    void onDetach() override;
+    void onUpdate(float time_delta_seconds) override;
+    void onImGuiRender() override;
+    void onEvent(Hazel::Event&) override;
+
+private:
+    Hazel::OrtographicCameraController camera_controller_;
+
+    // temporary
+    Hazel::Ref<Hazel::VertexArray> sq_vertex_array_;
+    Hazel::Ref<Hazel::OpenGLShader> flat_color_shader_;
+    glm::vec4 sq_color_{0.2f, 0.3f, 0.8f, 1.0f};
+};
+
+} // namespace Sandbox

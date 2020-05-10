@@ -14,7 +14,7 @@ Scope<VertexArray> VertexArray::create()
         HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce,
                   "RendererAPI::API::None is currently not supported");
     case RendererAPI::API::OpenGL:
-        return std::make_unique<OpenGLVertexArray>();
+        return makeScope<OpenGLVertexArray>();
     default:
         HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
     }

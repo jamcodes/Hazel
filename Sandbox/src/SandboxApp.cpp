@@ -1,4 +1,8 @@
 #include <Hazel.h>
+#include <Hazel/Core/EntryPoint.h>
+
+#include "Sandbox2D.h"
+
 #include <imgui/imgui.h>
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -72,39 +76,10 @@ const std::string flat_color_fragment_src(R"(
     }
 )");
 
-// const std::string texture_shader_vertex_src(R"(
-//     #version 450 core
-
-//     layout(location = 0) in vec3 a_position;
-//     layout(location = 1) in vec2 a_tex_coord;
-
-//     uniform mat4 u_view_projection;
-//     uniform mat4 u_transform;
-
-//     out vec2 v_tex_coord;
-
-//     void main()
-//     {
-//         v_tex_coord = a_tex_coord;
-//         gl_Position = u_view_projection * u_transform * vec4(a_position, 1.0);
-//     }
-// )");
-
-// const std::string texture_shader_fragment_src(R"(
-//     #version 450 core
-
-//     layout(location = 0) out vec4 color;
-
-//     in vec2 v_tex_coord;
-
-//     uniform sampler2D u_texture;
-
-//     void main()
-//     {
-//         color = texture(u_texture, v_tex_coord);
-//     }
-// )");
 }  // namespace
+
+namespace Sandbox
+{
 
 class ExampleLayer : public Hazel::Layer {
 public:
@@ -252,9 +227,14 @@ private:
 
 class Sandbox : public Hazel::Application {
 public:
-    Sandbox() { pushLayer(std::make_unique<ExampleLayer>()); }
+    Sandbox() {
+        // pushLayer(std::make_unique<ExampleLayer>());
+        pushLayer(std::make_unique<::Sandbox::Sandbox2D>());
+    }
     ~Sandbox() = default;
     Sandbox& operator=(Sandbox&&) noexcept = delete;
 };
 
-Hazel::Application* Hazel::CreateApplication() { return new Sandbox(); }
+} // namespace Sandbox
+
+Hazel::Application* Hazel::CreateApplication() { return new Sandbox::Sandbox(); }
