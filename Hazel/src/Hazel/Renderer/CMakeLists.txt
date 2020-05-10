@@ -10,6 +10,8 @@ target_sources(${PROJECT_NAME}
         RenderCommand.h
         Renderer.cpp
         Renderer.h
+        Renderer2D.h
+        Renderer2D.cpp
         RendererAPI.cpp
         RendererAPI.h
         Shader.cpp

@@ -36,7 +36,9 @@ void Sandbox2D::onAttach()
         Hazel::Shader::create<Hazel::OpenGLShader>("assets/shaders/FlatColor.glsl");
 }
 
-void Sandbox2D::onDetach() {}
+void Sandbox2D::onDetach()
+{
+}
 
 void Sandbox2D::onUpdate(float time_delta_seconds)
 {
@@ -46,17 +48,20 @@ void Sandbox2D::onUpdate(float time_delta_seconds)
     Hazel::RenderCommand::setClearColor({0.1f, 0.1f, 0.1f, 1});
     Hazel::RenderCommand::clear();
 
-    Hazel::Renderer::beginScene(camera_controller_.getCamera());
+    // Hazel::Renderer::beginScene(camera_controller_.getCamera());
 
-    const glm::mat4 scale{glm::scale(glm::mat4{1.0f}, glm::vec3{0.1f})};
+    // flat_color_shader_->bind();
+    // flat_color_shader_->uploadUniform("u_color", sq_color_);
 
-    flat_color_shader_->bind();
-    flat_color_shader_->uploadUniform("u_color", sq_color_);
+    // Hazel::Renderer::submit(*flat_color_shader_, *sq_vertex_array_,
+    //                         glm::scale(glm::mat4{1.0f}, glm::vec3{1.5f}));
 
-    Hazel::Renderer::submit(*flat_color_shader_, *sq_vertex_array_,
-                            glm::scale(glm::mat4{1.0f}, glm::vec3{1.5f}));
+    // Hazel::Renderer::endScene();
 
-    Hazel::Renderer::endScene();
+    Hazel::Renderer2D::beginScene(camera_controller_.getCamera());
+    // Hazel::Renderer2D::drawQuad({0.0f, 0.0f}, {1.0f, 1.0f}, {0.8f, 0.2f, 0.3f, 1.0f});
+    Hazel::Renderer2D::drawQuad({0.0f, 0.0f}, {1.0f, 1.0f}, sq_color_);
+    Hazel::Renderer2D::endScene();
 }
 
 void Sandbox2D::onImGuiRender()
