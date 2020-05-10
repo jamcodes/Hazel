@@ -14,7 +14,7 @@ public:
     using const_reverse_iterator = typename std::vector<value_type>::const_reverse_iterator;
 
     LayerStack() = default;
-    ~LayerStack() = default;
+    ~LayerStack();
     LayerStack& operator=(LayerStack&&) noexcept = delete;
 
     void pushLayer(value_type);

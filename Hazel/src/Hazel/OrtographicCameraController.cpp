@@ -14,16 +14,32 @@ OrtographicCameraController::OrtographicCameraController(float aspect_ratio, boo
 void OrtographicCameraController::onUpdate(float const time_delta_seconds) noexcept
 {
     if (Input::isKeyPressed(KeyCode::W)) {
-        camera_position_.y += camera_translation_speed_ * time_delta_seconds;
+        // camera_position_.y += camera_translation_speed_ * time_delta_seconds;
+        camera_position_.x +=
+            -sin(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
+        camera_position_.y +=
+            cos(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
     }
     if (Input::isKeyPressed(KeyCode::A)) {
-        camera_position_.x -= camera_translation_speed_ * time_delta_seconds;
+        // camera_position_.x -= camera_translation_speed_ * time_delta_seconds;
+        camera_position_.x -=
+            cos(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
+        camera_position_.y -=
+            sin(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
     }
     if (Input::isKeyPressed(KeyCode::D)) {
-        camera_position_.x += camera_translation_speed_ * time_delta_seconds;
+        // camera_position_.x += camera_translation_speed_ * time_delta_seconds;
+        camera_position_.x +=
+            cos(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
+        camera_position_.y +=
+            sin(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
     }
     if (Input::isKeyPressed(KeyCode::S)) {
-        camera_position_.y -= camera_translation_speed_ * time_delta_seconds;
+        // camera_position_.y -= camera_translation_speed_ * time_delta_seconds;
+        camera_position_.x -=
+            -sin(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
+        camera_position_.y -=
+            cos(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
     }
     camera_.setPosition(camera_position_);
 
@@ -34,6 +50,14 @@ void OrtographicCameraController::onUpdate(float const time_delta_seconds) noexc
         else if (Input::isKeyPressed(KeyCode::E)) {
             camera_rotation_ -= camera_rotation_speed_ * time_delta_seconds;
         }
+
+        if (camera_rotation_ > 180.0f) {
+            camera_rotation_ -= 360.0f;
+        }
+        else if (camera_rotation_ <= -180.0f) {
+            camera_rotation_ += 360.0f;
+        }
+
         camera_.setRotation(camera_rotation_);
     }
 

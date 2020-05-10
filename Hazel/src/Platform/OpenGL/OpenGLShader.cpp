@@ -1,11 +1,11 @@
 #include "OpenGLShader.h"
 
+#include <glad/glad.h>
+
 #include <fstream>
+#include <glm/gtc/type_ptr.hpp>
 #include <string_view>
 #include <vector>
-
-#include <glad/glad.h>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "Hazel/Core/AssertionHandler.h"
 #include "Hazel/Core/Log.h"
@@ -79,22 +79,28 @@ std::unordered_map<GLenum, std::string> OpenGLShader::preProcess(const std::stri
 
     constexpr const char* type_token{"#type"};
     const auto type_token_length{std::strlen(type_token)};
-    auto pos{shader_src.find(type_token)};
+    auto pos{shader_src.find(type_token, 0)};  // Start of shader type declaration line
     while (pos != std::string::npos) {
+        // End of shader type declaration line
         const auto eol{shader_src.find_first_of("\r\n", pos)};
         HZ_ASSERT(eol != std::string::npos, ShaderAssertHandler, Hazel::Enforce, "Syntax error");
+        // Start of shader type name (after "#type " keyword)
         const auto begin{pos + type_token_length + 1};
         const auto type{shader_src.substr(begin, eol - begin)};
         HZ_ASSERT(shaderTypeFromString(type), ShaderAssertHandler, Hazel::Enforce,
                   "Invalid shader type");
 
+        // Start of shader code after shader type declaration line
         auto const next_line_pos = shader_src.find_first_not_of("\r\n", eol);
+        HZ_ASSERT(next_line_pos != std::string::npos, ShaderAssertHandler, Hazel::Enforce,
+                  "Syntax error");
+        // Start of next shader type declaration line
         pos = shader_src.find(type_token, next_line_pos);
+
         auto const insert_res = shader_sources.insert(
             {shaderTypeFromString(type),
-             shader_src.substr(next_line_pos,
-                               pos - (next_line_pos == std::string::npos ? shader_src.size() - 1
-                                                                         : next_line_pos))});
+             (pos == std::string::npos) ? shader_src.substr(next_line_pos)
+                                        : shader_src.substr(next_line_pos, pos - next_line_pos)});
         HZ_ASSERT(insert_res.second, ShaderAssertHandler, Hazel::Enforce,
                   "Multiple blocks of the same type in a single shader file");
     }
@@ -189,6 +195,7 @@ void OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& shader
     // Always detach shaders after a successful link.
     while (index) {
         glDetachShader(program, gl_shader_ids[--index]);
+        glDeleteShader(gl_shader_ids[index]);
     }
     renderer_id_ = program;
 }

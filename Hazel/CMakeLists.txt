@@ -38,7 +38,7 @@ target_compile_definitions(Hazel
         $<$<CONFIG:Debug>:HZ_DEBUG>
         $<$<CONFIG:RelWithDebInfo>:HZ_RELEASE>
         $<$<CONFIG:Release>:HZ_DIST>
-        $<$<BOOL:${BUILD_SHARED_LIBS}>:HZ_DYNAMIC_LINK>
+        $<$<BOOL:${BUILD_SHARED_LIBS}>:HZ_DYNAMIC_LINK=1>
     PRIVATE
         $<$<BOOL:${BUILD_SHARED_LIBS}>:HZ_BUILD_DLL>
     # Hacky solution to compiling Hazel with ImGui as a shared library

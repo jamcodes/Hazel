@@ -1,6 +1,14 @@
 #include "LayerStack.h"
 
 namespace Hazel {
+
+LayerStack::~LayerStack()
+{
+    for(auto& layer : layers_){
+        layer->onDetach();
+    }
+}
+    
 void LayerStack::pushLayer(value_type layer)
 {
     auto& l{*layer};
