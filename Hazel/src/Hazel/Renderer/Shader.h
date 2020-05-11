@@ -15,6 +15,15 @@ public:
 
     virtual void bind() const = 0;
     virtual void unbind() const = 0;
+
+    virtual void setUniform(std::string const& name, int value) = 0;
+    virtual void setUniform(std::string const& name, float value) = 0;
+    virtual void setUniform(std::string const& name, glm::vec2 const& values) = 0;
+    virtual void setUniform(std::string const& name, glm::vec3 const& values) = 0;
+    virtual void setUniform(std::string const& name, glm::vec4 const& values) = 0;
+    virtual void setUniform(std::string const& name, glm::mat3 const& uniform) = 0;
+    virtual void setUniform(std::string const& name, glm::mat4 const& uniform) = 0;
+
     virtual const std::string& getName() const noexcept = 0;
 
     template<typename ShaderT>

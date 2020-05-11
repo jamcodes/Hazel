@@ -18,16 +18,21 @@ public:
 
     void bind() const override;
     void unbind() const override;
+    void setUniform(std::string const& name, int value) override;
+    void setUniform(std::string const& name, float value) override;
+    void setUniform(std::string const& name, glm::vec2 const& values) override;
+    void setUniform(std::string const& name, glm::vec3 const& values) override;
+    void setUniform(std::string const& name, glm::vec4 const& values) override;
+    void setUniform(std::string const& name, glm::mat3 const& uniform) override;
+    void setUniform(std::string const& name, glm::mat4 const& uniform) override;
 
     const std::string& getName() const noexcept override { return name_; }
 
     void uploadUniform(std::string const& name, int value) const;
-
     void uploadUniform(std::string const& name, float value) const;
     void uploadUniform(std::string const& name, glm::vec2 const& values) const;
     void uploadUniform(std::string const& name, glm::vec3 const& values) const;
     void uploadUniform(std::string const& name, glm::vec4 const& values) const;
-
     void uploadUniform(std::string const& name, glm::mat3 const& uniform) const;
     void uploadUniform(std::string const& name, glm::mat4 const& uniform) const;
 

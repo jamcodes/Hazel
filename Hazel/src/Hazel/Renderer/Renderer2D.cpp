@@ -1,9 +1,10 @@
 #include "Renderer2D.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "Hazel/Renderer/RenderCommand.h"
 #include "Hazel/Renderer/Shader.h"
 #include "Hazel/Renderer/VertexArray.h"
-#include "Hazel/Renderer/RenderCommand.h"
-
 #include "Platform/OpenGL/OpenGLShader.h"
 
 namespace Hazel {
@@ -48,12 +49,9 @@ void Renderer2D::shutdown() { delete s_data; }
 
 void Renderer2D::beginScene(const OrtographicCamera& camera)
 {
-    // TODO: get rid of the dynamic_cast here
-    auto& gl_shader{*dynamic_cast<OpenGLShader*>(s_data->flat_color_shader.get())};
-    gl_shader.bind();
-    gl_shader.uploadUniform("u_view_projection", camera.getViewProjection());
-    // TODO: remove fixed transform
-    gl_shader.uploadUniform("u_transform", glm::mat4(1.0f));
+    auto& shader{*s_data->flat_color_shader.get()};
+    shader.bind();
+    shader.setUniform("u_view_projection", camera.getViewProjection());
 }
 
 void Renderer2D::endScene() {}
@@ -66,12 +64,18 @@ void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, cons
 
 void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 {
-    // TODO: get rid of the dynamic_cast here
-    auto& gl_shader{*dynamic_cast<OpenGLShader*>(s_data->flat_color_shader.get())};
-    gl_shader.bind();
-    gl_shader.uploadUniform("u_color", color);
-    s_data->vertex_array->bind();
-    RenderCommand::drawIndexed(*s_data->vertex_array);
+    auto& shader{*s_data->flat_color_shader};
+    shader.bind();
+    shader.setUniform("u_color", color);
+
+    // translation * rotation * scale   (note - no rotation here)
+    glm::mat4 transform{glm::translate(glm::mat4(1.0f), position) *
+                        glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f})};
+    shader.setUniform("u_transform", std::move(transform));
+
+    auto& vertex_array{*s_data->vertex_array};
+    vertex_array.bind();
+    RenderCommand::drawIndexed(vertex_array);
 }
 
 }  // namespace Hazel

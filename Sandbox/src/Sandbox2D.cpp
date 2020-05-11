@@ -59,8 +59,8 @@ void Sandbox2D::onUpdate(float time_delta_seconds)
     // Hazel::Renderer::endScene();
 
     Hazel::Renderer2D::beginScene(camera_controller_.getCamera());
-    // Hazel::Renderer2D::drawQuad({0.0f, 0.0f}, {1.0f, 1.0f}, {0.8f, 0.2f, 0.3f, 1.0f});
-    Hazel::Renderer2D::drawQuad({0.0f, 0.0f}, {1.0f, 1.0f}, sq_color_);
+    Hazel::Renderer2D::drawQuad({-1.0f, 0.0f}, {0.8f, 0.8f}, sq_color_);
+    Hazel::Renderer2D::drawQuad({0.5f, -0.5f}, {0.5f, 0.75f}, rect_color_);
     Hazel::Renderer2D::endScene();
 }
 
@@ -68,6 +68,7 @@ void Sandbox2D::onImGuiRender()
 {
     ImGui::Begin("Settings");
     ImGui::ColorEdit4("Square Color", glm::value_ptr(sq_color_));
+    ImGui::ColorEdit4("Rectangle Color", glm::value_ptr(rect_color_));
     ImGui::End();
 }
 

@@ -204,6 +204,42 @@ void OpenGLShader::bind() const { glUseProgram(renderer_id_); }
 
 void OpenGLShader::unbind() const { glUseProgram(0); }
 
+void OpenGLShader::setUniform(std::string const& name, int value)
+{
+    uploadUniform(name, value);
+}
+
+void OpenGLShader::setUniform(std::string const& name, float value)
+{
+    uploadUniform(name, value);
+}
+
+void OpenGLShader::setUniform(std::string const& name, glm::vec2 const& values)
+{
+    uploadUniform(name, values);
+}
+
+void OpenGLShader::setUniform(std::string const& name, glm::vec3 const& values)
+{
+    uploadUniform(name, values);
+}
+
+void OpenGLShader::setUniform(std::string const& name, glm::vec4 const& values)
+{
+    uploadUniform(name, values);
+}
+
+void OpenGLShader::setUniform(std::string const& name, glm::mat3 const& uniform)
+{
+    uploadUniform(name, uniform);
+}
+
+void OpenGLShader::setUniform(std::string const& name, glm::mat4 const& uniform)
+{
+    uploadUniform(name, uniform);
+}
+
+
 void OpenGLShader::uploadUniform(std::string const& name, int value) const
 {
     GLint location{glGetUniformLocation(renderer_id_, name.c_str())};
