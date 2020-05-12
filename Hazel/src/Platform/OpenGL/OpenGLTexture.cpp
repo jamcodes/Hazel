@@ -1,13 +1,25 @@
 #include "OpenGLTexture.h"
 
-#include <utility>
-
-#include <glad/glad.h>
 #include <stb/stb_image.h>
+
+#include <utility>
 
 #include "Hazel/Core/AssertionHandler.h"
 
 namespace Hazel {
+
+OpenGLTexture2D::OpenGLTexture2D(unsigned width, unsigned height)
+    : width_{width}, height_{height}, internal_format_{GL_RGBA8}, data_format_{GL_RGBA}
+{
+    glCreateTextures(GL_TEXTURE_2D, 1, &renderer_id_);
+    glTextureStorage2D(renderer_id_, 1, internal_format_, width_, height_);
+
+    glTextureParameteri(renderer_id_, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTextureParameteri(renderer_id_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTextureParameteri(renderer_id_, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(renderer_id_, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
 
 OpenGLTexture2D::OpenGLTexture2D(std::string path) : path_{std::move(path)}
 {
@@ -18,26 +30,32 @@ OpenGLTexture2D::OpenGLTexture2D(std::string path) : path_{std::move(path)}
     width_ = width;
     height_ = height;
 
-    HZ_ASSERT(channels == 3 || channels == 4, DefaultCoreHandler, Hazel::Enforce,
-              "Unsupported texture format");
+    HZ_ASSERT(channels == 3 || channels == 4, DefaultCoreHandler, Hazel::Enforce, "Unsupported texture format");
 
-    const GLenum internal_format = [channels]() noexcept {
-        if (channels == 4) { return GL_RGBA8; }
+    internal_format_ = [channels]() noexcept {
+        if (channels == 4) {
+            return GL_RGBA8;
+        }
         return GL_RGB8;
     }();
 
-    const GLenum data_format = [channels]() noexcept {
-        if (channels == 4) { return GL_RGBA; }
+    data_format_ = [channels]() noexcept {
+        if (channels == 4) {
+            return GL_RGBA;
+        }
         return GL_RGB;
     }();
 
     glCreateTextures(GL_TEXTURE_2D, 1, &renderer_id_);
-    glTextureStorage2D(renderer_id_, 1, internal_format, width_, height_);
+    glTextureStorage2D(renderer_id_, 1, internal_format_, width_, height_);
 
-    glTextureParameteri(renderer_id_, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(renderer_id_, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTextureParameteri(renderer_id_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-    glTextureSubImage2D(renderer_id_, 0, 0, 0, width_, height_, data_format, GL_UNSIGNED_BYTE, data);
+    glTextureParameteri(renderer_id_, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(renderer_id_, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTextureSubImage2D(renderer_id_, 0, 0, 0, width_, height_, data_format_, GL_UNSIGNED_BYTE, data);
 
     stbi_image_free(data);
 }
@@ -45,5 +63,13 @@ OpenGLTexture2D::OpenGLTexture2D(std::string path) : path_{std::move(path)}
 OpenGLTexture2D::~OpenGLTexture2D() noexcept { glDeleteTextures(1, &renderer_id_); }
 
 void OpenGLTexture2D::bind(std::uint32_t slot) const { glBindTextureUnit(slot, renderer_id_); }
+
+void OpenGLTexture2D::setData(const void* data, unsigned size) noexcept
+{
+    const auto bytes_per_pixel{data_format_ == GL_RGBA ? 4 : 3};
+    HZ_ASSERT(size == width_ * height_ * bytes_per_pixel, DefaultCoreHandler, Hazel::Enforce,
+              "Data must be entire texture");
+    glTextureSubImage2D(renderer_id_, 0, 0, 0, width_, height_, data_format_, GL_UNSIGNED_BYTE, data);
+}
 
 }  // namespace Hazel

@@ -15,6 +15,9 @@ public:
     virtual std::uint32_t getWidth() const noexcept = 0;
     virtual std::uint32_t getHeight() const noexcept = 0;
 
+    // upload a raw block of memory to the gpu
+    virtual void setData(const void*, unsigned size) = 0;
+
     virtual void bind(std::uint32_t slot = 0) const = 0;
 };
 
@@ -26,5 +29,8 @@ public:
     template<typename TextureT>
     static Ref<TextureT> create(const std::string& path);
     static Ref<Texture2D> create(const std::string& path);
+    template<typename TextureT>
+    static Ref<TextureT> create(unsigned width, unsigned height);
+    static Ref<Texture2D> create(unsigned width, unsigned height);
 };
 } // namespace Hazel
