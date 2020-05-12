@@ -34,8 +34,13 @@ public:
 private:
     void setGlfwCallbacks() noexcept;
 
+    static void shutdown(GLFWwindow*) noexcept;
+
     struct GLFWwindowDestructor final {
-        inline void operator()(GLFWwindow* p) const noexcept { glfwDestroyWindow(p); }
+        inline void operator()(GLFWwindow* p) const noexcept
+        {
+            shutdown(p);
+        }
     };
 
     struct WindowData {

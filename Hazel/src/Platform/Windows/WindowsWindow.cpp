@@ -15,6 +15,7 @@ struct WindowsWindowAssertionHandler : CoreLoggingHandler, Hazel::Enforce {
 };
 
 static bool s_GLFWInitialized = false;
+static int s_glfw_window_count{0};
 
 static void GLFWErrorCallback(int error, const char* description) noexcept
 {
@@ -31,21 +32,33 @@ WindowsWindow::WindowsWindow(const WindowProps& props)
 {
     HZ_CORE_INFO("Creating window {0} ({1}, {2})", props.title, props.width, props.height);
 
-    if (!s_GLFWInitialized) {
+    // if (!s_GLFWInitialized) {
+    if (s_glfw_window_count == 0) {
         // TODO: glfwTerminate on system shutdown
+        HZ_CORE_INFO("Initializing GLFW");
         const int rc = glfwInit();
         HZ_ASSERT(rc, WindowsWindowAssertionHandler, Hazel::Enforce, "Could not intialize GLFW!");
 
         glfwSetErrorCallback(GLFWErrorCallback);
-        s_GLFWInitialized = true;
+        // s_GLFWInitialized = true;
     }
     window_.reset(glfwCreateWindow(static_cast<int>(props.width), static_cast<int>(props.height),
                                    props.title.c_str(), nullptr, nullptr));
+    ++s_glfw_window_count;
     context_ = std::make_unique<OpenGLContext>(window_.get());
 
     glfwSetWindowUserPointer(window_.get(), &data_);
     setVSync(true);
     setGlfwCallbacks();
+}
+
+void WindowsWindow::shutdown(GLFWwindow* p) noexcept
+{
+    glfwDestroyWindow(p);
+    if (--s_glfw_window_count == 0) {
+        HZ_CORE_INFO("Terminating GLFW");
+        glfwTerminate();
+    }
 }
 
 void WindowsWindow::setGlfwCallbacks() noexcept
