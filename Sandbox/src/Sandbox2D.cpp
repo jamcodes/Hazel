@@ -15,25 +15,26 @@ Sandbox2D::Sandbox2D()
 
 void Sandbox2D::onAttach()
 {
-    sq_vertex_array_ = Hazel::VertexArray::create();
-    // clang-format off
-    constexpr std::array<float, 3 * 4> vertices{
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.5f,  0.5f, 0.0f,
-        -0.5f,  0.5f, 0.0f
-    };
-    // clang-format on
-    const Hazel::BufferLayout layout = {
-        {Hazel::ShaderDataType::Float3, "a_position"},
-    };
-    sq_vertex_array_->addVertexBuffer(Hazel::VertexBuffer::create(vertices, layout));
+    // sq_vertex_array_ = Hazel::VertexArray::create();
+    // // clang-format off
+    // constexpr std::array<float, 3 * 4> vertices{
+    //     -0.5f, -0.5f, 0.0f,
+    //      0.5f, -0.5f, 0.0f,
+    //      0.5f,  0.5f, 0.0f,
+    //     -0.5f,  0.5f, 0.0f
+    // };
+    // // clang-format on
+    // const Hazel::BufferLayout layout = {
+    //     {Hazel::ShaderDataType::Float3, "a_position"},
+    // };
+    // sq_vertex_array_->addVertexBuffer(Hazel::VertexBuffer::create(vertices, layout));
 
-    constexpr std::array<unsigned int, 6> sq_indices{0, 1, 2, 2, 3, 0};
-    sq_vertex_array_->setIndexBuffer(Hazel::IndexBuffer::create(sq_indices));
+    // constexpr std::array<unsigned int, 6> sq_indices{0, 1, 2, 2, 3, 0};
+    // sq_vertex_array_->setIndexBuffer(Hazel::IndexBuffer::create(sq_indices));
 
-    flat_color_shader_ =
-        Hazel::Shader::create<Hazel::OpenGLShader>("assets/shaders/FlatColor.glsl");
+    // flat_color_shader_ =
+    //     Hazel::Shader::create<Hazel::OpenGLShader>("assets/shaders/FlatColor.glsl");
+    checkerboard_texture_ = Hazel::Texture2D::create("assets/textures/Checkerboard.png");
 }
 
 void Sandbox2D::onDetach()
@@ -48,19 +49,10 @@ void Sandbox2D::onUpdate(float time_delta_seconds)
     Hazel::RenderCommand::setClearColor({0.1f, 0.1f, 0.1f, 1});
     Hazel::RenderCommand::clear();
 
-    // Hazel::Renderer::beginScene(camera_controller_.getCamera());
-
-    // flat_color_shader_->bind();
-    // flat_color_shader_->uploadUniform("u_color", sq_color_);
-
-    // Hazel::Renderer::submit(*flat_color_shader_, *sq_vertex_array_,
-    //                         glm::scale(glm::mat4{1.0f}, glm::vec3{1.5f}));
-
-    // Hazel::Renderer::endScene();
-
     Hazel::Renderer2D::beginScene(camera_controller_.getCamera());
     Hazel::Renderer2D::drawQuad({-1.0f, 0.0f}, {0.8f, 0.8f}, sq_color_);
     Hazel::Renderer2D::drawQuad({0.5f, -0.5f}, {0.5f, 0.75f}, rect_color_);
+    Hazel::Renderer2D::drawQuad({0.0f, 0.0f, -0.1f}, {10.0f, 10.0f}, *checkerboard_texture_);
     Hazel::Renderer2D::endScene();
 }
 
