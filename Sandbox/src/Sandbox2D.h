@@ -1,10 +1,19 @@
 #pragma once
 
+#include <chrono>
+
 #include "Hazel.h"
 
 
 namespace Sandbox
 {
+
+struct ProfileResult
+{
+    const char* name;
+    std::chrono::microseconds duration;
+};
+
 
 class Sandbox2D : public Hazel::Layer {
 public:
@@ -28,6 +37,8 @@ private:
 
     glm::vec4 sq_color_{0.8f, 0.2f, 0.3f, 1.0f};
     glm::vec4 rect_color_{0.2f, 0.3f, 0.8f, 1.0f};
+
+    std::vector<ProfileResult> profile_results_{};
 };
 
 } // namespace Sandbox
