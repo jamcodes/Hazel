@@ -2,7 +2,6 @@
 
 #include <imgui/imgui.h>
 
-// #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -41,41 +40,13 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> start_;
 };
 
-#define HZ_CONCATENATE_IMPL(s1, s2) s1##s2
-#define HZ_CONCATENATE(s1, s2) HZ_CONCATENATE_IMPL(s1, s2)
-
-#define HZ_PROFILE_SCOPE(nAME)                                                                                       \
-    Timer HZ_CONCATENATE(timer, __LINE__){nAME, [this](auto&& name, auto&& duration) noexcept {                                      \
-                              profile_results_.push_back(ProfileResult{std::forward<decltype(name)>(name),           \
-                                                                       std::forward<decltype(duration)>(duration)}); \
-                          }}
 
 Sandbox2D::Sandbox2D() : Layer{"Sandbox2D"}, camera_controller_{1280.0f / 720.0f, true}
 {
-    profile_results_.reserve(42);
 }
 
 void Sandbox2D::onAttach()
 {
-    // sq_vertex_array_ = Hazel::VertexArray::create();
-    // // clang-format off
-    // constexpr std::array<float, 3 * 4> vertices{
-    //     -0.5f, -0.5f, 0.0f,
-    //      0.5f, -0.5f, 0.0f,
-    //      0.5f,  0.5f, 0.0f,
-    //     -0.5f,  0.5f, 0.0f
-    // };
-    // // clang-format on
-    // const Hazel::BufferLayout layout = {
-    //     {Hazel::ShaderDataType::Float3, "a_position"},
-    // };
-    // sq_vertex_array_->addVertexBuffer(Hazel::VertexBuffer::create(vertices, layout));
-
-    // constexpr std::array<unsigned int, 6> sq_indices{0, 1, 2, 2, 3, 0};
-    // sq_vertex_array_->setIndexBuffer(Hazel::IndexBuffer::create(sq_indices));
-
-    // flat_color_shader_ =
-    //     Hazel::Shader::create<Hazel::OpenGLShader>("assets/shaders/FlatColor.glsl");
     checkerboard_texture_ = Hazel::Texture2D::create("assets/textures/Checkerboard.png");
 }
 
@@ -84,7 +55,6 @@ void Sandbox2D::onDetach() {}
 void Sandbox2D::onUpdate(float time_delta_seconds)
 {
     HZ_PROFILE_SCOPE("Sandbox2D::onUpdate");
-    // HZ_TRACE("time_delta_seconds = {}", time_delta_seconds);
     {
         HZ_PROFILE_SCOPE("CameraController::onUpdate");
         camera_controller_.onUpdate(time_delta_seconds);
@@ -108,14 +78,6 @@ void Sandbox2D::onImGuiRender()
     ImGui::Begin("Settings");
     ImGui::ColorEdit4("Square Color", glm::value_ptr(sq_color_));
     ImGui::ColorEdit4("Rectangle Color", glm::value_ptr(rect_color_));
-
-    for (auto const& result : profile_results_) {
-        std::array<char, 50> label;
-        std::strcpy(label.data(), result.name);
-        std::strcat(label.data(), "  %d us");
-        ImGui::Text(label.data(), result.duration.count());
-    }
-    profile_results_.clear();
 
     ImGui::End();
 }
