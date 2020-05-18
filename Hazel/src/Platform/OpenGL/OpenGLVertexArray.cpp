@@ -1,12 +1,13 @@
 #include "OpenGLVertexArray.h"
 
-#include "Hazel/Core/AssertionHandler.h"
-
 #include <glad/glad.h>
+
+#include "Hazel/Core/AssertionHandler.h"
 
 namespace Hazel {
 template <>
-constexpr GLenum shaderDataTypeToPlatformType<GLenum>(ShaderDataType type) noexcept {
+constexpr GLenum shaderDataTypeToPlatformType<GLenum>(ShaderDataType type) noexcept
+{
     // clang-format off
     switch(type) {
         case ShaderDataType::None  :    return GL_NONE;
@@ -27,21 +28,36 @@ constexpr GLenum shaderDataTypeToPlatformType<GLenum>(ShaderDataType type) noexc
     return GL_NONE;
 }
 
-OpenGLVertexArray::OpenGLVertexArray() noexcept { glCreateVertexArrays(1, &renderer_id_); }
+OpenGLVertexArray::OpenGLVertexArray() noexcept
+{
+    HZ_PROFILE_FUNCTION();
+    glCreateVertexArrays(1, &renderer_id_);
+}
 
 OpenGLVertexArray::~OpenGLVertexArray()
 {
+    HZ_PROFILE_FUNCTION();
     glDeleteVertexArrays(1, &renderer_id_);
 }
 
-void OpenGLVertexArray::bind() const { glBindVertexArray(renderer_id_); }
+void OpenGLVertexArray::bind() const
+{
+    HZ_PROFILE_FUNCTION();
+    glBindVertexArray(renderer_id_);
+}
 
-void OpenGLVertexArray::unbind() const { glBindVertexArray(0); }
+void OpenGLVertexArray::unbind() const
+{
+    HZ_PROFILE_FUNCTION();
+    glBindVertexArray(0);
+}
 
 void OpenGLVertexArray::addVertexBuffer(Scope<VertexBuffer> p_vertex_buffer)
 {
+    HZ_PROFILE_FUNCTION();
     HZ_ASSERT(p_vertex_buffer != nullptr, DefaultCoreHandler, Enforce, "VertexBuffer* may not be nullptr");
-    HZ_ASSERT(!p_vertex_buffer->getLayout().getElements().empty(), DefaultCoreHandler, Enforce, "VertexBuffer must have a layout set");
+    HZ_ASSERT(!p_vertex_buffer->getLayout().getElements().empty(), DefaultCoreHandler, Enforce,
+              "VertexBuffer must have a layout set");
 
     glBindVertexArray(renderer_id_);
     p_vertex_buffer->bind();
@@ -49,13 +65,10 @@ void OpenGLVertexArray::addVertexBuffer(Scope<VertexBuffer> p_vertex_buffer)
     auto const& vb_layout{p_vertex_buffer->getLayout()};
     for (const auto& element : vb_layout) {
         glEnableVertexAttribArray(vertex_buffer_index_);
-        glVertexAttribPointer(vertex_buffer_index_,
-            componentCount(element.type),
-            shaderDataTypeToPlatformType<GLenum>(element.type),
-            element.normalized ? GL_TRUE : GL_FALSE,
-            vb_layout.getStride(),
-            reinterpret_cast<const void*>(element.offset)
-        );
+        glVertexAttribPointer(vertex_buffer_index_, componentCount(element.type),
+                              shaderDataTypeToPlatformType<GLenum>(element.type),
+                              element.normalized ? GL_TRUE : GL_FALSE, vb_layout.getStride(),
+                              reinterpret_cast<const void*>(element.offset));
         ++vertex_buffer_index_;
     }
 
@@ -64,6 +77,7 @@ void OpenGLVertexArray::addVertexBuffer(Scope<VertexBuffer> p_vertex_buffer)
 
 void OpenGLVertexArray::setIndexBuffer(Scope<IndexBuffer> p_index_buffer)
 {
+    HZ_PROFILE_FUNCTION();
     glBindVertexArray(renderer_id_);
     p_index_buffer->bind();
     index_buffer_ = std::move(p_index_buffer);

@@ -40,25 +40,21 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> start_;
 };
 
-
-Sandbox2D::Sandbox2D() : Layer{"Sandbox2D"}, camera_controller_{1280.0f / 720.0f, true}
-{
-}
+Sandbox2D::Sandbox2D() : Layer{"Sandbox2D"}, camera_controller_{1280.0f / 720.0f, true} {}
 
 void Sandbox2D::onAttach()
 {
+    HZ_PROFILE_FUNCTION();
     checkerboard_texture_ = Hazel::Texture2D::create("assets/textures/Checkerboard.png");
 }
 
-void Sandbox2D::onDetach() {}
+void Sandbox2D::onDetach() { HZ_PROFILE_FUNCTION(); }
 
 void Sandbox2D::onUpdate(float time_delta_seconds)
 {
-    HZ_PROFILE_SCOPE("Sandbox2D::onUpdate");
-    {
-        HZ_PROFILE_SCOPE("CameraController::onUpdate");
-        camera_controller_.onUpdate(time_delta_seconds);
-    }
+    HZ_PROFILE_FUNCTION();
+    camera_controller_.onUpdate(time_delta_seconds);
+
     {
         HZ_PROFILE_SCOPE("CameraController::onUpdate");
         Hazel::RenderCommand::setClearColor({0.1f, 0.1f, 0.1f, 1});
@@ -78,7 +74,6 @@ void Sandbox2D::onImGuiRender()
     ImGui::Begin("Settings");
     ImGui::ColorEdit4("Square Color", glm::value_ptr(sq_color_));
     ImGui::ColorEdit4("Rectangle Color", glm::value_ptr(rect_color_));
-
     ImGui::End();
 }
 

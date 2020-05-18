@@ -9,6 +9,7 @@ Renderer::SceneData* Renderer::s_scene_data_{new Renderer::SceneData{}};
 
 void Renderer::init()
 {
+    HZ_PROFILE_FUNCTION();
     RenderCommand::init();
     Renderer2D::init();
 }

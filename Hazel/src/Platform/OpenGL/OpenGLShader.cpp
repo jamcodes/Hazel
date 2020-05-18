@@ -28,6 +28,8 @@ static GLenum shaderTypeFromString(const std::string& type) noexcept
 
 OpenGLShader::OpenGLShader(const std::string& filepath)
 {
+    HZ_PROFILE_FUNCTION();
+
     const std::string source = readFile(filepath);
     const auto shader_sources{preProcess(source)};
     compile(shader_sources);
@@ -36,26 +38,30 @@ OpenGLShader::OpenGLShader(const std::string& filepath)
     auto last_slash{filepath.find_last_of("/\\")};
     last_slash = last_slash == std::string::npos ? 0 : last_slash + 1;
     auto const last_dot{filepath.rfind('.')};
-    auto count{last_dot == std::string::npos ? filepath.size() - last_slash
-                                             : last_dot - last_slash};
+    auto count{last_dot == std::string::npos ? filepath.size() - last_slash : last_dot - last_slash};
     name_ = filepath.substr(last_slash, count);
 }
 
-OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertex_src,
-                           const std::string& fragment_src)
+OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertex_src, const std::string& fragment_src)
     // TODO: Make this noexcept conditionally -> if ShaderAssertHandler::handle is nothrow
     : name_{name}
 {
+    HZ_PROFILE_FUNCTION();
     std::unordered_map<GLenum, std::string> sources;
     sources.insert({GL_VERTEX_SHADER, vertex_src});
     sources.insert({GL_FRAGMENT_SHADER, fragment_src});
     compile(sources);
 }
 
-OpenGLShader::~OpenGLShader() noexcept { glDeleteProgram(renderer_id_); }
+OpenGLShader::~OpenGLShader() noexcept
+{
+    HZ_PROFILE_FUNCTION();
+    glDeleteProgram(renderer_id_);
+}
 
 std::string OpenGLShader::readFile(const std::string& filepath)
 {
+    HZ_PROFILE_FUNCTION();
     std::string result;
     std::ifstream in{filepath, std::ios_base::binary};
     if (in) {
@@ -75,6 +81,7 @@ std::string OpenGLShader::readFile(const std::string& filepath)
 
 std::unordered_map<GLenum, std::string> OpenGLShader::preProcess(const std::string shader_src)
 {
+    HZ_PROFILE_FUNCTION();
     std::unordered_map<GLenum, std::string> shader_sources;
 
     constexpr const char* type_token{"#type"};
@@ -87,20 +94,18 @@ std::unordered_map<GLenum, std::string> OpenGLShader::preProcess(const std::stri
         // Start of shader type name (after "#type " keyword)
         const auto begin{pos + type_token_length + 1};
         const auto type{shader_src.substr(begin, eol - begin)};
-        HZ_ASSERT(shaderTypeFromString(type), ShaderAssertHandler, Hazel::Enforce,
-                  "Invalid shader type");
+        HZ_ASSERT(shaderTypeFromString(type), ShaderAssertHandler, Hazel::Enforce, "Invalid shader type");
 
         // Start of shader code after shader type declaration line
         auto const next_line_pos = shader_src.find_first_not_of("\r\n", eol);
-        HZ_ASSERT(next_line_pos != std::string::npos, ShaderAssertHandler, Hazel::Enforce,
-                  "Syntax error");
+        HZ_ASSERT(next_line_pos != std::string::npos, ShaderAssertHandler, Hazel::Enforce, "Syntax error");
         // Start of next shader type declaration line
         pos = shader_src.find(type_token, next_line_pos);
 
-        auto const insert_res = shader_sources.insert(
-            {shaderTypeFromString(type),
-             (pos == std::string::npos) ? shader_src.substr(next_line_pos)
-                                        : shader_src.substr(next_line_pos, pos - next_line_pos)});
+        auto const insert_res =
+            shader_sources.insert({shaderTypeFromString(type),
+                                   (pos == std::string::npos) ? shader_src.substr(next_line_pos)
+                                                              : shader_src.substr(next_line_pos, pos - next_line_pos)});
         HZ_ASSERT(insert_res.second, ShaderAssertHandler, Hazel::Enforce,
                   "Multiple blocks of the same type in a single shader file");
     }
@@ -109,6 +114,7 @@ std::unordered_map<GLenum, std::string> OpenGLShader::preProcess(const std::stri
 
 void OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& shader_src)
 {
+    HZ_PROFILE_FUNCTION();
     std::array<GLenum, 4> gl_shader_ids;
     HZ_ASSERT(shader_src.size() <= gl_shader_ids.size(), ShaderAssertHandler, Hazel::Enforce,
               "Shader ID buffer overflow. Allocate a larger buffer");
@@ -200,45 +206,59 @@ void OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& shader
     renderer_id_ = program;
 }
 
-void OpenGLShader::bind() const { glUseProgram(renderer_id_); }
+void OpenGLShader::bind() const
+{
+    HZ_PROFILE_FUNCTION();
+    glUseProgram(renderer_id_);
+}
 
-void OpenGLShader::unbind() const { glUseProgram(0); }
+void OpenGLShader::unbind() const
+{
+    HZ_PROFILE_FUNCTION();
+    glUseProgram(0);
+}
 
 void OpenGLShader::setUniform(std::string const& name, int value)
 {
+    HZ_PROFILE_FUNCTION();
     uploadUniform(name, value);
 }
 
 void OpenGLShader::setUniform(std::string const& name, float value)
 {
+    HZ_PROFILE_FUNCTION();
     uploadUniform(name, value);
 }
 
 void OpenGLShader::setUniform(std::string const& name, glm::vec2 const& values)
 {
+    HZ_PROFILE_FUNCTION();
     uploadUniform(name, values);
 }
 
 void OpenGLShader::setUniform(std::string const& name, glm::vec3 const& values)
 {
+    HZ_PROFILE_FUNCTION();
     uploadUniform(name, values);
 }
 
 void OpenGLShader::setUniform(std::string const& name, glm::vec4 const& values)
 {
+    HZ_PROFILE_FUNCTION();
     uploadUniform(name, values);
 }
 
 void OpenGLShader::setUniform(std::string const& name, glm::mat3 const& uniform)
 {
+    HZ_PROFILE_FUNCTION();
     uploadUniform(name, uniform);
 }
 
 void OpenGLShader::setUniform(std::string const& name, glm::mat4 const& uniform)
 {
+    HZ_PROFILE_FUNCTION();
     uploadUniform(name, uniform);
 }
-
 
 void OpenGLShader::uploadUniform(std::string const& name, int value) const
 {

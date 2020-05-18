@@ -19,12 +19,13 @@ namespace Hazel {
 
 struct Renderer2DStorage {
     Scope<VertexArray> vertex_array;
-    Ref<Shader> texture_shader;         // Used for both textures and flat colors
-    Ref<Texture2D> white_texture;       // used to eliminate the texture component when using the shader as a flat-color
+    Ref<Shader> texture_shader;    // Used for both textures and flat colors
+    Ref<Texture2D> white_texture;  // used to eliminate the texture component when using the shader as a flat-color
 };
 
 void Renderer2D::init()
 {
+    HZ_PROFILE_FUNCTION();
     s_data = new Renderer2DStorage{};
     s_data->vertex_array = VertexArray::create();
     // clang-format off
@@ -50,10 +51,15 @@ void Renderer2D::init()
     s_data->texture_shader->setUniform("u_texture", 0);
 }
 
-void Renderer2D::shutdown() { delete s_data; }
+void Renderer2D::shutdown()
+{
+    HZ_PROFILE_FUNCTION();
+    delete s_data;
+}
 
 void Renderer2D::beginScene(const OrtographicCamera& camera)
 {
+    HZ_PROFILE_FUNCTION();
     auto& ts{*s_data->texture_shader};
     ts.bind();
     ts.setUniform("u_view_projection", camera.getViewProjection());
@@ -69,6 +75,7 @@ void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, cons
 
 void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 {
+    HZ_PROFILE_FUNCTION();
     auto& shader{*s_data->texture_shader};
     // shader.bind();   // not necessary to rebind on every draw if there's only one shader
     shader.setUniform("u_color", color);
@@ -93,6 +100,7 @@ void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, cons
 
 void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, const Texture2D& texture)
 {
+    HZ_PROFILE_FUNCTION();
     auto& shader{*s_data->texture_shader};
     // shader.bind();   // not necessary to rebind on every draw if there's only one shader
     // set color to white on every draw - meaning that the `u_color` component of the shader draw expression

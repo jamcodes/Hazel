@@ -1,11 +1,11 @@
 #include "ImGuiLayer.h"
 
-#include "Hazel/Core/Application.h"
+#include <GLFW/glfw3.h>
 
-#include "imgui/imgui.h"
+#include "Hazel/Core/Application.h"
 #include "imgui/examples/imgui_impl_glfw.h"
 #include "imgui/examples/imgui_impl_opengl3.h"
-#include <GLFW/glfw3.h>
+#include "imgui/imgui.h"
 
 namespace Hazel {
 
@@ -14,6 +14,7 @@ ImGuiLayer::~ImGuiLayer() = default;
 
 void ImGuiLayer::onAttach()
 {
+    HZ_PROFILE_FUNCTION();
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -48,6 +49,7 @@ void ImGuiLayer::onAttach()
 
 void ImGuiLayer::onDetach()
 {
+    HZ_PROFILE_FUNCTION();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -55,6 +57,7 @@ void ImGuiLayer::onDetach()
 
 void ImGuiLayer::begin()
 {
+    HZ_PROFILE_FUNCTION();
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
@@ -62,10 +65,10 @@ void ImGuiLayer::begin()
 
 void ImGuiLayer::end()
 {
+    HZ_PROFILE_FUNCTION();
     ImGuiIO& io = ImGui::GetIO();
     auto& window = Application::get().getWindow();
-    io.DisplaySize =
-        ImVec2(static_cast<float>(window.getWidth()), static_cast<float>(window.getHeight()));
+    io.DisplaySize = ImVec2(static_cast<float>(window.getWidth()), static_cast<float>(window.getHeight()));
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {

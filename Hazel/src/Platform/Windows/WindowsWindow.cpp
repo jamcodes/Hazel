@@ -30,6 +30,7 @@ std::unique_ptr<Window> Window::create(const WindowProps& props)
 WindowsWindow::WindowsWindow(const WindowProps& props)
     : data_{props.title, props.width, props.height}
 {
+    HZ_PROFILE_FUNCTION();
     HZ_CORE_INFO("Creating window {0} ({1}, {2})", props.title, props.width, props.height);
 
     // if (!s_GLFWInitialized) {
@@ -54,6 +55,7 @@ WindowsWindow::WindowsWindow(const WindowProps& props)
 
 void WindowsWindow::shutdown(GLFWwindow* p) noexcept
 {
+    HZ_PROFILE_FUNCTION();
     glfwDestroyWindow(p);
     if (--s_glfw_window_count == 0) {
         HZ_CORE_INFO("Terminating GLFW");
@@ -139,12 +141,14 @@ void WindowsWindow::setGlfwCallbacks() noexcept
 
 void WindowsWindow::onUpdate() noexcept
 {
+    HZ_PROFILE_FUNCTION();
     glfwPollEvents();
     context_->swapBuffers();
 }
 
 void WindowsWindow::setVSync(bool enabled) noexcept
 {
+    HZ_PROFILE_FUNCTION();
     glfwSwapInterval(static_cast<int>(enabled));
     data_.vSync = enabled;
 }

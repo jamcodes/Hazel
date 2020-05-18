@@ -13,6 +13,7 @@ OrtographicCameraController::OrtographicCameraController(float aspect_ratio, boo
 
 void OrtographicCameraController::onUpdate(float const time_delta_seconds) noexcept
 {
+    HZ_PROFILE_FUNCTION();
     if (Input::isKeyPressed(KeyCode::W)) {
         // camera_position_.y += camera_translation_speed_ * time_delta_seconds;
         camera_position_.x +=
@@ -66,6 +67,7 @@ void OrtographicCameraController::onUpdate(float const time_delta_seconds) noexc
 
 void OrtographicCameraController::onEvent(Event& e)
 {
+    HZ_PROFILE_FUNCTION();
     EventDispatcher dispatcher{e};
     dispatcher.dispatch<MouseScrolledEvent>(
         [this](MouseScrolledEvent& e) { return this->onMouseScrolled(e); });
@@ -75,6 +77,7 @@ void OrtographicCameraController::onEvent(Event& e)
 
 bool OrtographicCameraController::onMouseScrolled(MouseScrolledEvent& e)
 {
+    HZ_PROFILE_FUNCTION();
     // zoom_level_ -= e.getYOffset() / 2;
     zoom_level_ = std::max(zoom_level_ - e.getYOffset() / 3, 0.25f);
     camera_.setProjection(-aspect_ratio_ * zoom_level_, aspect_ratio_ * zoom_level_, -zoom_level_,
@@ -84,6 +87,7 @@ bool OrtographicCameraController::onMouseScrolled(MouseScrolledEvent& e)
 
 bool OrtographicCameraController::onWindowResize(WindowResizeEvent& e)
 {
+    HZ_PROFILE_FUNCTION();
     aspect_ratio_ = static_cast<float>(e.getWidth()) / e.getHeight();
     camera_.setProjection(-aspect_ratio_ * zoom_level_, aspect_ratio_ * zoom_level_, -zoom_level_,
                           zoom_level_);

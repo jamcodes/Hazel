@@ -11,6 +11,8 @@ namespace Hazel {
 OpenGLTexture2D::OpenGLTexture2D(unsigned width, unsigned height)
     : width_{width}, height_{height}, internal_format_{GL_RGBA8}, data_format_{GL_RGBA}
 {
+    HZ_PROFILE_FUNCTION();
+
     glCreateTextures(GL_TEXTURE_2D, 1, &renderer_id_);
     glTextureStorage2D(renderer_id_, 1, internal_format_, width_, height_);
 
@@ -23,9 +25,14 @@ OpenGLTexture2D::OpenGLTexture2D(unsigned width, unsigned height)
 
 OpenGLTexture2D::OpenGLTexture2D(std::string path) : path_{std::move(path)}
 {
+    HZ_PROFILE_FUNCTION();
+
     int width, height, channels;
     stbi_set_flip_vertically_on_load(true);
-    stbi_uc* data{stbi_load(path_.c_str(), &width, &height, &channels, 0)};
+    stbi_uc* data{[&]() noexcept {
+        HZ_PROFILE_SCOPE("OpenGLTexture2D::OpenGLTexture2D(const std::string&) -> stbi_load");
+        return stbi_load(path_.c_str(), &width, &height, &channels, 0);
+    }()};
     HZ_ASSERT(data != nullptr, DefaultCoreHandler, Hazel::Enforce, "Failed to load image");
     width_ = width;
     height_ = height;
@@ -60,12 +67,21 @@ OpenGLTexture2D::OpenGLTexture2D(std::string path) : path_{std::move(path)}
     stbi_image_free(data);
 }
 
-OpenGLTexture2D::~OpenGLTexture2D() noexcept { glDeleteTextures(1, &renderer_id_); }
+OpenGLTexture2D::~OpenGLTexture2D() noexcept
+{
+    HZ_PROFILE_FUNCTION();
+    glDeleteTextures(1, &renderer_id_);
+}
 
-void OpenGLTexture2D::bind(std::uint32_t slot) const { glBindTextureUnit(slot, renderer_id_); }
+void OpenGLTexture2D::bind(std::uint32_t slot) const
+{
+    HZ_PROFILE_FUNCTION();
+    glBindTextureUnit(slot, renderer_id_);
+}
 
 void OpenGLTexture2D::setData(const void* data, unsigned size) noexcept
 {
+    HZ_PROFILE_FUNCTION();
     const auto bytes_per_pixel{data_format_ == GL_RGBA ? 4 : 3};
     HZ_ASSERT(size == width_ * height_ * bytes_per_pixel, DefaultCoreHandler, Hazel::Enforce,
               "Data must be entire texture");

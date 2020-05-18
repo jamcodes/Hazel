@@ -5,22 +5,19 @@ namespace Hazel {
 LayerStack::~LayerStack()
 {
     for(auto& layer : layers_){
+        // TODO: move detaching into Application level code
         layer->onDetach();
     }
 }
     
 void LayerStack::pushLayer(value_type layer)
 {
-    auto& l{*layer};
     layers_.emplace(std::next(layers_.cbegin(), layer_index_), std::move(layer));
     ++layer_index_;
-    l.onAttach();
 }
 
 void LayerStack::pushOverlay(value_type overlay) {
-    auto& o{*overlay};
     layers_.emplace_back(std::move(overlay));
-    o.onAttach();
 }
 
 void LayerStack::popLayer(Layer const* const layer)
@@ -31,6 +28,7 @@ void LayerStack::popLayer(Layer const* const layer)
                          return p.get() == layer;
                      });
     if (it != layers_.cend()) {
+        // TODO: move detaching into Application level code
         (*it)->onDetach();
         layers_.erase(it);
         --layer_index_;
@@ -43,6 +41,7 @@ void LayerStack::popOverlay(Layer const* const overlay)
         return p.get() == overlay;
     });
     if (it != layers_.cend()) {
+        // TODO: move detaching into Application level code
         (*it)->onDetach();
         layers_.erase(it);
     }

@@ -27,8 +27,7 @@ inline void poll_keys_status(std::chrono::milliseconds interval)
         auto const ctrl_status{Hazel::Input::isKeyPressed(KeyCode::Left_control)};
         auto const alt_status{Hazel::Input::isKeyPressed(KeyCode::Left_alt)};
         auto const shift_status{Hazel::Input::isKeyPressed(KeyCode::Left_shift)};
-        HZ_CORE_INFO("LMB: {0}, RMB: {1}, Pos: {{{2},{3}}}", lmb_status, rmb_status, mouse_x,
-                     mouse_y);
+        HZ_CORE_INFO("LMB: {0}, RMB: {1}, Pos: {{{2},{3}}}", lmb_status, rmb_status, mouse_x, mouse_y);
         HZ_CORE_INFO("CTRL: {0}, ALT: {1}, SHIFT: {2}", ctrl_status, alt_status, shift_status);
         last_report_time = std::chrono::steady_clock::now();
     }
@@ -58,6 +57,7 @@ Application* Application::instance_{nullptr};
 Application::Application() : window_{Window::create()}
 {
     // TODO: Make this a sane singleton
+    HZ_PROFILE_FUNCTION();
     HZ_EXPECTS(Application::instance_ == nullptr, ApplicationAssertionHandler, Hazel::Enforce,
                "Hazel::Application already instantiated");
     Application::instance_ = this;
@@ -73,20 +73,28 @@ Application::~Application() = default;
 
 void Application::pushLayer(std::unique_ptr<Layer> layer)
 {
+    HZ_PROFILE_FUNCTION();
+    auto& layer_ref{*layer};
     layerStack_.pushLayer(std::move(layer));
+    layer_ref.onAttach();
 }
 
 void Application::pushOverlay(std::unique_ptr<Layer> layer)
 {
+    HZ_PROFILE_FUNCTION();
+    auto& layer_ref{*layer};
     layerStack_.pushOverlay(std::move(layer));
+    layer_ref.onAttach();
 }
 
 void Application::run()
 {
     while (running_) {
+        HZ_PROFILE_SCOPE("Application::run() loop");
         auto const time_delta{last_frame_time_.tick()};
 
         if (not minimized_) {
+            HZ_PROFILE_SCOPE("Application::run() -> layers update");
             for (auto& layer : layerStack_) {
                 layer->onUpdate(Timestep::asFloat(time_delta));
             }
@@ -95,8 +103,11 @@ void Application::run()
         // TODO: "Preaction - postaction" style code, refactor the begin/end
         // Introduce a scope guard?
         imgui_layer_->begin();
-        for (auto& layer : layerStack_) {
-            layer->onImGuiRender();
+        {
+            HZ_PROFILE_SCOPE("Application::run() -> layers ImGuiRender");
+            for (auto& layer : layerStack_) {
+                layer->onImGuiRender();
+            }
         }
         imgui_layer_->end();
 
@@ -107,11 +118,10 @@ void Application::run()
 
 void Application::onEvent(Event& e)
 {
+    HZ_PROFILE_FUNCTION();
     EventDispatcher dispatcher{e};
-    dispatcher.dispatch<WindowCloseEvent>(
-        [this](WindowCloseEvent& e) { return this->onWindowClose(e); });
-    dispatcher.dispatch<WindowResizeEvent>(
-        [this](WindowResizeEvent& e) { return this->onWindowResize(e); });
+    dispatcher.dispatch<WindowCloseEvent>([this](WindowCloseEvent& e) { return this->onWindowClose(e); });
+    dispatcher.dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) { return this->onWindowResize(e); });
 
     for (auto it{layerStack_.end()}; it != layerStack_.begin() && !e.handled;) {
         (--it)->get()->onEvent(e);
@@ -126,6 +136,7 @@ bool Application::onWindowClose(WindowCloseEvent&) noexcept
 
 bool Application::onWindowResize(WindowResizeEvent& e) noexcept
 {
+    HZ_PROFILE_FUNCTION();
     auto const width{e.getWidth()};
     auto const height{e.getHeight()};
     if (width == 0 || height == 0) {
