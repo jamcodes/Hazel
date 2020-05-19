@@ -11,12 +11,12 @@ Scope<VertexArray> VertexArray::create()
 {
     switch (Renderer::getApi()) {
     case RendererAPI::API::None:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce,
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce,
                   "RendererAPI::API::None is currently not supported");
     case RendererAPI::API::OpenGL:
         return makeScope<OpenGLVertexArray>();
     default:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
     }
 
     return nullptr;

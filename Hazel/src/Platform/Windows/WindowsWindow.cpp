@@ -38,7 +38,7 @@ WindowsWindow::WindowsWindow(const WindowProps& props)
         // TODO: glfwTerminate on system shutdown
         HZ_CORE_INFO("Initializing GLFW");
         const int rc = glfwInit();
-        HZ_ASSERT(rc, WindowsWindowAssertionHandler, Hazel::Enforce, "Could not intialize GLFW!");
+        HZ_EXPECTS(rc, WindowsWindowAssertionHandler, Hazel::Enforce, "Could not intialize GLFW!");
 
         glfwSetErrorCallback(GLFWErrorCallback);
         // s_GLFWInitialized = true;

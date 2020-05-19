@@ -41,7 +41,7 @@ constexpr std::uint32_t shaderDataTypeSize(ShaderDataType type) noexcept
         case ShaderDataType::Bool  :    return sizeof(bool);
     }
     // clang-format on
-    HZ_ASSERT(false, DefaultCoreHandler, Enforce, "Unknown ShaderDataType");
+    HZ_EXPECTS(false, DefaultCoreHandler, Enforce, "Unknown ShaderDataType");
     return 0;
 }
 
@@ -72,7 +72,7 @@ constexpr std::uint32_t componentCount(ShaderDataType type) noexcept
         case ShaderDataType::Bool  :    return 1;
     }
     // clang-format on
-    HZ_ASSERT(false, DefaultCoreHandler, Enforce, "Unknown ShaderDataType");
+    HZ_EXPECTS(false, DefaultCoreHandler, Enforce, "Unknown ShaderDataType");
     return 0;
 }
 

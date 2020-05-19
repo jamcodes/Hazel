@@ -32,7 +32,7 @@ void OpenGLContext::swapBuffers() noexcept
 void OpenGLContext::initGLLoader() noexcept
 {
     auto const rc{gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))};
-    HZ_ASSERT(rc, ::OpenGLContextAssertHandler, Hazel::Enforce, "Could not initialize glad!");
+    HZ_EXPECTS(rc, ::OpenGLContextAssertHandler, Hazel::Enforce, "Could not initialize glad!");
 }
 
 void OpenGLContext::glInfo() noexcept

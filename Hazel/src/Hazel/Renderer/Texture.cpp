@@ -10,11 +10,11 @@ Ref<Texture2D> Texture2D::create(const std::string& path)
 {
     switch (Renderer::getApi()) {
     case RendererAPI::API::None:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce, "RendererAPI::API::None is currently not supported");
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce, "RendererAPI::API::None is currently not supported");
     case RendererAPI::API::OpenGL:
         return makeRef<OpenGLTexture2D>(path);
     default:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
     }
 
     return nullptr;
@@ -23,7 +23,7 @@ Ref<Texture2D> Texture2D::create(const std::string& path)
 template <>
 inline Ref<OpenGLTexture2D> Texture2D::create<OpenGLTexture2D>(const std::string& path)
 {
-    HZ_ASSERT(Renderer::getApi() == RendererAPI::API::OpenGL, DefaultCoreHandler, Hazel::Enforce,
+    HZ_EXPECTS(Renderer::getApi() == RendererAPI::API::OpenGL, DefaultCoreHandler, Hazel::Enforce,
               "OpenGLTexture2D requested but RendererAPI::API != OpenGL");
     return makeRef<OpenGLTexture2D>(path);
 }
@@ -31,7 +31,7 @@ inline Ref<OpenGLTexture2D> Texture2D::create<OpenGLTexture2D>(const std::string
 template <typename TextureT>
 inline Ref<TextureT> Texture2D::create(unsigned width, unsigned height)
 {
-    HZ_ASSERT(Renderer::getApi() == RendererAPI::API::OpenGL, DefaultCoreHandler, Hazel::Enforce,
+    HZ_EXPECTS(Renderer::getApi() == RendererAPI::API::OpenGL, DefaultCoreHandler, Hazel::Enforce,
               "OpenGLTexture2D requested but RendererAPI::API != OpenGL");
     return makeRef<OpenGLTexture2D>(width, height);
 }
@@ -40,12 +40,12 @@ Ref<Texture2D> Texture2D::create(unsigned width, unsigned height)
 {
     switch (Renderer::getApi()) {
     case RendererAPI::API::None:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce, "RendererAPI::API::None is currently not supported");
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce, "RendererAPI::API::None is currently not supported");
     case RendererAPI::API::OpenGL:
         // return makeRef<OpenGLTexture2D>(width, height);
         return create<OpenGLTexture2D>(width, height);
     default:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
     }
 }
 

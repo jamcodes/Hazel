@@ -33,11 +33,11 @@ OpenGLTexture2D::OpenGLTexture2D(std::string path) : path_{std::move(path)}
         HZ_PROFILE_SCOPE("OpenGLTexture2D::OpenGLTexture2D(const std::string&) -> stbi_load");
         return stbi_load(path_.c_str(), &width, &height, &channels, 0);
     }()};
-    HZ_ASSERT(data != nullptr, DefaultCoreHandler, Hazel::Enforce, "Failed to load image");
+    HZ_EXPECTS(data != nullptr, DefaultCoreHandler, Hazel::Enforce, "Failed to load image");
     width_ = width;
     height_ = height;
 
-    HZ_ASSERT(channels == 3 || channels == 4, DefaultCoreHandler, Hazel::Enforce, "Unsupported texture format");
+    HZ_EXPECTS(channels == 3 || channels == 4, DefaultCoreHandler, Hazel::Enforce, "Unsupported texture format");
 
     internal_format_ = [channels]() noexcept {
         if (channels == 4) {
@@ -83,7 +83,7 @@ void OpenGLTexture2D::setData(const void* data, unsigned size) noexcept
 {
     HZ_PROFILE_FUNCTION();
     const auto bytes_per_pixel{data_format_ == GL_RGBA ? 4 : 3};
-    HZ_ASSERT(size == width_ * height_ * bytes_per_pixel, DefaultCoreHandler, Hazel::Enforce,
+    HZ_EXPECTS(size == width_ * height_ * bytes_per_pixel, DefaultCoreHandler, Hazel::Enforce,
               "Data must be entire texture");
     glTextureSubImage2D(renderer_id_, 0, 0, 0, width_, height_, data_format_, GL_UNSIGNED_BYTE, data);
 }

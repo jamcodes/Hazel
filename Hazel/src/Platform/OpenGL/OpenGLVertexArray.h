@@ -20,7 +20,7 @@ public:
 
     std::vector<Scope<VertexBuffer>> const& getVertexBuffers() const noexcept override { return vertex_buffers_; }
     IndexBuffer const& getIndexBuffer() const noexcept override {
-        HZ_ASSERT(index_buffer_ != nullptr, DefaultCoreHandler, Enforce, "Index buffer not set");
+        HZ_EXPECTS(index_buffer_ != nullptr, DefaultCoreHandler, Enforce, "Index buffer not set");
         return *index_buffer_;
     }
 

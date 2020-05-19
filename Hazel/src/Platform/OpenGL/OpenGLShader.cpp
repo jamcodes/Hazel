@@ -22,7 +22,7 @@ static GLenum shaderTypeFromString(const std::string& type) noexcept
         return GL_VERTEX_SHADER;
     if (type == "fragment" || type == "pixel")
         return GL_FRAGMENT_SHADER;
-    HZ_ASSERT(false, ShaderAssertHandler, Hazel::Enforce, "Unknown shader type");
+    HZ_EXPECTS(false, ShaderAssertHandler, Hazel::Enforce, "Unknown shader type");
     return 0;
 }
 
@@ -90,15 +90,15 @@ std::unordered_map<GLenum, std::string> OpenGLShader::preProcess(const std::stri
     while (pos != std::string::npos) {
         // End of shader type declaration line
         const auto eol{shader_src.find_first_of("\r\n", pos)};
-        HZ_ASSERT(eol != std::string::npos, ShaderAssertHandler, Hazel::Enforce, "Syntax error");
+        HZ_EXPECTS(eol != std::string::npos, ShaderAssertHandler, Hazel::Enforce, "Syntax error");
         // Start of shader type name (after "#type " keyword)
         const auto begin{pos + type_token_length + 1};
         const auto type{shader_src.substr(begin, eol - begin)};
-        HZ_ASSERT(shaderTypeFromString(type), ShaderAssertHandler, Hazel::Enforce, "Invalid shader type");
+        HZ_EXPECTS(shaderTypeFromString(type), ShaderAssertHandler, Hazel::Enforce, "Invalid shader type");
 
         // Start of shader code after shader type declaration line
         auto const next_line_pos = shader_src.find_first_not_of("\r\n", eol);
-        HZ_ASSERT(next_line_pos != std::string::npos, ShaderAssertHandler, Hazel::Enforce, "Syntax error");
+        HZ_EXPECTS(next_line_pos != std::string::npos, ShaderAssertHandler, Hazel::Enforce, "Syntax error");
         // Start of next shader type declaration line
         pos = shader_src.find(type_token, next_line_pos);
 
@@ -106,7 +106,7 @@ std::unordered_map<GLenum, std::string> OpenGLShader::preProcess(const std::stri
             shader_sources.insert({shaderTypeFromString(type),
                                    (pos == std::string::npos) ? shader_src.substr(next_line_pos)
                                                               : shader_src.substr(next_line_pos, pos - next_line_pos)});
-        HZ_ASSERT(insert_res.second, ShaderAssertHandler, Hazel::Enforce,
+        HZ_EXPECTS(insert_res.second, ShaderAssertHandler, Hazel::Enforce,
                   "Multiple blocks of the same type in a single shader file");
     }
     return shader_sources;
@@ -116,7 +116,7 @@ void OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& shader
 {
     HZ_PROFILE_FUNCTION();
     std::array<GLenum, 4> gl_shader_ids;
-    HZ_ASSERT(shader_src.size() <= gl_shader_ids.size(), ShaderAssertHandler, Hazel::Enforce,
+    HZ_EXPECTS(shader_src.size() <= gl_shader_ids.size(), ShaderAssertHandler, Hazel::Enforce,
               "Shader ID buffer overflow. Allocate a larger buffer");
     // std::vector<GLenum> gl_shader_ids{};
     // gl_shader_ids.reserve(shader_src.size());
@@ -144,7 +144,7 @@ void OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& shader
             glDeleteShader(shader);
 
             HZ_CORE_ERROR("{}", info_log.data());
-            HZ_ASSERT(false, ShaderAssertHandler, Hazel::Enforce, "Shader compilation failed");
+            HZ_EXPECTS(false, ShaderAssertHandler, Hazel::Enforce, "Shader compilation failed");
             // TODO: throw here instead? Or create a throwing assert-handler
             break;
         }
@@ -193,7 +193,7 @@ void OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& shader
 
         // In this simple program, we'll just leave
         HZ_CORE_ERROR("{}", info_log.data());
-        HZ_ASSERT(false, ShaderAssertHandler, Hazel::Enforce, "OpenGLShader link failed");
+        HZ_EXPECTS(false, ShaderAssertHandler, Hazel::Enforce, "OpenGLShader link failed");
         // TODO: throw here instead? Or create a throwing assert-handler
         return;
     }
@@ -296,7 +296,7 @@ void OpenGLShader::uploadUniform(std::string const& name, glm::mat3 const& matri
 void OpenGLShader::uploadUniform(std::string const& name, glm::mat4 const& matrix) const
 {
     auto location{glGetUniformLocation(renderer_id_, name.c_str())};
-    HZ_ASSERT(-1 != location, DefaultCoreHandler, Enforce, "Unknown uniform name");
+    HZ_EXPECTS(-1 != location, DefaultCoreHandler, Enforce, "Unknown uniform name");
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 }
 

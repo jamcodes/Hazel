@@ -27,7 +27,7 @@ target_link_libraries(Hazel
         stb::stb
         # stdc++fs
     PRIVATE
-        HzBuildFlags
+        Hazel::BuildFlags
 )
 
 target_compile_definitions(Hazel

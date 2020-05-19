@@ -29,7 +29,7 @@ void Renderer::endScene() {}
 void Renderer::submit(Shader const& /* shader */, VertexArray const& /* vertex_array */,
                       const glm::mat4& /* transform */)
 {
-    HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce, "Generic Renderer::submit not yet supported");
+    HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce, "Generic Renderer::submit not yet supported");
 }
 
 template<>

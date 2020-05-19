@@ -133,10 +133,7 @@ private:
 
 }  // namespace Hazel
 
-// For testing - hardcode to 1
-#define HZ_PROFILE 1
-
-#if HZ_PROFILE
+#if HZ_ENABLE_INSTRUMENTATION
 #define HZ_CONCATENATE_IMPL(s1, s2) s1##s2
 #define HZ_CONCATENATE(s1, s2) HZ_CONCATENATE_IMPL(s1, s2)
 
@@ -150,4 +147,4 @@ private:
 #define HZ_PROFILE_END_SESSION()
 #define HZ_PROFILE_SCOPE(nAME)
 #define HZ_PROFILE_FUNCTION()
-#endif  // HZ_PROFILE
+#endif  // HZ_ENABLE_INSTRUMENTATION

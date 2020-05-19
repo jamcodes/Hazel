@@ -24,7 +24,7 @@ constexpr GLenum shaderDataTypeToPlatformType<GLenum>(ShaderDataType type) noexc
         case ShaderDataType::Bool  :    return GL_BOOL;
     }
     // clang-format on
-    HZ_ASSERT(false, DefaultCoreHandler, Enforce, "Unknown ShaderDataType");
+    HZ_EXPECTS(false, DefaultCoreHandler, Enforce, "Unknown ShaderDataType");
     return GL_NONE;
 }
 
@@ -55,8 +55,8 @@ void OpenGLVertexArray::unbind() const
 void OpenGLVertexArray::addVertexBuffer(Scope<VertexBuffer> p_vertex_buffer)
 {
     HZ_PROFILE_FUNCTION();
-    HZ_ASSERT(p_vertex_buffer != nullptr, DefaultCoreHandler, Enforce, "VertexBuffer* may not be nullptr");
-    HZ_ASSERT(!p_vertex_buffer->getLayout().getElements().empty(), DefaultCoreHandler, Enforce,
+    HZ_EXPECTS(p_vertex_buffer != nullptr, DefaultCoreHandler, Enforce, "VertexBuffer* may not be nullptr");
+    HZ_EXPECTS(!p_vertex_buffer->getLayout().getElements().empty(), DefaultCoreHandler, Enforce,
               "VertexBuffer must have a layout set");
 
     glBindVertexArray(renderer_id_);

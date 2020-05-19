@@ -11,12 +11,12 @@ Scope<Shader> Shader::create(const std::string& filepath)
 {
     switch (Renderer::getApi()) {
     case RendererAPI::API::None:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce,
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce,
                   "RendererAPI::API::None is currently not supported");
     case RendererAPI::API::OpenGL:
         return std::make_unique<OpenGLShader>(filepath);
     default:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
     }
 
     return nullptr;
@@ -25,7 +25,7 @@ Scope<Shader> Shader::create(const std::string& filepath)
 template<>
 Scope<OpenGLShader> Shader::create(const std::string& filepath)
 {
-    HZ_ASSERT(Renderer::getApi() == RendererAPI::API::OpenGL, DefaultCoreHandler, Hazel::Enforce,
+    HZ_EXPECTS(Renderer::getApi() == RendererAPI::API::OpenGL, DefaultCoreHandler, Hazel::Enforce,
     "OpenGLShader was requested, but RendererAPI != OpenGL");
     return std::make_unique<OpenGLShader>(filepath);
 }
@@ -36,12 +36,12 @@ Scope<Shader> Shader::create(std::string const& name, const std::string& vertex_
 {
     switch (Renderer::getApi()) {
     case RendererAPI::API::None:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce,
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce,
                   "RendererAPI::API::None is currently not supported");
     case RendererAPI::API::OpenGL:
         return std::make_unique<OpenGLShader>(name, vertex_src, fragment_src);
     default:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
     }
 
     return nullptr;
@@ -51,7 +51,7 @@ template<>
 Scope<OpenGLShader>
 Shader::create<OpenGLShader>(std::string const& name, const std::string& vertex_src, const std::string& fragment_src)
 {
-    HZ_ASSERT(Renderer::getApi() == RendererAPI::API::OpenGL, DefaultCoreHandler, Hazel::Enforce,
+    HZ_EXPECTS(Renderer::getApi() == RendererAPI::API::OpenGL, DefaultCoreHandler, Hazel::Enforce,
     "OpenGLShader was requested, but RendererAPI != OpenGL");
     return std::make_unique<OpenGLShader>(name, vertex_src, fragment_src);
 }
@@ -67,7 +67,7 @@ void ShaderLibrary::add(const Ref<Shader>& shader)
 void ShaderLibrary::add(std::string const& name, const Ref<Shader>& shader)
 {
     auto const res{shaders_.insert({name, shader})};
-    HZ_ASSERT(res.second == true, DefaultCoreHandler, Hazel::Enforce, "Shader already exists");
+    HZ_EXPECTS(res.second == true, DefaultCoreHandler, Hazel::Enforce, "Shader already exists");
 }
 
 Ref<Shader> ShaderLibrary::load(const std::string& filepath)
@@ -87,7 +87,7 @@ Ref<Shader> ShaderLibrary::load(const std::string& name, const std::string& file
 Ref<Shader> ShaderLibrary::get(const std::string& name) const
 {
     auto const it{shaders_.find(name)};
-    HZ_ASSERT(it != shaders_.end(), DefaultCoreHandler, Hazel::Enforce, "Shader not found");
+    HZ_EXPECTS(it != shaders_.end(), DefaultCoreHandler, Hazel::Enforce, "Shader not found");
     return it->second;
 }
 

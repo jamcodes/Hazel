@@ -11,12 +11,12 @@ Scope<VertexBuffer> VertexBuffer::create(const float* vertices, std::uint32_t si
 {
     switch (Renderer::getApi()) {
     case RendererAPI::API::None:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce,
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce,
                   "RendererAPI::API::None is currently not supported");
     case RendererAPI::API::OpenGL:
         return std::make_unique<OpenGLVertexBuffer>(vertices, size);
     default:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
     }
 
     return nullptr;
@@ -26,12 +26,12 @@ Scope<IndexBuffer> IndexBuffer::create(const std::uint32_t* indices, std::uint32
 {
     switch (Renderer::getApi()) {
     case RendererAPI::API::None:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce,
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce,
                   "RendererAPI::API::None is currently not supported");
     case RendererAPI::API::OpenGL:
         return std::make_unique<OpenGLIndexBuffer>(indices, size);
     default:
-        HZ_ASSERT(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
+        HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
     }
 
     return nullptr;
