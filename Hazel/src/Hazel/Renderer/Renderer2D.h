@@ -16,8 +16,15 @@ public:
     // primitives
     static void drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
     static void drawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
-    static void drawQuad(const glm::vec2& position, const glm::vec2& size, const Texture2D& texture);
-    static void drawQuad(const glm::vec3& position, const glm::vec2& size, const Texture2D& texture);
+    static void drawQuad(const glm::vec2& position, const glm::vec2& size, const Texture2D& texture,
+                         float tiling_factor = 1.0f, const glm::vec4& tint_color = glm::vec4(1.0f));
+    static void drawQuad(const glm::vec3& position, const glm::vec2& size, const Texture2D& texture,
+                         float tiling_factor = 1.0f, const glm::vec4& tint_color = glm::vec4(1.0f));
+
+    static void drawQuadRotated(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);
+    static void drawQuadRotated(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color);
+    static void drawQuadRotated(const glm::vec2& position, const glm::vec2& size, float rotation,  const Texture2D& texture, float tiling_factor = 1.0f, const glm::vec4& tint_color = glm::vec4(1.0f));
+    static void drawQuadRotated(const glm::vec3& position, const glm::vec2& size, float rotation,  const Texture2D& texture, float tiling_factor = 1.0f, const glm::vec4& tint_color = glm::vec4(1.0f));
 };
 
 }  // namespace Hazel

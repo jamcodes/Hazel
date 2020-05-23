@@ -79,6 +79,7 @@ void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, cons
     auto& shader{*s_data->texture_shader};
     // shader.bind();   // not necessary to rebind on every draw if there's only one shader
     shader.setUniform("u_color", color);
+    shader.setUniform("u_tiling_factor", 1.0f);
     // bind the white texture here - the white texture will result in a uniform value of 1.0 in the shader
     // meaning that the `u_texture` component of the shader draw expression essentially has no effect
     s_data->white_texture->bind();
@@ -93,12 +94,14 @@ void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, cons
     RenderCommand::drawIndexed(vxa);
 }
 
-void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, const Texture2D& texture)
+void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, const Texture2D& texture,
+                          float tiling_factor, const glm::vec4& tint_color)
 {
-    drawQuad({position.x, position.y, 0.0f}, size, texture);
+    drawQuad({position.x, position.y, 0.0f}, size, texture, tiling_factor, tint_color);
 }
 
-void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, const Texture2D& texture)
+void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, const Texture2D& texture,
+                          float tiling_factor, const glm::vec4& tint_color)
 {
     HZ_PROFILE_FUNCTION();
     auto& shader{*s_data->texture_shader};
@@ -106,11 +109,71 @@ void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, cons
     // set color to white on every draw - meaning that the `u_color` component of the shader draw expression
     // has no effect. Setting this on every draw is necessary, since the same `u_color` is used by the flat-color
     // drawQuad call
-    shader.setUniform("u_color", glm::vec4(1.0f));
+    shader.setUniform("u_color", tint_color);
+    shader.setUniform("u_tiling_factor", tiling_factor);
     texture.bind();
 
     // translation * rotation * scale   (note - no rotation here)
     glm::mat4 transform{glm::translate(glm::mat4(1.0f), position) *
+                        glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f})};
+    shader.setUniform("u_transform", std::move(transform));
+
+    auto& vxa{*s_data->vertex_array};
+    vxa.bind();
+    RenderCommand::drawIndexed(vxa);
+}
+
+void Renderer2D::drawQuadRotated(const glm::vec2& position, const glm::vec2& size, float rotation,
+                                 const glm::vec4& color)
+{
+    drawQuadRotated({position.x, position.y, 0.0f}, size, rotation, color);
+}
+
+void Renderer2D::drawQuadRotated(const glm::vec3& position, const glm::vec2& size, float rotation,
+                                 const glm::vec4& color)
+{
+    HZ_PROFILE_FUNCTION();
+    auto& shader{*s_data->texture_shader};
+    // shader.bind();   // not necessary to rebind on every draw if there's only one shader
+    shader.setUniform("u_color", color);
+    shader.setUniform("u_tiling_factor", 1.0f);
+    // bind the white texture here - the white texture will result in a uniform value of 1.0 in the shader
+    // meaning that the `u_texture` component of the shader draw expression essentially has no effect
+    s_data->white_texture->bind();
+
+    // translation * rotation * scale   (note - no rotation here)
+    glm::mat4 transform{glm::translate(glm::mat4(1.0f), position) *
+                        glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f}) *
+                        glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f})};
+    shader.setUniform("u_transform", std::move(transform));
+
+    auto& vxa{*s_data->vertex_array};
+    vxa.bind();
+    RenderCommand::drawIndexed(vxa);
+}
+
+void Renderer2D::drawQuadRotated(const glm::vec2& position, const glm::vec2& size, float rotation,
+                                 const Texture2D& texture, float tiling_factor, const glm::vec4& tint_color)
+{
+    drawQuadRotated({position.x, position.y, 0.0f}, size, rotation, texture, tiling_factor, tint_color);
+}
+
+void Renderer2D::drawQuadRotated(const glm::vec3& position, const glm::vec2& size, float rotation,
+                                 const Texture2D& texture, float tiling_factor, const glm::vec4& tint_color)
+{
+    HZ_PROFILE_FUNCTION();
+    auto& shader{*s_data->texture_shader};
+    // shader.bind();   // not necessary to rebind on every draw if there's only one shader
+    // set color to white on every draw - meaning that the `u_color` component of the shader draw expression
+    // has no effect. Setting this on every draw is necessary, since the same `u_color` is used by the flat-color
+    // drawQuad call
+    shader.setUniform("u_color", tint_color);
+    shader.setUniform("u_tiling_factor", tiling_factor);
+    texture.bind();
+
+    // translation * rotation * scale   (note - no rotation here)
+    glm::mat4 transform{glm::translate(glm::mat4(1.0f), position) *
+                        glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f}) *
                         glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f})};
     shader.setUniform("u_transform", std::move(transform));
 
