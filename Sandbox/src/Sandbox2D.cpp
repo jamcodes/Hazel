@@ -61,15 +61,17 @@ void Sandbox2D::onUpdate(float time_delta_seconds)
         Hazel::RenderCommand::clear();
     }
 
+    static float rotation{0.0f};
+    rotation += time_delta_seconds * 40.0f;
+
     HZ_PROFILE_SCOPE("CameraController::onUpdate");
     Hazel::Renderer2D::beginScene(camera_controller_.getCamera());
-    // Hazel::Renderer2D::drawQuad({-1.0f, 0.0f}, {0.8f, 0.8f}, sq_color_);
-    // Hazel::Renderer2D::drawQuadRotated({-1.0f, 0.0f}, {0.8f, 0.8f}, glm::radians(45.0f), sq_color_);
+    Hazel::Renderer2D::drawQuadRotated({1.0f, 0.0f}, {0.8f, 0.8f}, glm::radians(-rotation), sq_color_);
     Hazel::Renderer2D::drawQuad({-1.0f, 0.0f}, {0.8f, 0.8f}, sq_color_);
     Hazel::Renderer2D::drawQuad({0.5f, -0.5f}, {0.5f, 0.75f}, rect_color_);
-    // Hazel::Renderer2D::drawQuadRotated({0.0f, 0.0f, -0.1f}, {10.0f, 10.0f}, glm::radians(75.0f), *checkerboard_texture_, 10.0f, glm::vec4{1.0f, 0.9f, 0.9f, 1.0f});
-    Hazel::Renderer2D::drawQuad({-5.0f, -5.0f, -0.1f}, {10.0f, 10.0f}, checkerboard_texture_, 10.0f);
-    Hazel::Renderer2D::drawQuad({-0.5f, -0.5f, 0.0f}, {1.0f, 1.0f}, checkerboard_texture_, 20.0f, glm::vec4{0.9f, 1.0f, 0.9f, 1.0f});
+    Hazel::Renderer2D::drawQuad({0.0f, 0.0f, -0.1f}, {10.0f, 10.0f}, checkerboard_texture_, 10.0f);
+    Hazel::Renderer2D::drawQuadRotated({-2.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, glm::radians(rotation), checkerboard_texture_,
+                                       20.0f, glm::vec4{0.9f, 1.0f, 0.9f, 1.0f});
     Hazel::Renderer2D::endScene();
 }
 
