@@ -224,6 +224,13 @@ void OpenGLShader::setUniform(std::string const& name, int value)
     uploadUniform(name, value);
 }
 
+void OpenGLShader::setUniform(std::string const& name, const int* values, std::uint32_t count)
+{
+    HZ_PROFILE_FUNCTION();
+    uploadUniform(name, values, count);
+}
+
+
 void OpenGLShader::setUniform(std::string const& name, float value)
 {
     HZ_PROFILE_FUNCTION();
@@ -264,6 +271,12 @@ void OpenGLShader::uploadUniform(std::string const& name, int value) const
 {
     GLint location{glGetUniformLocation(renderer_id_, name.c_str())};
     glUniform1i(location, value);
+}
+
+void OpenGLShader::uploadUniform(std::string const& name, const int* values, std::uint32_t count) const
+{
+    GLint location{glGetUniformLocation(renderer_id_, name.c_str())};
+    glUniform1iv(location, count, values);
 }
 
 void OpenGLShader::uploadUniform(std::string const& name, float value) const

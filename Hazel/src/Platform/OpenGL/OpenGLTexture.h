@@ -21,6 +21,11 @@ public:
     void bind(std::uint32_t slot) const override;
 
 private:
+    bool do_equals(Texture const& other) const noexcept final
+    {
+        return renderer_id_ == static_cast<OpenGLTexture2D const&>(other).renderer_id_;
+    }
+
     std::uint32_t renderer_id_;
     std::uint32_t width_;
     std::uint32_t height_;

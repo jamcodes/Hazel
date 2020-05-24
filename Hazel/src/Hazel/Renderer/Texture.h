@@ -19,6 +19,14 @@ public:
     virtual void setData(const void*, unsigned size) = 0;
 
     virtual void bind(std::uint32_t slot = 0) const = 0;
+
+    [[nodiscard]] friend inline bool operator==(Texture const& l, Texture const& r) noexcept
+    {
+        return l.do_equals(r);
+    }
+
+private:
+    virtual bool do_equals(Texture const& other) const noexcept = 0;
 };
 
 class Texture2D : public Texture {

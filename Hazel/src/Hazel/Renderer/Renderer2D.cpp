@@ -13,21 +13,28 @@ struct QuadVertex {
     glm::vec3 position;
     glm::vec4 color;
     glm::vec2 tex_coord;
-    // TODO: texture_id
+    float tex_index;
+    float tiling_factor;
 };
 
 struct Renderer2DData {
     static constexpr const std::uint32_t max_quads{10'000};
     static constexpr const std::uint32_t max_vertices{max_quads * 4};
     static constexpr const std::uint32_t max_indices{max_quads * 6};
-    inline static std::array<QuadVertex, max_vertices> quad_vertex_buffer_array;
+    static constexpr const std::uint32_t max_texture_slots{32};  // TODO: Renderer-capabilities
+    static constexpr const std::uint32_t first_texture_index{1};
+    static constexpr const std::uint32_t white_texture_index{0};
 
     Scope<VertexArray> quad_vertex_array;
     Ref<Shader> texture_shader;    // Used for both textures and flat colors
     Ref<Texture2D> white_texture;  // used to eliminate the texture component when using the shader as a flat-color
+
     std::uint32_t quad_index_count{0};
+    std::array<QuadVertex, max_vertices> quad_vertex_buffer_array;
     QuadVertex* quad_vertex_buffer_ptr{nullptr};
-    // std::array<QuadVertex, max_vertices>::iterator quad_vertex_buffer_it{quad_vertex_buffer_array.end()};
+
+    std::array<Ref<Texture2D>, max_texture_slots> texture_slots;
+    std::uint32_t texture_slot_index{first_texture_index};  // 0 == white texture
 };
 }  // namespace Hazel
 
@@ -45,31 +52,20 @@ void Renderer2D::init()
 {
     HZ_PROFILE_FUNCTION();
     s_data.quad_vertex_array = VertexArray::create();
-    // // clang-format off
-    // constexpr std::array<float, 5 * 4> vertices{
-    //     -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-    //      0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-    //      0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
-    //     -0.5f,  0.5f, 0.0f, 0.0f, 1.0f
-    // };
-    // clang-format on
-    // const BufferLayout layout = {
-    //     {ShaderDataType::Float3, "a_position"},
-    //     {ShaderDataType::Float4, "a_color"},
-    //     {ShaderDataType::Float2, "a_tex_coord"}
-    // };
-    // s_data.quad_vertex_array->addVertexBuffer(VertexBuffer::create(vertices, layout));
     auto quad_vertex_buffer = VertexBuffer::create(s_data.max_vertices * sizeof(QuadVertex));
     quad_vertex_buffer->setLayout({{ShaderDataType::Float3, "a_position"},
                                    {ShaderDataType::Float4, "a_color"},
-                                   {ShaderDataType::Float2, "a_tex_coord"}});
+                                   {ShaderDataType::Float2, "a_tex_coord"},
+                                   {ShaderDataType::Float, "a_tex_index"},
+                                   {ShaderDataType::Float, "a_tiling_factor"}});
     s_data.quad_vertex_array->addVertexBuffer(std::move(quad_vertex_buffer));
 
-    constexpr std::array<std::uint32_t, Renderer2DData::max_indices> quad_indices = []() constexpr {
+    constexpr auto quad_indices = []() constexpr
+    {
         std::array<std::uint32_t, Renderer2DData::max_indices> indices{};
 
         std::uint32_t offset{0};
-        for(std::uint32_t i{0}; i < s_data.max_indices; i += 6, offset += 4) {
+        for (std::uint32_t i{0}; i < s_data.max_indices; i += 6, offset += 4) {
             indices[i + 0] = offset + 0;
             indices[i + 1] = offset + 1;
             indices[i + 2] = offset + 2;
@@ -80,17 +76,26 @@ void Renderer2D::init()
         }
 
         return indices;
-    }();
-    // constexpr std::array<unsigned int, 6> sq_indices{0, 1, 2, 2, 3, 0};
+    }
+    ();
+
     s_data.quad_vertex_array->setIndexBuffer(IndexBuffer::create(quad_indices));
 
     s_data.white_texture = Texture2D::create(1, 1);
     const unsigned white_texture_data{0xffffffff};
     s_data.white_texture->setData(&white_texture_data, sizeof(white_texture_data));
 
+    constexpr auto tex_samplers = []() constexpr
+    {
+        std::array<int, Renderer2DData::max_texture_slots> samplers{};
+        for (auto i{0}; i != samplers.size(); ++i) samplers[i] = i;
+        return samplers;
+    }
+    ();
+
     s_data.texture_shader = Shader::create("assets/shaders/Texture.glsl");
     s_data.texture_shader->bind();
-    s_data.texture_shader->setUniform("u_texture", 0);
+    s_data.texture_shader->setUniform("u_textures", tex_samplers.data(), static_cast<std::uint32_t>(tex_samplers.size()));
 }
 
 void Renderer2D::shutdown() { HZ_PROFILE_FUNCTION(); }
@@ -104,6 +109,9 @@ void Renderer2D::beginScene(const OrtographicCamera& camera)
 
     s_data.quad_index_count = 0;
     s_data.quad_vertex_buffer_ptr = s_data.quad_vertex_buffer_array.data();
+
+    s_data.texture_slot_index = s_data.first_texture_index;
+    s_data.texture_slots[s_data.white_texture_index] = s_data.white_texture;
 }
 
 void Renderer2D::endScene()
@@ -113,11 +121,17 @@ void Renderer2D::endScene()
         static_cast<std::uint32_t>((s_data.quad_vertex_buffer_ptr - s_data.quad_vertex_buffer_array.data()) *
                                    static_cast<std::uint32_t>(sizeof(s_data.quad_vertex_buffer_array.front())))};
     s_data.quad_vertex_array->getVertexBuffers().back()->setData(s_data.quad_vertex_buffer_array.data(), data_size);
-    // s_data.quad_vertex_buffer->setData();
     flush();
 }
 
-void Renderer2D::flush() { RenderCommand::drawIndexed(*s_data.quad_vertex_array, s_data.quad_index_count); }
+void Renderer2D::flush()
+{
+    // Bind textures
+    for (std::uint32_t i{0}; i != s_data.texture_slot_index; ++i) {
+        s_data.texture_slots[i]->bind(i);
+    }
+    RenderCommand::drawIndexed(*s_data.quad_vertex_array, s_data.quad_index_count);
+}
 
 // primitives
 void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
@@ -129,59 +143,123 @@ void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, cons
 {
     HZ_PROFILE_FUNCTION();
 
+    constexpr float tiling_factor{1.0f};
+
     s_data.quad_vertex_buffer_ptr->position = position;
     s_data.quad_vertex_buffer_ptr->color = color;
     s_data.quad_vertex_buffer_ptr->tex_coord = {0.0f, 0.0f};
+    s_data.quad_vertex_buffer_ptr->tex_index = s_data.white_texture_index;
+    s_data.quad_vertex_buffer_ptr->tiling_factor = tiling_factor;
     ++s_data.quad_vertex_buffer_ptr;
 
     s_data.quad_vertex_buffer_ptr->position = {position.x + size.x, position.y, 0.0f};
     s_data.quad_vertex_buffer_ptr->color = color;
     s_data.quad_vertex_buffer_ptr->tex_coord = {1.0f, 0.0f};
+    s_data.quad_vertex_buffer_ptr->tex_index = s_data.white_texture_index;
+    s_data.quad_vertex_buffer_ptr->tiling_factor = tiling_factor;
     ++s_data.quad_vertex_buffer_ptr;
 
     s_data.quad_vertex_buffer_ptr->position = {position.x + size.x, position.y + size.y, 0.0f};
     s_data.quad_vertex_buffer_ptr->color = color;
     s_data.quad_vertex_buffer_ptr->tex_coord = {1.0f, 1.0f};
+    s_data.quad_vertex_buffer_ptr->tex_index = s_data.white_texture_index;
+    s_data.quad_vertex_buffer_ptr->tiling_factor = tiling_factor;
     ++s_data.quad_vertex_buffer_ptr;
 
     s_data.quad_vertex_buffer_ptr->position = {position.x, position.y + size.y, 0.0f};
     s_data.quad_vertex_buffer_ptr->color = color;
     s_data.quad_vertex_buffer_ptr->tex_coord = {0.0f, 1.0f};
+    s_data.quad_vertex_buffer_ptr->tex_index = s_data.white_texture_index;
+    s_data.quad_vertex_buffer_ptr->tiling_factor = tiling_factor;
     ++s_data.quad_vertex_buffer_ptr;
 
     s_data.quad_index_count += 6;  // why +6?
 
-    // HZ_ASSERT(s_data.quad_vertex_buffer_ptr <= (s_data.quad_vertex_buffer_array.data() +
-    // ::Hazel::Renderer2DData::max_vertices),
-    //           "Batch Vertex buffer array overflow");
+#if 0
+    HZ_ASSERT(s_data.quad_vertex_buffer_ptr <= (s_data.quad_vertex_buffer_array.data() +
+    ::Hazel::Renderer2DData::max_vertices),
+              "Batch Vertex buffer array overflow");
 
-    // auto& shader{*s_data.texture_shader};
-    // shader.bind();   // not necessary to rebind on every draw if there's only one shader
-    // shader.setUniform("u_color", color);
-    // shader.setUniform("u_tiling_factor", 1.0f);
-    // bind the white texture here - the white texture will result in a uniform value of 1.0 in the shader
-    // meaning that the `u_texture` component of the shader draw expression essentially has no effect
-    // s_data.white_texture->bind();
+    auto& shader{*s_data.texture_shader};
+    shader.bind();   // not necessary to rebind on every draw if there's only one shader
+    shader.setUniform("u_color", color);
+    shader.setUniform("u_tiling_factor", 1.0f);
+    bind the white texture here - the white texture will result in a uniform value of 1.0 in the shader
+    meaning that the `u_texture` component of the shader draw expression essentially has no effect
+    s_data.white_texture->bind();
 
-    // translation * rotation * scale   (note - no rotation here)
-    // glm::mat4 transform{glm::translate(glm::mat4(1.0f), position) *
-    //                     glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f})};
-    // shader.setUniform("u_transform", std::move(transform));
+    translation * rotation * scale   (note - no rotation here)
+    glm::mat4 transform{glm::translate(glm::mat4(1.0f), position) *
+                        glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f})};
+    shader.setUniform("u_transform", std::move(transform));
 
-    // auto& vxa{*s_data.quad_vertex_array};
-    // vxa.bind();
-    // RenderCommand::drawIndexed(vxa);
+    auto& vxa{*s_data.quad_vertex_array};
+    vxa.bind();
+    RenderCommand::drawIndexed(vxa);
+#endif
 }
 
-void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, const Texture2D& texture,
+void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture,
                           float tiling_factor, const glm::vec4& tint_color)
 {
     drawQuad({position.x, position.y, 0.0f}, size, texture, tiling_factor, tint_color);
 }
 
-void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, const Texture2D& texture,
+void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture,
                           float tiling_factor, const glm::vec4& tint_color)
 {
+    HZ_PROFILE_FUNCTION();
+
+    // constexpr glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+
+    // auto const texture_index{static_cast<float>(s_data.texture_slot_index)};
+
+    auto const texture_index = [&texture]() noexcept {
+        for (std::uint32_t i{0}; i != s_data.texture_slot_index; ++i) {
+            if (*s_data.texture_slots[i] == *texture) {
+                return i;
+            }
+        }
+        return s_data.texture_slot_index;
+    }();
+    // If texture not found
+    if (texture_index == s_data.texture_slot_index) {
+        HZ_ASSERT(s_data.texture_slot_index != s_data.max_texture_slots, "Maximum texture slots exceeded");
+        s_data.texture_slots[texture_index] = texture;
+        ++s_data.texture_slot_index;
+    }
+
+    s_data.quad_vertex_buffer_ptr->position = position;
+    s_data.quad_vertex_buffer_ptr->color = tint_color;
+    s_data.quad_vertex_buffer_ptr->tex_coord = {0.0f, 0.0f};
+    s_data.quad_vertex_buffer_ptr->tex_index = texture_index;
+    s_data.quad_vertex_buffer_ptr->tiling_factor = tiling_factor;
+    ++s_data.quad_vertex_buffer_ptr;
+
+    s_data.quad_vertex_buffer_ptr->position = {position.x + size.x, position.y, 0.0f};
+    s_data.quad_vertex_buffer_ptr->color = tint_color;
+    s_data.quad_vertex_buffer_ptr->tex_coord = {1.0f, 0.0f};
+    s_data.quad_vertex_buffer_ptr->tex_index = texture_index;
+    s_data.quad_vertex_buffer_ptr->tiling_factor = tiling_factor;
+    ++s_data.quad_vertex_buffer_ptr;
+
+    s_data.quad_vertex_buffer_ptr->position = {position.x + size.x, position.y + size.y, 0.0f};
+    s_data.quad_vertex_buffer_ptr->color = tint_color;
+    s_data.quad_vertex_buffer_ptr->tex_coord = {1.0f, 1.0f};
+    s_data.quad_vertex_buffer_ptr->tex_index = texture_index;
+    s_data.quad_vertex_buffer_ptr->tiling_factor = tiling_factor;
+    ++s_data.quad_vertex_buffer_ptr;
+
+    s_data.quad_vertex_buffer_ptr->position = {position.x, position.y + size.y, 0.0f};
+    s_data.quad_vertex_buffer_ptr->color = tint_color;
+    s_data.quad_vertex_buffer_ptr->tex_coord = {0.0f, 1.0f};
+    s_data.quad_vertex_buffer_ptr->tex_index = texture_index;
+    s_data.quad_vertex_buffer_ptr->tiling_factor = tiling_factor;
+    ++s_data.quad_vertex_buffer_ptr;
+
+    s_data.quad_index_count += 6;  // why +6?
+
+#if 0
     HZ_PROFILE_FUNCTION();
     auto& shader{*s_data.texture_shader};
     // shader.bind();   // not necessary to rebind on every draw if there's only one shader
@@ -200,6 +278,7 @@ void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, cons
     auto& vxa{*s_data.quad_vertex_array};
     vxa.bind();
     RenderCommand::drawIndexed(vxa);
+#endif
 }
 
 void Renderer2D::drawQuadRotated(const glm::vec2& position, const glm::vec2& size, float rotation,

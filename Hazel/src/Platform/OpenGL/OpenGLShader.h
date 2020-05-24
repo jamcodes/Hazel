@@ -19,6 +19,7 @@ public:
     void bind() const override;
     void unbind() const override;
     void setUniform(std::string const& name, int value) override;
+    void setUniform(std::string const& name, const int* values, std::uint32_t count) override;
     void setUniform(std::string const& name, float value) override;
     void setUniform(std::string const& name, glm::vec2 const& values) override;
     void setUniform(std::string const& name, glm::vec3 const& values) override;
@@ -29,6 +30,7 @@ public:
     const std::string& getName() const noexcept override { return name_; }
 
     void uploadUniform(std::string const& name, int value) const;
+    void uploadUniform(std::string const& name, const int* values, std::uint32_t count) const;
     void uploadUniform(std::string const& name, float value) const;
     void uploadUniform(std::string const& name, glm::vec2 const& values) const;
     void uploadUniform(std::string const& name, glm::vec3 const& values) const;

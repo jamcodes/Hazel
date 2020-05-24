@@ -17,6 +17,7 @@ public:
     virtual void unbind() const = 0;
 
     virtual void setUniform(std::string const& name, int value) = 0;
+    virtual void setUniform(std::string const& name, const int* values, std::uint32_t count) = 0;
     virtual void setUniform(std::string const& name, float value) = 0;
     virtual void setUniform(std::string const& name, glm::vec2 const& values) = 0;
     virtual void setUniform(std::string const& name, glm::vec3 const& values) = 0;

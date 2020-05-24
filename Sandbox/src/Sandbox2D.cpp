@@ -68,6 +68,8 @@ void Sandbox2D::onUpdate(float time_delta_seconds)
     Hazel::Renderer2D::drawQuad({-1.0f, 0.0f}, {0.8f, 0.8f}, sq_color_);
     Hazel::Renderer2D::drawQuad({0.5f, -0.5f}, {0.5f, 0.75f}, rect_color_);
     // Hazel::Renderer2D::drawQuadRotated({0.0f, 0.0f, -0.1f}, {10.0f, 10.0f}, glm::radians(75.0f), *checkerboard_texture_, 10.0f, glm::vec4{1.0f, 0.9f, 0.9f, 1.0f});
+    Hazel::Renderer2D::drawQuad({-5.0f, -5.0f, -0.1f}, {10.0f, 10.0f}, checkerboard_texture_, 10.0f);
+    Hazel::Renderer2D::drawQuad({-0.5f, -0.5f, 0.0f}, {1.0f, 1.0f}, checkerboard_texture_, 20.0f, glm::vec4{0.9f, 1.0f, 0.9f, 1.0f});
     Hazel::Renderer2D::endScene();
 }
 
