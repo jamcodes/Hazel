@@ -19,9 +19,9 @@ public:
 
     static inline void clear() { s_renderer_api_->clear(); }
 
-    static inline void drawIndexed(VertexArray const& vertex_array)
+    static inline void drawIndexed(VertexArray const& vertex_array, std::uint32_t index_count = 0)
     {
-        s_renderer_api_->drawIndexed(vertex_array);
+        s_renderer_api_->drawIndexed(vertex_array, index_count);
     }
 
 private:

@@ -158,12 +158,12 @@ public:
     virtual ~VertexBuffer() = default;
     VertexBuffer& operator=(VertexBuffer&&) = delete;
 
-    template <typename Container>
+    template <typename Container, typename = std::enable_if_t<std::is_same_v<Container::value_type, float>>>
     static auto create(Container const& vertices)
     {
-        static_assert(std::is_same_v<Container::value_type, float>,
-                      "\n\tVertexBuffer may be constructed only from a container of floats\n");
-        return create(vertices.data(), static_cast<std::uint32_t>(vertices.size()));
+        // static_assert(std::is_same_v<Container::value_type, float>,
+        //               "\n\tVertexBuffer may be constructed only from a container of floats\n");
+        return create(vertices.data(), static_cast<std::uint32_t>(vertices.size()) * sizeof(*vertices.data()));
     }
 
     template <typename Container>
@@ -176,14 +176,19 @@ public:
         return buffer;
     }
 
+    // TODO: create may need to retur Ref instead of Scope
+    static Scope<VertexBuffer> create(std::uint32_t size);
     static Scope<VertexBuffer> create(const float* vertices, std::uint32_t size);
 
+    virtual void setData(const void* data, std::uint32_t size) = 0;
     virtual const BufferLayout& getLayout() const noexcept = 0;
     virtual void setLayout(BufferLayout const&) = 0;
     virtual void bind() const = 0;
     virtual void unbind() const = 0;
 };
 
+
+// Currently only 32-bit index buffers are supported
 class IndexBuffer {
 public:
     virtual ~IndexBuffer() = default;

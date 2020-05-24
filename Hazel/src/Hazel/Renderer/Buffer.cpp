@@ -7,6 +7,23 @@
 
 namespace Hazel {
 
+Scope<VertexBuffer> VertexBuffer::create(std::uint32_t size)
+{
+    switch (Renderer::getApi()) {
+    case RendererAPI::API::None:
+        HZ_ASSERT(false, "RendererAPI::API::None is currently not supported");
+        // HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce,
+        //           "RendererAPI::API::None is currently not supported");
+    case RendererAPI::API::OpenGL:
+        return std::make_unique<OpenGLVertexBuffer>(size);
+    default:
+        HZ_ASSERT(false, "Unknown RendererAPI::API");
+        // HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");
+    }
+
+    return nullptr;
+}
+
 Scope<VertexBuffer> VertexBuffer::create(const float* vertices, std::uint32_t size)
 {
     switch (Renderer::getApi()) {
