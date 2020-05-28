@@ -216,7 +216,7 @@ private:
     Hazel::Ref<Hazel::Texture2D> texture_;
     Hazel::Ref<Hazel::Texture2D> texture_cherno_logo_;
 
-    Hazel::OrtographicCameraController camera_controller_;
+    Hazel::OrthographicCameraController camera_controller_;
 
     // glm::vec3 camera_position_{0.0f};
     // float camera_rotation_{0.0f};

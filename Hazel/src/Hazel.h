@@ -13,7 +13,7 @@
 #include "Hazel/Core/Timestep.h"
 
 #include "Hazel/ImGui/ImGuiLayer.h"
-#include "Hazel/OrtographicCameraController.h"
+#include "Hazel/OrthographicCameraController.h"
 
 // ---Events--------------------------
 #include "Hazel/Events/Event.h"
@@ -25,7 +25,7 @@
 // ---Renderer------------------------
 #include "Hazel/Renderer/Buffer.h"
 #include "Hazel/Renderer/GraphicsContext.h"
-#include "Hazel/Renderer/OrtographicCamera.h"
+#include "Hazel/Renderer/OrthographicCamera.h"
 #include "Hazel/Renderer/RenderCommand.h"
 #include "Hazel/Renderer/Renderer.h"
 #include "Hazel/Renderer/Renderer2D.h"

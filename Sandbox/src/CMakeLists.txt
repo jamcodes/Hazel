@@ -10,3 +10,5 @@ target_include_directories(Sandbox
     PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>
 )
+
+add_subdirectory(ParticleSystem)

@@ -3,9 +3,9 @@
 #include <glm/glm.hpp>
 
 namespace Hazel {
-class OrtographicCamera {
+class OrthographicCamera {
 public:
-    OrtographicCamera(float left, float right, float bottom, float top);
+    OrthographicCamera(float left, float right, float bottom, float top);
 
     void setProjection(float left, float right, float bottom, float top) noexcept;
 

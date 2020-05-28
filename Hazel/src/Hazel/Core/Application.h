@@ -12,7 +12,7 @@
 #include "Hazel/Renderer/Shader.h"
 #include "Hazel/Renderer/Buffer.h"
 #include "Hazel/Renderer/VertexArray.h"
-#include "Hazel/Renderer/OrtographicCamera.h"
+#include "Hazel/Renderer/OrthographicCamera.h"
 
 namespace Hazel {
 

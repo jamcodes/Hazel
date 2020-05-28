@@ -53,8 +53,10 @@ void Sandbox2D::onDetach() { HZ_PROFILE_FUNCTION(); }
 void Sandbox2D::onUpdate(float time_delta_seconds)
 {
     HZ_PROFILE_FUNCTION();
+
     camera_controller_.onUpdate(time_delta_seconds);
 
+    Hazel::Renderer2D::resetStats();
     {
         HZ_PROFILE_SCOPE("CameraController::onUpdate");
         Hazel::RenderCommand::setClearColor({0.1f, 0.1f, 0.1f, 1});
@@ -69,15 +71,50 @@ void Sandbox2D::onUpdate(float time_delta_seconds)
     Hazel::Renderer2D::drawQuadRotated({1.0f, 0.0f}, {0.8f, 0.8f}, glm::radians(-rotation), sq_color_);
     Hazel::Renderer2D::drawQuad({-1.0f, 0.0f}, {0.8f, 0.8f}, sq_color_);
     Hazel::Renderer2D::drawQuad({0.5f, -0.5f}, {0.5f, 0.75f}, rect_color_);
-    Hazel::Renderer2D::drawQuad({0.0f, 0.0f, -0.1f}, {10.0f, 10.0f}, checkerboard_texture_, 10.0f);
+    Hazel::Renderer2D::drawQuad({0.0f, 0.0f, -0.1f}, {20.0f, 20.0f}, checkerboard_texture_, 10.0f);
     Hazel::Renderer2D::drawQuadRotated({-2.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, glm::radians(rotation), checkerboard_texture_,
                                        20.0f, glm::vec4{0.9f, 1.0f, 0.9f, 1.0f});
     Hazel::Renderer2D::endScene();
+
+    Hazel::Renderer2D::beginScene(camera_controller_.getCamera());
+    for (auto y{-5.0f}; y < 5.0f; y += 0.5f) {
+        for (auto x{-5.0f}; x < 5.0f; x += 0.5f) {
+            glm::vec4 color{(x + 5.0f) / 10.0f, 0.4f, (y + 5.0f) / 10.0f, .7f};
+            Hazel::Renderer2D::drawQuad({x, y}, {0.45f, 0.45f}, color);
+        }
+    }
+    Hazel::Renderer2D::endScene();
+
+    if (Hazel::Input::isMouseButtonPressed(Hazel::MouseButton::Left))
+    {
+        auto [x, y] = Hazel::Input::getMousePosition();
+        auto width = Hazel::Application::get().getWindow().getWidth();
+        auto height = Hazel::Application::get().getWindow().getHeight();
+
+        auto bounds = camera_controller_.getBounds();
+        auto pos = camera_controller_.getCamera().getPosition();
+        x = (x / width) * bounds.getWidth() - bounds.getWidth() * 0.5f;
+        y = bounds.getHeight() * 0.5f - (y / height) * bounds.getHeight();
+        particle_.position = { x + pos.x, y + pos.y };
+        for (int i = 0; i < 5; i++)
+            particle_system_.emit(particle_);
+    }
+
+    particle_system_.onUpdate(time_delta_seconds);
+    particle_system_.onRender(camera_controller_.getCamera());
 }
 
 void Sandbox2D::onImGuiRender()
 {
     ImGui::Begin("Settings");
+
+    auto const stats = Hazel::Renderer2D::getStats();
+    ImGui::Text("Renderer2D Stats:");
+    ImGui::Text("Draw calls: %d", stats.draw_calls);
+    ImGui::Text("Quads: %d", stats.quad_count);
+    ImGui::Text("Vertices: %d", stats.getTotalVertexCount());
+    ImGui::Text("Indices: %d", stats.getTotalIndexCount());
+
     ImGui::ColorEdit4("Square Color", glm::value_ptr(sq_color_));
     ImGui::ColorEdit4("Rectangle Color", glm::value_ptr(rect_color_));
     ImGui::End();

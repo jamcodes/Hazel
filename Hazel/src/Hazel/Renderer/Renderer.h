@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "OrtographicCamera.h"
+#include "OrthographicCamera.h"
 #include "RenderCommand.h"
 #include "Shader.h"
 
@@ -14,7 +14,7 @@ public:
 
     static void onWindowResize(unsigned width, unsigned height) noexcept;
 
-    static void beginScene(OrtographicCamera const&);
+    static void beginScene(OrthographicCamera const&);
     static void endScene();
 
     static void submit(Shader const& shader, VertexArray const& vertexArray,

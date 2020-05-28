@@ -4,8 +4,8 @@ target_sources(${PROJECT_NAME}
     PRIVATE
         Buffer.cpp
         GraphicsContext.h
-        OrtographicCamera.cpp
-        OrtographicCamera.h
+        OrthographicCamera.cpp
+        OrthographicCamera.h
         RenderCommand.cpp
         RenderCommand.h
         Renderer.cpp

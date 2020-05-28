@@ -1,17 +1,18 @@
-#include "OrtographicCameraController.h"
+#include "OrthographicCameraController.h"
 
 #include <Hazel/Core/Input.h>
 #include <Hazel/Core/KeyCodes.h>
 
 namespace Hazel {
-OrtographicCameraController::OrtographicCameraController(float aspect_ratio, bool rotation)
+OrthographicCameraController::OrthographicCameraController(float aspect_ratio, bool rotation)
     : aspect_ratio_{aspect_ratio},
-      camera_{-aspect_ratio * zoom_level_, aspect_ratio * zoom_level_, -zoom_level_, zoom_level_},
+      camera_bounds_{-aspect_ratio * zoom_level_, aspect_ratio * zoom_level_, -zoom_level_, zoom_level_},
+      camera_{camera_bounds_.left, camera_bounds_.right, camera_bounds_.bottom, camera_bounds_.top},
       rotation_{rotation}
 {
 }
 
-void OrtographicCameraController::onUpdate(float const time_delta_seconds) noexcept
+void OrthographicCameraController::onUpdate(float const time_delta_seconds) noexcept
 {
     HZ_PROFILE_FUNCTION();
     if (Input::isKeyPressed(KeyCode::W)) {
@@ -65,7 +66,7 @@ void OrtographicCameraController::onUpdate(float const time_delta_seconds) noexc
     camera_translation_speed_ = zoom_level_;
 }
 
-void OrtographicCameraController::onEvent(Event& e)
+void OrthographicCameraController::onEvent(Event& e)
 {
     HZ_PROFILE_FUNCTION();
     EventDispatcher dispatcher{e};
@@ -75,22 +76,22 @@ void OrtographicCameraController::onEvent(Event& e)
         [this](WindowResizeEvent& e) { return this->onWindowResize(e); });
 }
 
-bool OrtographicCameraController::onMouseScrolled(MouseScrolledEvent& e)
+bool OrthographicCameraController::onMouseScrolled(MouseScrolledEvent& e)
 {
     HZ_PROFILE_FUNCTION();
     // zoom_level_ -= e.getYOffset() / 2;
     zoom_level_ = std::max(zoom_level_ - e.getYOffset() / 3, 0.25f);
-    camera_.setProjection(-aspect_ratio_ * zoom_level_, aspect_ratio_ * zoom_level_, -zoom_level_,
-                          zoom_level_);
+    camera_bounds_ = { -aspect_ratio_ * zoom_level_, aspect_ratio_ * zoom_level_, -zoom_level_, zoom_level_ };
+    camera_.setProjection(camera_bounds_.left, camera_bounds_.right, camera_bounds_.bottom, camera_bounds_.top);
     return false;
 }
 
-bool OrtographicCameraController::onWindowResize(WindowResizeEvent& e)
+bool OrthographicCameraController::onWindowResize(WindowResizeEvent& e)
 {
     HZ_PROFILE_FUNCTION();
     aspect_ratio_ = static_cast<float>(e.getWidth()) / e.getHeight();
-    camera_.setProjection(-aspect_ratio_ * zoom_level_, aspect_ratio_ * zoom_level_, -zoom_level_,
-                          zoom_level_);
+    camera_bounds_ = { -aspect_ratio_ * zoom_level_, aspect_ratio_ * zoom_level_, -zoom_level_, zoom_level_ };
+    camera_.setProjection(camera_bounds_.left, camera_bounds_.right, camera_bounds_.bottom, camera_bounds_.top);
     return false;
 }
 

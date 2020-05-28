@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 
 target_sources(Hazel
     PRIVATE
-        OrtographicCameraController.h
-        OrtographicCameraController.cpp
+        OrthographicCameraController.h
+        OrthographicCameraController.cpp
 )
 add_subdirectory(Core)
 add_subdirectory(Events)

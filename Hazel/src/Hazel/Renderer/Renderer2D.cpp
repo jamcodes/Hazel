@@ -36,11 +36,18 @@ struct Renderer2DData {
 
     std::array<Ref<Texture2D>, max_texture_slots> texture_slots;
     std::uint32_t texture_slot_index{first_texture_index};  // 0 == white texture
+
+    Renderer2D::Statistics stats;
 };
 }  // namespace Hazel
 
 namespace {
-Hazel::Renderer2DData s_data;
+::Hazel::Renderer2DData s_data;
+
+inline void increment_quad_index() noexcept
+{
+    s_data.quad_index_count += 6;  // why +6?
+}
 }  // namespace
 
 namespace Hazel {
@@ -102,13 +109,8 @@ void Renderer2D::init()
 
 void Renderer2D::shutdown() { HZ_PROFILE_FUNCTION(); }
 
-void Renderer2D::beginScene(const OrtographicCamera& camera)
+inline void Renderer2D::resetDrawBuffers() noexcept
 {
-    HZ_PROFILE_FUNCTION();
-    auto& ts{*s_data.texture_shader};
-    ts.bind();
-    ts.setUniform("u_view_projection", camera.getViewProjection());
-
     s_data.quad_index_count = 0;
     s_data.quad_vertex_buffer_ptr = s_data.quad_vertex_buffer_array.data();
 
@@ -116,23 +118,44 @@ void Renderer2D::beginScene(const OrtographicCamera& camera)
     s_data.texture_slots[s_data.white_texture_index] = s_data.white_texture;
 }
 
-void Renderer2D::endScene()
+void Renderer2D::beginScene(const OrthographicCamera& camera)
 {
     HZ_PROFILE_FUNCTION();
-    auto const data_size{
-        static_cast<std::uint32_t>((s_data.quad_vertex_buffer_ptr - s_data.quad_vertex_buffer_array.data()) *
-                                   static_cast<std::uint32_t>(sizeof(s_data.quad_vertex_buffer_array.front())))};
-    s_data.quad_vertex_array->getVertexBuffers().back()->setData(s_data.quad_vertex_buffer_array.data(), data_size);
-    flush();
+    auto& ts{*s_data.texture_shader};
+    ts.bind();
+    ts.setUniform("u_view_projection", camera.getViewProjection());
+
+    resetDrawBuffers();
 }
 
-void Renderer2D::flush()
+inline void Renderer2D::flush()
 {
     // Bind textures
     for (std::uint32_t i{0}; i != s_data.texture_slot_index; ++i) {
         s_data.texture_slots[i]->bind(i);
     }
     RenderCommand::drawIndexed(*s_data.quad_vertex_array, s_data.quad_index_count);
+    ++s_data.stats.draw_calls;
+}
+
+void Renderer2D::endScene()
+{
+    HZ_PROFILE_FUNCTION();
+
+    auto const data_size{
+        static_cast<std::uint32_t>((s_data.quad_vertex_buffer_ptr - s_data.quad_vertex_buffer_array.data()) *
+                                   sizeof(s_data.quad_vertex_buffer_array.front()))};
+    s_data.quad_vertex_array->getVertexBuffers().back()->setData(s_data.quad_vertex_buffer_array.data(), data_size);
+
+    flush();
+}
+
+inline void Renderer2D::checkAndFlush() noexcept
+{
+    if (s_data.quad_index_count >= Renderer2DData::max_indices) {
+        endScene();
+        resetDrawBuffers();
+    }
 }
 
 // primitives
@@ -144,6 +167,8 @@ void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, cons
 void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
 {
     HZ_PROFILE_FUNCTION();
+
+    checkAndFlush();
 
     const glm::mat4 transform{glm::translate(glm::mat4(1.0f), position) *
                               glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f})};
@@ -164,7 +189,8 @@ void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, cons
     fill_buffer(s_data.quad_vertex_positions[2], {1.0f, 1.0f});
     fill_buffer(s_data.quad_vertex_positions[3], {0.0f, 1.0f});
 
-    s_data.quad_index_count += 6;  // why +6?
+    increment_quad_index();
+    ++s_data.stats.quad_count;
 }
 
 void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture,
@@ -178,6 +204,8 @@ void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, cons
 {
     HZ_PROFILE_FUNCTION();
 
+    checkAndFlush();
+
     auto const texture_index = [&texture]() noexcept {
         for (std::uint32_t i{0}; i != s_data.texture_slot_index; ++i) {
             if (*s_data.texture_slots[i] == *texture) {
@@ -196,7 +224,8 @@ void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, cons
     const glm::mat4 transform{glm::translate(glm::mat4(1.0f), position) *
                               glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f})};
 
-    auto const fill_buffer = [&transform, &tint_color, texture_index, tiling_factor](glm::vec4 const& pos, glm::vec2 tx_crd) noexcept {
+    auto const fill_buffer = [&transform, &tint_color, texture_index, tiling_factor](glm::vec4 const& pos,
+                                                                                     glm::vec2 tx_crd) noexcept {
         s_data.quad_vertex_buffer_ptr->position = transform * pos;
         s_data.quad_vertex_buffer_ptr->color = tint_color;
         s_data.quad_vertex_buffer_ptr->tex_coord = tx_crd;
@@ -209,7 +238,8 @@ void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, cons
     fill_buffer(s_data.quad_vertex_positions[2], {1.0f, 1.0f});
     fill_buffer(s_data.quad_vertex_positions[3], {0.0f, 1.0f});
 
-    s_data.quad_index_count += 6;  // why +6?
+    increment_quad_index();
+    ++s_data.stats.quad_count;
 }
 
 void Renderer2D::drawQuadRotated(const glm::vec2& position, const glm::vec2& size, float rotation,
@@ -222,6 +252,8 @@ void Renderer2D::drawQuadRotated(const glm::vec3& position, const glm::vec2& siz
                                  const glm::vec4& color)
 {
     HZ_PROFILE_FUNCTION();
+
+    checkAndFlush();
 
     const glm::mat4 transform{glm::translate(glm::mat4(1.0f), position) *
                               glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f}) *
@@ -241,7 +273,8 @@ void Renderer2D::drawQuadRotated(const glm::vec3& position, const glm::vec2& siz
     fill_buffer(s_data.quad_vertex_positions[2], {1.0f, 1.0f});
     fill_buffer(s_data.quad_vertex_positions[3], {0.0f, 1.0f});
 
-    s_data.quad_index_count += 6;  // why +6?
+    increment_quad_index();
+    ++s_data.stats.quad_count;
 }
 
 void Renderer2D::drawQuadRotated(const glm::vec2& position, const glm::vec2& size, float rotation,
@@ -254,6 +287,8 @@ void Renderer2D::drawQuadRotated(const glm::vec3& position, const glm::vec2& siz
                                  const Ref<Texture2D>& texture, float tiling_factor, const glm::vec4& tint_color)
 {
     HZ_PROFILE_FUNCTION();
+
+    checkAndFlush();
 
     auto const texture_index = [&texture]() noexcept {
         for (std::uint32_t i{0}; i != s_data.texture_slot_index; ++i) {
@@ -274,7 +309,8 @@ void Renderer2D::drawQuadRotated(const glm::vec3& position, const glm::vec2& siz
                               glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f}) *
                               glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f})};
 
-    auto const fill_buffer = [&transform, &tint_color, texture_index, tiling_factor](glm::vec4 const& pos, glm::vec2 tx_crd) noexcept {
+    auto const fill_buffer = [&transform, &tint_color, texture_index, tiling_factor](glm::vec4 const& pos,
+                                                                                     glm::vec2 tx_crd) noexcept {
         s_data.quad_vertex_buffer_ptr->position = transform * pos;
         s_data.quad_vertex_buffer_ptr->color = tint_color;
         s_data.quad_vertex_buffer_ptr->tex_coord = tx_crd;
@@ -287,7 +323,12 @@ void Renderer2D::drawQuadRotated(const glm::vec3& position, const glm::vec2& siz
     fill_buffer(s_data.quad_vertex_positions[2], {1.0f, 1.0f});
     fill_buffer(s_data.quad_vertex_positions[3], {0.0f, 1.0f});
 
-    s_data.quad_index_count += 6;  // why +6?
+    increment_quad_index();
+    ++s_data.stats.quad_count;
 }
+
+void Renderer2D::resetStats() noexcept { s_data.stats = Renderer2D::Statistics{}; }
+
+Renderer2D::Statistics Renderer2D::getStats() noexcept { return s_data.stats; }
 
 }  // namespace Hazel
