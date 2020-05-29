@@ -30,9 +30,18 @@ public:
 
     OrthographicCameraBounds const& getBounds() const noexcept { return camera_bounds_; }
 
+    float getZoomLevel() const noexcept { return zoom_level_; }
+
+    void setZoomLevel(float level) noexcept
+    {
+        zoom_level_ = level;
+        calculateView();
+    }
+
 private:
     bool onMouseScrolled(MouseScrolledEvent& e);
     bool onWindowResize(WindowResizeEvent& e);
+    void calculateView() noexcept;
 
     float aspect_ratio_;
     float zoom_level_{1.0f};

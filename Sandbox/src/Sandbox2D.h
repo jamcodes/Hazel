@@ -49,6 +49,10 @@ private:
     glm::vec4 sq_color_{0.8f, 0.2f, 0.3f, 1.0f};
     glm::vec4 rect_color_{0.2f, 0.3f, 0.8f, 1.0f};
 
+    std::uint32_t map_width_{};
+    std::uint32_t map_height_{};
+    std::unordered_map<char, Hazel::Ref<Hazel::SubTexture2D>> texture_map_;
+
     ParticleProps particle_{makeParticle()};
     ParticleSystem particle_system_{10'000};
 };

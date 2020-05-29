@@ -3,7 +3,27 @@
 #include <imgui/imgui.h>
 
 #include <chrono>
+#include <cstring>
 #include <glm/gtc/type_ptr.hpp>
+
+namespace {
+constexpr std::uint32_t s_map_width{24};
+const char* s_map_tiles =
+    "WWWWWWWWWWWWWWWWWWWWWWWW"
+    "WWWWWDDDDDDDDDDDDWWWWWWW"
+    "WWWDDDDDDDDDDDDDDDWWWWWW"
+    "WWWWWDDDDDDDDDDDDDDWWWWW"
+    "WWWWDDDDDDDDDWWDDDDDWWWW"
+    "WDDDDDDDDDDWWWDDDDDDWWWW"
+    "WDDDDDDDDWWDDWDDDDDDWWWW"
+    "WDDDDDDDDDDDDDDDDDDDWWWW"
+    "WDDDDDDDDDDDDDDDDDDDWWWW"
+    "WWDDDDDDDDDDDDDDDDDDWWWW"
+    "WWDDDDDDDDDcDDDDDDDWWWWW"
+    "WWWDDDDDDDDDDDDDDDWWWWWW"
+    "WWWWWWWWWWWWWWWWWWWWWWWW"
+    "WWWWWWWWWWWWWWWWWWWWWWWW";
+}  // namespace
 
 namespace Sandbox {
 
@@ -45,12 +65,22 @@ Sandbox2D::Sandbox2D() : Layer{"Sandbox2D"}, camera_controller_{1280.0f / 720.0f
 void Sandbox2D::onAttach()
 {
     HZ_PROFILE_FUNCTION();
+
     checkerboard_texture_ = Hazel::Texture2D::create("assets/textures/Checkerboard.png");
     sprite_sheet_ = Hazel::Texture2D::create("assets/game/textures/RPGpack_sheet_2X.png");
     texture_stairs_ = Hazel::SubTexture2D::createFromCoords(sprite_sheet_, {2, 1}, {128, 128}, {1, 2});
+
     for (auto i{0}; i != 20; ++i) {
         sprites_.push_back(Hazel::SubTexture2D::createFromCoords(sprite_sheet_, {i, 0}, {128, 128}));
     }
+
+    map_width_ = s_map_width;
+    map_height_ = std::strlen(s_map_tiles) / s_map_width;
+
+    texture_map_['D'] = Hazel::SubTexture2D::createFromCoords(sprite_sheet_, {6, 11}, {128, 128});
+    texture_map_['W'] = Hazel::SubTexture2D::createFromCoords(sprite_sheet_, {11, 11}, {128, 128});
+
+    camera_controller_.setZoomLevel(5.0f);
 }
 
 void Sandbox2D::onDetach() { HZ_PROFILE_FUNCTION(); }
@@ -92,21 +122,39 @@ void Sandbox2D::onUpdate(float time_delta_seconds)
     Hazel::Renderer2D::endScene();
 #endif
 
-    if (Hazel::Input::isMouseButtonPressed(Hazel::MouseButton::Left))
-    {
+    if (Hazel::Input::isMouseButtonPressed(Hazel::MouseButton::Left)) {
         emitParticles();
     }
 
-    Hazel::Renderer2D::beginScene(camera_controller_.getCamera());
-    Hazel::Renderer2D::drawQuad({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, sprite_sheet_);
-    Hazel::Renderer2D::drawQuad({1.0f, 1.0f, 0.1f}, {1.0f, 2.0f}, texture_stairs_);
-    for (auto i{0}; i != 20; ++i) {
-        Hazel::Renderer2D::drawQuad({i-10, -1.0f, 0.0f}, {1.0f, 1.0f}, sprites_[i]);
-    }
-    Hazel::Renderer2D::endScene();
+    // Hazel::Renderer2D::beginScene(camera_controller_.getCamera());
+    // Hazel::Renderer2D::drawQuad({1.0f, 1.0f, 0.1f}, {1.0f, 2.0f}, texture_stairs_);
+    // for (auto i{0}; i != sprites_.size(); ++i) {
+    //     Hazel::Renderer2D::drawQuad({i - 10, -1.0f, 0.0f}, {1.0f, 1.0f}, sprites_[i]);
+    // }
+    // Hazel::Renderer2D::endScene();
 
     particle_system_.onUpdate(time_delta_seconds);
     particle_system_.onRender(camera_controller_.getCamera());
+
+    Hazel::Renderer2D::beginScene(camera_controller_.getCamera());
+
+    for (std::uint32_t y{0}; y != map_height_; ++y) {
+        for (std::uint32_t x{0}; x != map_width_; ++x) {
+            const char tile_type{s_map_tiles[x + y * map_width_]};
+            const Hazel::Ref<Hazel::SubTexture2D> texture = [&]() noexcept {
+                auto const it{texture_map_.find(tile_type)};
+                if (it != texture_map_.cend()) {
+                    return it->second;
+                }
+                else {
+                    return this->texture_stairs_;  // "error" texture
+                }
+            }();
+            Hazel::Renderer2D::drawQuad({x - map_width_ / 2.0f, map_height_ / 2.0f - y, 0.2f}, {1.0f, 1.0f}, texture);
+        }
+    }
+
+    Hazel::Renderer2D::endScene();
 }
 
 void Sandbox2D::onImGuiRender()
@@ -137,10 +185,8 @@ void Sandbox2D::emitParticles() noexcept
     auto pos = camera_controller_.getCamera().getPosition();
     x = (x / width) * bounds.getWidth() - bounds.getWidth() * 0.5f;
     y = bounds.getHeight() * 0.5f - (y / height) * bounds.getHeight();
-    particle_.position = { x + pos.x, y + pos.y };
-    for (int i{0}; i != 5; ++i)
-        particle_system_.emit(particle_);
+    particle_.position = {x + pos.x, y + pos.y};
+    for (int i{0}; i != 5; ++i) particle_system_.emit(particle_);
 }
-
 
 }  // namespace Sandbox

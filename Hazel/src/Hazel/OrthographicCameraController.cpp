@@ -76,13 +76,17 @@ void OrthographicCameraController::onEvent(Event& e)
         [this](WindowResizeEvent& e) { return this->onWindowResize(e); });
 }
 
+void OrthographicCameraController::calculateView() noexcept
+{
+    camera_bounds_ = { -aspect_ratio_ * zoom_level_, aspect_ratio_ * zoom_level_, -zoom_level_, zoom_level_ };
+    camera_.setProjection(camera_bounds_.left, camera_bounds_.right, camera_bounds_.bottom, camera_bounds_.top);
+}
+
 bool OrthographicCameraController::onMouseScrolled(MouseScrolledEvent& e)
 {
     HZ_PROFILE_FUNCTION();
-    // zoom_level_ -= e.getYOffset() / 2;
     zoom_level_ = std::max(zoom_level_ - e.getYOffset() / 3, 0.25f);
-    camera_bounds_ = { -aspect_ratio_ * zoom_level_, aspect_ratio_ * zoom_level_, -zoom_level_, zoom_level_ };
-    camera_.setProjection(camera_bounds_.left, camera_bounds_.right, camera_bounds_.bottom, camera_bounds_.top);
+    calculateView();
     return false;
 }
 
@@ -90,8 +94,7 @@ bool OrthographicCameraController::onWindowResize(WindowResizeEvent& e)
 {
     HZ_PROFILE_FUNCTION();
     aspect_ratio_ = static_cast<float>(e.getWidth()) / e.getHeight();
-    camera_bounds_ = { -aspect_ratio_ * zoom_level_, aspect_ratio_ * zoom_level_, -zoom_level_, zoom_level_ };
-    camera_.setProjection(camera_bounds_.left, camera_bounds_.right, camera_bounds_.bottom, camera_bounds_.top);
+    calculateView();
     return false;
 }
 
