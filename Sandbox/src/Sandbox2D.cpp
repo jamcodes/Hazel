@@ -46,6 +46,11 @@ void Sandbox2D::onAttach()
 {
     HZ_PROFILE_FUNCTION();
     checkerboard_texture_ = Hazel::Texture2D::create("assets/textures/Checkerboard.png");
+    sprite_sheet_ = Hazel::Texture2D::create("assets/game/textures/RPGpack_sheet_2X.png");
+    texture_stairs_ = Hazel::SubTexture2D::createFromCoords(sprite_sheet_, {2, 1}, {128, 128}, {1, 2});
+    for (auto i{0}; i != 20; ++i) {
+        sprites_.push_back(Hazel::SubTexture2D::createFromCoords(sprite_sheet_, {i, 0}, {128, 128}));
+    }
 }
 
 void Sandbox2D::onDetach() { HZ_PROFILE_FUNCTION(); }
@@ -66,6 +71,7 @@ void Sandbox2D::onUpdate(float time_delta_seconds)
     static float rotation{0.0f};
     rotation += time_delta_seconds * 40.0f;
 
+#if 0
     HZ_PROFILE_SCOPE("CameraController::onUpdate");
     Hazel::Renderer2D::beginScene(camera_controller_.getCamera());
     Hazel::Renderer2D::drawQuadRotated({1.0f, 0.0f}, {0.8f, 0.8f}, glm::radians(-rotation), sq_color_);
@@ -84,21 +90,20 @@ void Sandbox2D::onUpdate(float time_delta_seconds)
         }
     }
     Hazel::Renderer2D::endScene();
+#endif
 
     if (Hazel::Input::isMouseButtonPressed(Hazel::MouseButton::Left))
     {
-        auto [x, y] = Hazel::Input::getMousePosition();
-        auto width = Hazel::Application::get().getWindow().getWidth();
-        auto height = Hazel::Application::get().getWindow().getHeight();
-
-        auto bounds = camera_controller_.getBounds();
-        auto pos = camera_controller_.getCamera().getPosition();
-        x = (x / width) * bounds.getWidth() - bounds.getWidth() * 0.5f;
-        y = bounds.getHeight() * 0.5f - (y / height) * bounds.getHeight();
-        particle_.position = { x + pos.x, y + pos.y };
-        for (int i = 0; i < 5; i++)
-            particle_system_.emit(particle_);
+        emitParticles();
     }
+
+    Hazel::Renderer2D::beginScene(camera_controller_.getCamera());
+    Hazel::Renderer2D::drawQuad({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, sprite_sheet_);
+    Hazel::Renderer2D::drawQuad({1.0f, 1.0f, 0.1f}, {1.0f, 2.0f}, texture_stairs_);
+    for (auto i{0}; i != 20; ++i) {
+        Hazel::Renderer2D::drawQuad({i-10, -1.0f, 0.0f}, {1.0f, 1.0f}, sprites_[i]);
+    }
+    Hazel::Renderer2D::endScene();
 
     particle_system_.onUpdate(time_delta_seconds);
     particle_system_.onRender(camera_controller_.getCamera());
@@ -121,5 +126,21 @@ void Sandbox2D::onImGuiRender()
 }
 
 void Sandbox2D::onEvent(Hazel::Event& e) { camera_controller_.onEvent(e); }
+
+void Sandbox2D::emitParticles() noexcept
+{
+    auto [x, y] = Hazel::Input::getMousePosition();
+    auto width = Hazel::Application::get().getWindow().getWidth();
+    auto height = Hazel::Application::get().getWindow().getHeight();
+
+    auto bounds = camera_controller_.getBounds();
+    auto pos = camera_controller_.getCamera().getPosition();
+    x = (x / width) * bounds.getWidth() - bounds.getWidth() * 0.5f;
+    y = bounds.getHeight() * 0.5f - (y / height) * bounds.getHeight();
+    particle_.position = { x + pos.x, y + pos.y };
+    for (int i{0}; i != 5; ++i)
+        particle_system_.emit(particle_);
+}
+
 
 }  // namespace Sandbox

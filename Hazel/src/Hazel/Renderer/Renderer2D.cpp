@@ -19,7 +19,8 @@ struct QuadVertex {
 
 struct Renderer2DData {
     static constexpr const std::uint32_t max_quads{10'000};
-    static constexpr const std::uint32_t max_vertices{max_quads * 4};
+    static constexpr const std::uint32_t quad_vertex_count{4};
+    static constexpr const std::uint32_t max_vertices{max_quads * quad_vertex_count};
     static constexpr const std::uint32_t max_indices{max_quads * 6};
     static constexpr const std::uint32_t max_texture_slots{32};  // TODO: Renderer-capabilities
     static constexpr const std::uint32_t first_texture_index{1};
@@ -242,6 +243,62 @@ void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, cons
     ++s_data.stats.quad_count;
 }
 
+void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<SubTexture2D>& subtexture,
+                          float tiling_factor, const glm::vec4& tint_color)
+{
+    drawQuad({position.x, position.y, 0.0f}, size, subtexture, tiling_factor, tint_color);
+}
+
+void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<SubTexture2D>& subtexture,
+                          float tiling_factor, const glm::vec4& tint_color)
+{
+    HZ_PROFILE_FUNCTION();
+
+    checkAndFlush();
+
+    auto const& tex_coords{subtexture->getCoords()};
+    auto const& texture{subtexture->getTexture()};
+
+    auto const texture_index = [&texture]() noexcept {
+        for (std::uint32_t i{0}; i != s_data.texture_slot_index; ++i) {
+            if (*s_data.texture_slots[i] == *texture) {
+                return static_cast<float>(i);
+            }
+        }
+        return static_cast<float>(s_data.texture_slot_index);
+    }();
+    // If texture not found
+    if (static_cast<const std::uint32_t>(texture_index) == s_data.texture_slot_index) {
+        HZ_ASSERT(s_data.texture_slot_index != s_data.max_texture_slots, "Maximum texture slots exceeded");
+        s_data.texture_slots[static_cast<const std::uint32_t>(texture_index)] = texture;
+        ++s_data.texture_slot_index;
+    }
+
+    const glm::mat4 transform{glm::translate(glm::mat4(1.0f), position) *
+                              glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f})};
+
+    auto const fill_buffer = [&transform, &tint_color, texture_index, tiling_factor](glm::vec4 const& pos,
+                                                                                     glm::vec2 tx_crd) noexcept {
+        s_data.quad_vertex_buffer_ptr->position = transform * pos;
+        s_data.quad_vertex_buffer_ptr->color = tint_color;
+        s_data.quad_vertex_buffer_ptr->tex_coord = tx_crd;
+        s_data.quad_vertex_buffer_ptr->tex_index = texture_index;
+        s_data.quad_vertex_buffer_ptr->tiling_factor = tiling_factor;
+        ++s_data.quad_vertex_buffer_ptr;
+    };
+
+    for (std::uint32_t i{0}; i != Renderer2DData::quad_vertex_count; ++i){
+        fill_buffer(s_data.quad_vertex_positions[i], tex_coords[i]);
+    }
+    // fill_buffer(s_data.quad_vertex_positions[0], {0.0f, 0.0f});
+    // fill_buffer(s_data.quad_vertex_positions[1], {1.0f, 0.0f});
+    // fill_buffer(s_data.quad_vertex_positions[2], {1.0f, 1.0f});
+    // fill_buffer(s_data.quad_vertex_positions[3], {0.0f, 1.0f});
+
+    increment_quad_index();
+    ++s_data.stats.quad_count;
+}
+
 void Renderer2D::drawQuadRotated(const glm::vec2& position, const glm::vec2& size, float rotation,
                                  const glm::vec4& color)
 {
@@ -322,6 +379,63 @@ void Renderer2D::drawQuadRotated(const glm::vec3& position, const glm::vec2& siz
     fill_buffer(s_data.quad_vertex_positions[1], {1.0f, 0.0f});
     fill_buffer(s_data.quad_vertex_positions[2], {1.0f, 1.0f});
     fill_buffer(s_data.quad_vertex_positions[3], {0.0f, 1.0f});
+
+    increment_quad_index();
+    ++s_data.stats.quad_count;
+}
+
+void Renderer2D::drawQuadRotated(const glm::vec2& position, const glm::vec2& size, float rotation,
+                                 const Ref<SubTexture2D>& subtexture, float tiling_factor, const glm::vec4& tint_color)
+{
+    drawQuadRotated({position.x, position.y, 0.0f}, size, rotation, subtexture, tiling_factor, tint_color);
+}
+
+void Renderer2D::drawQuadRotated(const glm::vec3& position, const glm::vec2& size, float rotation,
+                                 const Ref<SubTexture2D>& subtexture, float tiling_factor, const glm::vec4& tint_color)
+{
+    HZ_PROFILE_FUNCTION();
+
+    checkAndFlush();
+
+    auto const& tex_coords{subtexture->getCoords()};
+    auto const& texture{subtexture->getTexture()};
+
+    auto const texture_index = [&texture]() noexcept {
+        for (std::uint32_t i{0}; i != s_data.texture_slot_index; ++i) {
+            if (*s_data.texture_slots[i] == *texture) {
+                return static_cast<float>(i);
+            }
+        }
+        return static_cast<float>(s_data.texture_slot_index);
+    }();
+    // If texture not found
+    if (static_cast<const std::uint32_t>(texture_index) == s_data.texture_slot_index) {
+        HZ_ASSERT(s_data.texture_slot_index != s_data.max_texture_slots, "Maximum texture slots exceeded");
+        s_data.texture_slots[static_cast<const std::uint32_t>(texture_index)] = texture;
+        ++s_data.texture_slot_index;
+    }
+
+    const glm::mat4 transform{glm::translate(glm::mat4(1.0f), position) *
+                              glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f}) *
+                              glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f})};
+
+    auto const fill_buffer = [&transform, &tint_color, texture_index, tiling_factor](glm::vec4 const& pos,
+                                                                                     glm::vec2 tx_crd) noexcept {
+        s_data.quad_vertex_buffer_ptr->position = transform * pos;
+        s_data.quad_vertex_buffer_ptr->color = tint_color;
+        s_data.quad_vertex_buffer_ptr->tex_coord = tx_crd;
+        s_data.quad_vertex_buffer_ptr->tex_index = texture_index;
+        s_data.quad_vertex_buffer_ptr->tiling_factor = tiling_factor;
+        ++s_data.quad_vertex_buffer_ptr;
+    };
+    for (std::uint32_t i{0}; i != Renderer2DData::quad_vertex_count; ++i)
+    {
+        fill_buffer(s_data.quad_vertex_positions[i], tex_coords[i]);
+    }
+    // fill_buffer(s_data.quad_vertex_positions[0], {0.0f, 0.0f});
+    // fill_buffer(s_data.quad_vertex_positions[1], {1.0f, 0.0f});
+    // fill_buffer(s_data.quad_vertex_positions[2], {1.0f, 1.0f});
+    // fill_buffer(s_data.quad_vertex_positions[3], {0.0f, 1.0f});
 
     increment_quad_index();
     ++s_data.stats.quad_count;

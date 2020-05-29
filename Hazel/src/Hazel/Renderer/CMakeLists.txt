@@ -21,4 +21,6 @@ target_sources(${PROJECT_NAME}
         Buffer.h
         Texture.h
         Texture.cpp
+        SubTexture2D.h
+        SubTexture2D.cpp
 )

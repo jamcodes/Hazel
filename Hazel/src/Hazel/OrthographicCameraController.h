@@ -40,7 +40,7 @@ private:
     OrthographicCamera camera_;
 
     glm::vec3 camera_position_{0.0f, 0.0f, 0.0f};
-    float camera_translation_speed_{1.0f};
+    float camera_translation_speed_{2.0f};
 
     float camera_rotation_{};
     float camera_rotation_speed_{90.0f};
