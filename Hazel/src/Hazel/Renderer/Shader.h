@@ -4,7 +4,7 @@
 
 #include <glm/glm.hpp>
 
-#include "Hazel/Core/Core.h"
+#include "Hazel/Core/Base.h"
 
 namespace Hazel {
 

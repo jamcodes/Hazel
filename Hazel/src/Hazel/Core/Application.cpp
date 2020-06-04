@@ -116,6 +116,11 @@ void Application::run()
     }
 }
 
+void Application::close() noexcept
+{
+    running_ = false;
+}
+
 void Application::onEvent(Event& e)
 {
     HZ_PROFILE_FUNCTION();
@@ -124,7 +129,8 @@ void Application::onEvent(Event& e)
     dispatcher.dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) { return this->onWindowResize(e); });
 
     for (auto it{layerStack_.end()}; it != layerStack_.begin() && !e.handled;) {
-        (--it)->get()->onEvent(e);
+        if (e.handled) { break; }
+        (*--it)->onEvent(e);
     }
 }
 

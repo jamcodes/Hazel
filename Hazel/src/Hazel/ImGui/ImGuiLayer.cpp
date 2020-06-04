@@ -55,6 +55,13 @@ void ImGuiLayer::onDetach()
     ImGui::DestroyContext();
 }
 
+void ImGuiLayer::onEvent(Event& e) noexcept
+{
+    ImGuiIO& io = ImGui::GetIO();
+    e.handled |= e.isInCategory(EventCategoryMouse) & io.WantCaptureMouse;
+    e.handled |= e.isInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
+}
+
 void ImGuiLayer::begin()
 {
     HZ_PROFILE_FUNCTION();
@@ -81,8 +88,8 @@ void ImGuiLayer::end()
 
 void ImGuiLayer::onImGuiRender()
 {
-    static bool show = true;
-    ImGui::ShowDemoWindow(&show);
+    // static bool show = true;
+    // ImGui::ShowDemoWindow(&show);
 }
 
 }  // namespace Hazel

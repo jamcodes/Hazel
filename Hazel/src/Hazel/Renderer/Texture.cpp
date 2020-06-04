@@ -42,7 +42,6 @@ Ref<Texture2D> Texture2D::create(unsigned width, unsigned height)
     case RendererAPI::API::None:
         HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce, "RendererAPI::API::None is currently not supported");
     case RendererAPI::API::OpenGL:
-        // return makeRef<OpenGLTexture2D>(width, height);
         return create<OpenGLTexture2D>(width, height);
     default:
         HZ_EXPECTS(false, DefaultCoreHandler, Hazel::Enforce, "Unknown RendererAPI::API");

@@ -21,6 +21,8 @@ public:
     void onEvent(Hazel::Event&) override;
 
 private:
+    void drawTileMap();
+
     constexpr static ParticleProps makeParticle() noexcept
     {
         ParticleProps particle;

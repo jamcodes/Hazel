@@ -52,12 +52,45 @@ void OpenGLVertexArray::unbind() const
     glBindVertexArray(0);
 }
 
+inline void OpenGLVertexArray::defineVertexAttributeArray(BufferElement const& element, std::uint32_t stride) noexcept
+{
+    const auto count{componentCount(element.type)};
+    const auto native_type{shaderDataTypeToPlatformType<GLenum>(element.type)};
+    const auto is_normalized{element.normalized ? GL_TRUE : GL_FALSE};
+    switch (element.type) {
+    case ShaderDataType::Float:
+    case ShaderDataType::Float2:
+    case ShaderDataType::Float3:
+    case ShaderDataType::Float4:
+    case ShaderDataType::Int:
+    case ShaderDataType::Int2:
+    case ShaderDataType::Int3:
+    case ShaderDataType::Int4:
+    case ShaderDataType::Bool: {
+        glVertexAttribPointer(vertex_buffer_index_, count, native_type, is_normalized, stride,
+                              reinterpret_cast<const void*>(element.offset));
+        break;
+    }
+    case ShaderDataType::Mat3:
+    case ShaderDataType::Mat4: {
+        for (std::uint32_t i{0}; i != count; ++i) {
+            glVertexAttribPointer(vertex_buffer_index_, count, native_type, is_normalized, stride,
+                                  reinterpret_cast<const void*>(sizeof(float) * count * i));
+            glVertexAttribDivisor(vertex_buffer_index_, 1);
+        }
+        break;
+    }
+    default:
+        HZ_ASSERT(false, "Unknown ShaderDataType!");
+    }
+}
+
 void OpenGLVertexArray::addVertexBuffer(Scope<VertexBuffer> p_vertex_buffer)
 {
     HZ_PROFILE_FUNCTION();
     HZ_EXPECTS(p_vertex_buffer != nullptr, DefaultCoreHandler, Enforce, "VertexBuffer* may not be nullptr");
     HZ_EXPECTS(!p_vertex_buffer->getLayout().getElements().empty(), DefaultCoreHandler, Enforce,
-              "VertexBuffer must have a layout set");
+               "VertexBuffer must have a layout set");
 
     glBindVertexArray(renderer_id_);
     p_vertex_buffer->bind();
@@ -65,10 +98,7 @@ void OpenGLVertexArray::addVertexBuffer(Scope<VertexBuffer> p_vertex_buffer)
     auto const& vb_layout{p_vertex_buffer->getLayout()};
     for (const auto& element : vb_layout) {
         glEnableVertexAttribArray(vertex_buffer_index_);
-        glVertexAttribPointer(vertex_buffer_index_, componentCount(element.type),
-                              shaderDataTypeToPlatformType<GLenum>(element.type),
-                              element.normalized ? GL_TRUE : GL_FALSE, vb_layout.getStride(),
-                              reinterpret_cast<const void*>(element.offset));
+        defineVertexAttributeArray(element, vb_layout.getStride());
         ++vertex_buffer_index_;
     }
 

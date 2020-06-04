@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "VertexArray.h"
-#include "Hazel/Core/Core.h"
+#include "Hazel/Core/Base.h"
 
 namespace Hazel
 {

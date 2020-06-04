@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-#include "Hazel/Core/Core.h"
+#include "Hazel/Core/Base.h"
 #include "Hazel/Core/Window.h"
 #include "Hazel/Core/LayerStack.h"
 #include "Hazel/Core/Timestep.h"
@@ -27,6 +27,8 @@ public:
 
     void pushLayer(std::unique_ptr<Layer> layer);
     void pushOverlay(std::unique_ptr<Layer> overlay);
+
+    void close() noexcept;
 
     inline Window& getWindow() noexcept { return *window_; }
     inline Window const& getWindow() const noexcept { return *window_; }

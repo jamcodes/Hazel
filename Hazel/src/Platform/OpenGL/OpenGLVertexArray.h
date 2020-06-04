@@ -25,6 +25,8 @@ public:
     }
 
 private:
+    inline void defineVertexAttributeArray(BufferElement const& element, std::uint32_t stride) noexcept;
+
     std::uint32_t renderer_id_{0};
     std::uint32_t vertex_buffer_index_{0};
     std::vector<Scope<VertexBuffer>> vertex_buffers_{};

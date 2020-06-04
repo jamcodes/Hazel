@@ -31,8 +31,8 @@ macro(SetGlobalFlags)
 
     # Default build type if not specified explicitly at configure time
     if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-        message(STATUS "${ColorYellow}Setting build type to '${arg_DEFAULT_BUILD_TYPE}' as none was specified.${ColorReset}")
-        set(CMAKE_BUILD_TYPE ${arg_DEFAULT_BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE)
+        message(STATUS "${ColorYellow}Setting build type to '${setglobalflags_DEFAULT_BUILD_TYPE}' as none was specified.${ColorReset}")
+        set(CMAKE_BUILD_TYPE ${setglobalflags_DEFAULT_BUILD_TYPE} CACHE STRING "Choose the type of build." FORCE)
     endif()
 
     # TODO: Reliably detect target architecture for other paltforms and compilers

@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 
 #include "Hazel/Core/AssertionHandler.h"
-#include "Hazel/Core/Core.h"
+#include "Hazel/Core/Base.h"
 #include "Hazel/Core/Log.h"
 
 namespace {

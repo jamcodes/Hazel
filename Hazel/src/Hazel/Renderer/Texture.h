@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 
-#include "Hazel/Core/Core.h"
+#include "Hazel/Core/Base.h"
 
 namespace Hazel
 {
@@ -14,6 +14,7 @@ public:
 
     virtual std::uint32_t getWidth() const noexcept = 0;
     virtual std::uint32_t getHeight() const noexcept = 0;
+    virtual std::uint32_t getRendererId() const noexcept = 0;
 
     // upload a raw block of memory to the gpu
     virtual void setData(const void*, unsigned size) = 0;

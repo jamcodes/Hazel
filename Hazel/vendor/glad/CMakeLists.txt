@@ -11,8 +11,9 @@ add_subdirectory(src)
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
-        $<$<BOOL:${OPENGL_gl_LIBRARY}>:OpenGL::GL>
-        $<$<NOT:$<BOOL:${OPENGL_gl_LIBRARY}>>:OpenGL::OpenGL>
+        $<IF:$<BOOL:${OPENGL_gl_LIBRARY}>,OpenGL::GL,OpenGL::OpenGL>
+        # $<$<BOOL:${OPENGL_gl_LIBRARY}>:OpenGL::GL>
+        # $<$<NOT:$<BOOL:${OPENGL_gl_LIBRARY}>>:OpenGL::OpenGL>
         $<$<BOOL:${OPENGL_GLU_FOUND}>:OpenGL::GLU>
         $<$<BOOL:${OpenGL_GLX_FOUND}>:OpenGL::GLX>
         $<$<BOOL:${OpenGL_EGL_FOUND}>:OpenGL::EGL>

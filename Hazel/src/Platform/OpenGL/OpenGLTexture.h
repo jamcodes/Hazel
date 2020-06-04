@@ -13,8 +13,10 @@ public:
     ~OpenGLTexture2D() noexcept override;
     OpenGLTexture2D& operator=(OpenGLTexture2D&&) = delete;
 
-    std::uint32_t getWidth() const noexcept override { return width_; }
-    std::uint32_t getHeight() const noexcept override { return height_; }
+    std::uint32_t getWidth() const noexcept override final { return width_; }
+    std::uint32_t getHeight() const noexcept override final { return height_; }
+    std::uint32_t getRendererId() const noexcept override final { return renderer_id_; }
+
 
     void setData(const void* data, unsigned size) noexcept override;
 

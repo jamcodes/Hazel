@@ -131,12 +131,14 @@ void Renderer2D::beginScene(const OrthographicCamera& camera)
 
 inline void Renderer2D::flush()
 {
-    // Bind textures
-    for (std::uint32_t i{0}; i != s_data.texture_slot_index; ++i) {
-        s_data.texture_slots[i]->bind(i);
+    if (s_data.quad_index_count != 0) {
+        // Bind textures
+        for (std::uint32_t i{0}; i != s_data.texture_slot_index; ++i) {
+            s_data.texture_slots[i]->bind(i);
+        }
+        RenderCommand::drawIndexed(*s_data.quad_vertex_array, s_data.quad_index_count);
+        ++s_data.stats.draw_calls;
     }
-    RenderCommand::drawIndexed(*s_data.quad_vertex_array, s_data.quad_index_count);
-    ++s_data.stats.draw_calls;
 }
 
 void Renderer2D::endScene()
@@ -215,8 +217,12 @@ void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, cons
         }
         return static_cast<float>(s_data.texture_slot_index);
     }();
+
     // If texture not found
     if (static_cast<const std::uint32_t>(texture_index) == s_data.texture_slot_index) {
+        if (s_data.texture_slot_index >= Renderer2DData::max_texture_slots) {
+            checkAndFlush();
+        }
         HZ_ASSERT(s_data.texture_slot_index != s_data.max_texture_slots, "Maximum texture slots exceeded");
         s_data.texture_slots[static_cast<const std::uint32_t>(texture_index)] = texture;
         ++s_data.texture_slot_index;
@@ -269,6 +275,9 @@ void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, cons
     }();
     // If texture not found
     if (static_cast<const std::uint32_t>(texture_index) == s_data.texture_slot_index) {
+        if (s_data.texture_slot_index >= Renderer2DData::max_texture_slots) {
+            checkAndFlush();
+        }
         HZ_ASSERT(s_data.texture_slot_index != s_data.max_texture_slots, "Maximum texture slots exceeded");
         s_data.texture_slots[static_cast<const std::uint32_t>(texture_index)] = texture;
         ++s_data.texture_slot_index;
@@ -287,13 +296,9 @@ void Renderer2D::drawQuad(const glm::vec3& position, const glm::vec2& size, cons
         ++s_data.quad_vertex_buffer_ptr;
     };
 
-    for (std::uint32_t i{0}; i != Renderer2DData::quad_vertex_count; ++i){
+    for (std::uint32_t i{0}; i != Renderer2DData::quad_vertex_count; ++i) {
         fill_buffer(s_data.quad_vertex_positions[i], tex_coords[i]);
     }
-    // fill_buffer(s_data.quad_vertex_positions[0], {0.0f, 0.0f});
-    // fill_buffer(s_data.quad_vertex_positions[1], {1.0f, 0.0f});
-    // fill_buffer(s_data.quad_vertex_positions[2], {1.0f, 1.0f});
-    // fill_buffer(s_data.quad_vertex_positions[3], {0.0f, 1.0f});
 
     increment_quad_index();
     ++s_data.stats.quad_count;
@@ -428,14 +433,9 @@ void Renderer2D::drawQuadRotated(const glm::vec3& position, const glm::vec2& siz
         s_data.quad_vertex_buffer_ptr->tiling_factor = tiling_factor;
         ++s_data.quad_vertex_buffer_ptr;
     };
-    for (std::uint32_t i{0}; i != Renderer2DData::quad_vertex_count; ++i)
-    {
+    for (std::uint32_t i{0}; i != Renderer2DData::quad_vertex_count; ++i) {
         fill_buffer(s_data.quad_vertex_positions[i], tex_coords[i]);
     }
-    // fill_buffer(s_data.quad_vertex_positions[0], {0.0f, 0.0f});
-    // fill_buffer(s_data.quad_vertex_positions[1], {1.0f, 0.0f});
-    // fill_buffer(s_data.quad_vertex_positions[2], {1.0f, 1.0f});
-    // fill_buffer(s_data.quad_vertex_positions[3], {0.0f, 1.0f});
 
     increment_quad_index();
     ++s_data.stats.quad_count;

@@ -6,7 +6,7 @@ target_sources(Hazel
         Application.h
         Assertion.h
         AssertionHandler.h
-        Core.h
+        Base.h
         EntryPoint.h
         EnumOperators.h
         KeyCodes.h

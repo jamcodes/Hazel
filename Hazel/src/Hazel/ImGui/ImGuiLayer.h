@@ -16,7 +16,7 @@ public:
     void onDetach() override;
     void onUpdate(float /* time_delta */) override { }
     void onImGuiRender() override;
-    void onEvent(Event&) noexcept override { }
+    void onEvent(Event&) noexcept override;
 
     void begin();
     void end();

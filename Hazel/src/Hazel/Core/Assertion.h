@@ -35,14 +35,17 @@
 #define CONTRACT_MARK_UNREACHABLE() __assume(0)
 #elif defined(__GNUC__)
 #define CONTRACT_ASSUME(cond) ((cond) ? static_cast<void>(0) : __builtin_unreachable())
+// #define CONTRACT_ASSUME(cond) if(!CONTRACT_LIKELY(cond)) { __builtin_unreachable(); }
 #define CONTRACT_MARK_UNREACHABLE() __builtin_unreachable()
 #elif defined(__has_builtin)
 #if __has_builtin(__builtin_unreachable)
 #define CONTRACT_ASSUME(cond) ((cond) ? static_cast<void>(0) : __builtin_unreachable())
+// #define CONTRACT_ASSUME(cond) if(!CONTRACT_LIKELY(cond)) { __builtin_unreachable(); }
 #define CONTRACT_MARK_UNREACHABLE() __builtin_unreachable()
 #endif
 #else
 #define CONTRACT_ASSUME(cond) static_cast<void>((cond) ? 0 : 0)
+// #define CONTRACT_ASSUME(cond) if(CONTRACT_LIKELY(cond)) { }
 #define CONTRACT_MARK_UNREACHABLE()
 #endif
 
@@ -158,11 +161,13 @@ struct ContractAssert final {
         Expr const& expr, source_location const& loc, const char* const expr_str,
         Args&&... args) noexcept(noexcept(Handler::handle(loc, expr_str, std::forward<Args>(args)...)))
     {
-        return CONTRACT_LIKELY(expr())
-                   ? static_cast<void>(0)
-                   //    : contract_assert_failed<Handler>(loc, expr_str, std::forward<Args>(args)...);
-                   // call handler directly? The indirection
-                   : static_cast<void>(Handler::handle(loc, expr_str, std::forward<Args>(args)...));
+        // return CONTRACT_LIKELY(expr())
+        //            ? static_cast<void>(0)
+        //            //    : contract_assert_failed<Handler>(loc, expr_str, std::forward<Args>(args)...);
+        //            // call handler directly? The indirection
+        //            : static_cast<void>(Handler::handle(loc, expr_str, std::forward<Args>(args)...));
+        if (CONTRACT_LIKELY(expr())) { return static_cast<void>(0); }
+        else { return static_cast<void>(Handler::handle(loc, expr_str, std::forward<Args>(args)...)); }
     }
 };
 
@@ -182,6 +187,8 @@ struct ContractAssert<Handler, Level, Assume> final {
                                                           Args&&...) noexcept
     {
         return CONTRACT_ASSUME(expr());
+        // if (CONTRACT_LIKELY(expr())) { return static_cast<void>(0); }
+        // else { CONTRACT_MARK_UNREACHABLE(); }
     }
 };
 
@@ -240,10 +247,18 @@ inline constexpr Hazel::ContractLevel<HZ_CONTRACT_LEVEL_CONFIG> global_contract_
 }  // namespace Hazel
 
 #if (HZ_CONTRACT_LEVEL_CONFIG >= HZ_CONTRACT_LEVEL_ENFORCE)
+// #define CONTRACT_ASSERT(eXPR) \
+//     CONTRACT_LIKELY(eXPR) ? static_cast<void>(0) : ::Hazel::assert_failure(CONTRACT_SRC_LOC(), #eXPR);
+// #define CONTRACT_ASSERT(eXPR, msg) \
+//     CONTRACT_LIKELY(eXPR) ? static_cast<void>(0) : ::Hazel::assert_failure(CONTRACT_SRC_LOC(), #eXPR, msg);
+// #define CONTRACT_ASSERT(eXPR) \
+//     if(CONTRACT_LIKELY(eXPR)) { } else {::Hazel::assert_failure(CONTRACT_SRC_LOC(), #eXPR); }
+// #define CONTRACT_ASSERT(eXPR, msg) \
+//     if(CONTRACT_LIKELY(eXPR)) { } else { ::Hazel::assert_failure(CONTRACT_SRC_LOC(), #eXPR, msg); }
 #define CONTRACT_ASSERT(eXPR) \
-    CONTRACT_LIKELY(eXPR) ? static_cast<void>(0) : ::Hazel::assert_failure(CONTRACT_SRC_LOC(), #eXPR);
+    if(!CONTRACT_LIKELY(eXPR)) {::Hazel::assert_failure(CONTRACT_SRC_LOC(), #eXPR); }
 #define CONTRACT_ASSERT(eXPR, msg) \
-    CONTRACT_LIKELY(eXPR) ? static_cast<void>(0) : ::Hazel::assert_failure(CONTRACT_SRC_LOC(), #eXPR, msg);
+    if(!CONTRACT_LIKELY(eXPR)) { ::Hazel::assert_failure(CONTRACT_SRC_LOC(), #eXPR, msg); }
 #else
 #define CONTRACT_ASSERT(eXPR) CONTRACT_ASSUME(eXPR)
 #define CONTRACT_ASSERT(eXPR, msg) CONTRACT_ASSUME(eXPR)
