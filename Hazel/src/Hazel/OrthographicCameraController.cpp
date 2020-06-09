@@ -16,32 +16,20 @@ void OrthographicCameraController::onUpdate(float const time_delta_seconds) noex
 {
     HZ_PROFILE_FUNCTION();
     if (Input::isKeyPressed(KeyCode::W)) {
-        // camera_position_.y += camera_translation_speed_ * time_delta_seconds;
-        camera_position_.x +=
-            -sin(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
-        camera_position_.y +=
-            cos(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
+        camera_position_.x += -sin(camera_rotation_) * camera_translation_speed_ * time_delta_seconds;
+        camera_position_.y += cos(camera_rotation_) * camera_translation_speed_ * time_delta_seconds;
     }
     if (Input::isKeyPressed(KeyCode::A)) {
-        // camera_position_.x -= camera_translation_speed_ * time_delta_seconds;
-        camera_position_.x -=
-            cos(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
-        camera_position_.y -=
-            sin(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
+        camera_position_.x -= cos(camera_rotation_) * camera_translation_speed_ * time_delta_seconds;
+        camera_position_.y -= sin(camera_rotation_) * camera_translation_speed_ * time_delta_seconds;
     }
     if (Input::isKeyPressed(KeyCode::D)) {
-        // camera_position_.x += camera_translation_speed_ * time_delta_seconds;
-        camera_position_.x +=
-            cos(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
-        camera_position_.y +=
-            sin(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
+        camera_position_.x += cos(camera_rotation_) * camera_translation_speed_ * time_delta_seconds;
+        camera_position_.y += sin(camera_rotation_) * camera_translation_speed_ * time_delta_seconds;
     }
     if (Input::isKeyPressed(KeyCode::S)) {
-        // camera_position_.y -= camera_translation_speed_ * time_delta_seconds;
-        camera_position_.x -=
-            -sin(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
-        camera_position_.y -=
-            cos(glm::radians(camera_rotation_)) * camera_translation_speed_ * time_delta_seconds;
+        camera_position_.x -= -sin(camera_rotation_) * camera_translation_speed_ * time_delta_seconds;
+        camera_position_.y -= cos(camera_rotation_) * camera_translation_speed_ * time_delta_seconds;
     }
     camera_.setPosition(camera_position_);
 
@@ -53,11 +41,11 @@ void OrthographicCameraController::onUpdate(float const time_delta_seconds) noex
             camera_rotation_ -= camera_rotation_speed_ * time_delta_seconds;
         }
 
-        if (camera_rotation_ > 180.0f) {
-            camera_rotation_ -= 360.0f;
+        if (camera_rotation_ > glm::pi<float>()) {
+            camera_rotation_ -= (glm::pi<float>() * 2);
         }
-        else if (camera_rotation_ <= -180.0f) {
-            camera_rotation_ += 360.0f;
+        else if (camera_rotation_ <= -glm::pi<float>()) {
+            camera_rotation_ += (glm::pi<float>() * 2);
         }
 
         camera_.setRotation(camera_rotation_);
@@ -70,15 +58,13 @@ void OrthographicCameraController::onEvent(Event& e)
 {
     HZ_PROFILE_FUNCTION();
     EventDispatcher dispatcher{e};
-    dispatcher.dispatch<MouseScrolledEvent>(
-        [this](MouseScrolledEvent& e) { return this->onMouseScrolled(e); });
-    dispatcher.dispatch<WindowResizeEvent>(
-        [this](WindowResizeEvent& e) { return this->onWindowResize(e); });
+    dispatcher.dispatch<MouseScrolledEvent>([this](MouseScrolledEvent& e) { return this->onMouseScrolled(e); });
+    dispatcher.dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) { return this->onWindowResize(e); });
 }
 
 void OrthographicCameraController::calculateView() noexcept
 {
-    camera_bounds_ = { -aspect_ratio_ * zoom_level_, aspect_ratio_ * zoom_level_, -zoom_level_, zoom_level_ };
+    camera_bounds_ = {-aspect_ratio_ * zoom_level_, aspect_ratio_ * zoom_level_, -zoom_level_, zoom_level_};
     camera_.setProjection(camera_bounds_.left, camera_bounds_.right, camera_bounds_.bottom, camera_bounds_.top);
 }
 

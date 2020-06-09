@@ -1,16 +1,16 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
+#include <Hazel/Core/Timestep.h>
 #include <Hazel/Events/ApplicationEvent.h>
 #include <Hazel/Events/MouseEvent.h>
 #include <Hazel/Renderer/OrthographicCamera.h>
-#include <Hazel/Core/Timestep.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 namespace Hazel {
 
-struct OrthographicCameraBounds
-{
+struct OrthographicCameraBounds {
     float left, right;
     float bottom, top;
 
@@ -52,7 +52,7 @@ private:
     float camera_translation_speed_{2.0f};
 
     float camera_rotation_{};
-    float camera_rotation_speed_{90.0f};
+    float camera_rotation_speed_{glm::pi<float>()};
     bool rotation_;
 };
 

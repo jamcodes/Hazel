@@ -35,6 +35,6 @@ private:
     glm::mat4 view_projection_{projection_ * view_};
 
     glm::vec3 position_{0.0f};
-    float rotation_{0.0f};
+    float rotation_{0.0f};  // radians
 };
 }  // namespace Hazel

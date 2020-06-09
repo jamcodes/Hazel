@@ -16,12 +16,11 @@ void OrthographicCamera::setProjection(float left, float right, float bottom, fl
     view_projection_ = projection_ * view_;
 }
 
-
 void OrthographicCamera::recalculateView()
 {
     HZ_PROFILE_FUNCTION();
     glm::mat4 transform{glm::translate(glm::mat4{1.0f}, position_) *
-                        glm::rotate(glm::mat4{1.0f}, glm::radians(rotation_), glm::vec3{0, 0, 1})};
+                        glm::rotate(glm::mat4{1.0f}, rotation_, glm::vec3{0, 0, 1})};
     view_ = glm::inverse(transform);
     view_projection_ = projection_ * view_;
 }
