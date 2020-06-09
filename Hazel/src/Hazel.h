@@ -34,6 +34,7 @@
 #include "Hazel/Renderer/VertexArray.h"
 #include "Hazel/Renderer/Texture.h"
 #include "Hazel/Renderer/SubTexture2D.h"
+#include "Hazel/Renderer/Framebuffer.h"
 // -----------------------------------
 
 // --- Temporary ---------------------

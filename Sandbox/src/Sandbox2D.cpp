@@ -74,11 +74,20 @@ void Sandbox2D::onAttach()
         sprites_.push_back(Hazel::SubTexture2D::createFromCoords(sprite_sheet_, {i, 0}, {128, 128}));
     }
 
-    map_width_ = s_map_width;
-    map_height_ = std::strlen(s_map_tiles) / s_map_width;
+    constexpr const auto fb_spec = []() constexpr {
+        Hazel::FramebufferSpecification fs{};
+        fs.width = 1280;
+        fs.height = 720;
+        return fs;
+    }();
 
-    texture_map_['D'] = Hazel::SubTexture2D::createFromCoords(sprite_sheet_, {6, 11}, {128, 128});
-    texture_map_['W'] = Hazel::SubTexture2D::createFromCoords(sprite_sheet_, {11, 11}, {128, 128});
+    framebuffer_ = Hazel::Framebuffer::create(fb_spec);
+
+    // map_width_ = s_map_width;
+    // map_height_ = std::strlen(s_map_tiles) / s_map_width;
+
+    // texture_map_['D'] = Hazel::SubTexture2D::createFromCoords(sprite_sheet_, {6, 11}, {128, 128});
+    // texture_map_['W'] = Hazel::SubTexture2D::createFromCoords(sprite_sheet_, {11, 11}, {128, 128});
 
     camera_controller_.setZoomLevel(5.0f);
 }
@@ -94,6 +103,8 @@ void Sandbox2D::onUpdate(float time_delta_seconds)
     Hazel::Renderer2D::resetStats();
     {
         HZ_PROFILE_SCOPE("CameraController::onUpdate");
+
+        framebuffer_->bind();
         Hazel::RenderCommand::setClearColor({0.1f, 0.1f, 0.1f, 1});
         Hazel::RenderCommand::clear();
     }
@@ -133,6 +144,8 @@ void Sandbox2D::onUpdate(float time_delta_seconds)
 
     particle_system_.onUpdate(time_delta_seconds);
     particle_system_.onRender(camera_controller_.getCamera());
+
+    framebuffer_->unbind();
 }
 
 void Sandbox2D::drawTileMap()
@@ -230,8 +243,9 @@ void Sandbox2D::onImGuiRender()
         ImGui::ColorEdit4("Square Color", glm::value_ptr(sq_color_));
         ImGui::ColorEdit4("Rectangle Color", glm::value_ptr(rect_color_));
 
-        uint32_t texture_id = checkerboard_texture_->getRendererId();
-        ImGui::Image(reinterpret_cast<void*>(texture_id), ImVec2{256.0f, 256.0f});
+        // uint32_t texture_id = checkerboard_texture_->getRendererId();
+        uint32_t texture_id{framebuffer_->getColorAttachmentRendererId()};
+        ImGui::Image(reinterpret_cast<void*>(texture_id), ImVec2{1280.0f, 720.0f});
 
         ImGui::End(); // settings
 
@@ -260,11 +274,11 @@ void Sandbox2D::onEvent(Hazel::Event& e) { camera_controller_.onEvent(e); }
 void Sandbox2D::emitParticles() noexcept
 {
     auto [x, y] = Hazel::Input::getMousePosition();
-    auto width = Hazel::Application::get().getWindow().getWidth();
-    auto height = Hazel::Application::get().getWindow().getHeight();
+    auto const width = Hazel::Application::get().getWindow().getWidth();
+    auto const height = Hazel::Application::get().getWindow().getHeight();
 
-    auto bounds = camera_controller_.getBounds();
-    auto pos = camera_controller_.getCamera().getPosition();
+    auto const bounds = camera_controller_.getBounds();
+    auto const pos = camera_controller_.getCamera().getPosition();
     x = (x / width) * bounds.getWidth() - bounds.getWidth() * 0.5f;
     y = bounds.getHeight() * 0.5f - (y / height) * bounds.getHeight();
     particle_.position = {x + pos.x, y + pos.y};

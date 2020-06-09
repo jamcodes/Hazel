@@ -23,4 +23,6 @@ target_sources(${PROJECT_NAME}
         Texture.cpp
         SubTexture2D.h
         SubTexture2D.cpp
+        Framebuffer.h
+        Framebuffer.cpp
 )

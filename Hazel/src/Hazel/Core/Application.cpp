@@ -56,6 +56,7 @@ Application* Application::instance_{nullptr};
 
 Application::Application() : window_{Window::create()}
 {
+    HZ_CORE_INFO("CONTRACT_LEVEL_CONFIG = {}", HZ_CONTRACT_LEVEL_CONFIG);
     // TODO: Make this a sane singleton
     HZ_PROFILE_FUNCTION();
     HZ_EXPECTS(Application::instance_ == nullptr, ApplicationAssertionHandler, Hazel::Enforce,
