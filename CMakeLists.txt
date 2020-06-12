@@ -35,6 +35,7 @@ target_compile_definitions(HzBuildFlags
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>")
 
 add_subdirectory(Hazel)
+add_subdirectory(HazelEditor)
 add_subdirectory(Sandbox)
 
 set(VS_STARTUP_PROJECT Sandbox)

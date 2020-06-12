@@ -9,8 +9,8 @@ namespace Hazel {
 
 struct WindowProps {
     std::string title{"Hazel Engine"};
-    unsigned width{1280};
-    unsigned height{720};
+    std::uint32_t width{1280};
+    std::uint32_t height{720};
 };
 
 // Interface representing a desktop system based Window
@@ -24,8 +24,8 @@ public:
 
     virtual void onUpdate() = 0;
 
-    virtual unsigned getWidth() const = 0;
-    virtual unsigned getHeight() const = 0;
+    virtual std::uint32_t getWidth() const = 0;
+    virtual std::uint32_t getHeight() const = 0;
 
     // Window attributes
     virtual void setEventCallback(EventCallbackFn cb) = 0;

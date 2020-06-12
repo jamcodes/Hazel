@@ -46,7 +46,6 @@ private:
     Hazel::Ref<Hazel::Texture2D> checkerboard_texture_;
     Hazel::Ref<Hazel::Texture2D> sprite_sheet_;
     Hazel::Ref<Hazel::SubTexture2D> texture_stairs_;
-    Hazel::Ref<Hazel::Framebuffer> framebuffer_;
     std::vector<Hazel::Ref<Hazel::SubTexture2D>> sprites_;
 
     glm::vec4 sq_color_{0.8f, 0.2f, 0.3f, 1.0f};

@@ -54,7 +54,7 @@ constexpr auto array_sizeof(std::array<T, N> const&) noexcept
 
 Application* Application::instance_{nullptr};
 
-Application::Application() : window_{Window::create()}
+Application::Application(std::string name) : window_{Window::create(WindowProps{std::move(name)})}
 {
     HZ_CORE_INFO("CONTRACT_LEVEL_CONFIG = {}", HZ_CONTRACT_LEVEL_CONFIG);
     // TODO: Make this a sane singleton

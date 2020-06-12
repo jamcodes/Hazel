@@ -261,8 +261,8 @@ inline constexpr Hazel::ContractLevel<HZ_CONTRACT_LEVEL_CONFIG> global_contract_
 #define CONTRACT_ASSERT(eXPR, msg) \
     if(!CONTRACT_LIKELY(eXPR)) { ::Hazel::assert_failure(CONTRACT_SRC_LOC(), #eXPR, msg); }
 #else
-#define CONTRACT_ASSERT(eXPR) CONTRACT_ASSUME(eXPR)
-// #define CONTRACT_ASSERT(eXPR, msg) CONTRACT_ASSUME(eXPR)
+// #define CONTRACT_ASSERT(eXPR) CONTRACT_ASSUME(eXPR)
+#define CONTRACT_ASSERT(eXPR, msg) CONTRACT_ASSUME(eXPR)
 #endif
 
 #define HZ_ASSERT(eXPR) CONTRACT_ASSERT(eXPR)
