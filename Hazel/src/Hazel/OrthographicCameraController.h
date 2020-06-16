@@ -25,6 +25,8 @@ public:
     void onUpdate(float const time_delta_seconds) noexcept;
     void onEvent(Event& e);
 
+    void resize(float width, float height) noexcept;
+
     OrthographicCamera& getCamera() noexcept { return camera_; }
     OrthographicCamera const& getCamera() const noexcept { return camera_; }
 

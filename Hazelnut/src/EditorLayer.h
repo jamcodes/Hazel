@@ -32,10 +32,9 @@ private:
     glm::vec4 sq_color_{0.8f, 0.2f, 0.3f, 1.0f};
     glm::vec4 rect_color_{0.2f, 0.3f, 0.8f, 1.0f};
 
-    std::uint32_t map_width_{};
-    std::uint32_t map_height_{};
-    std::unordered_map<char, Ref<SubTexture2D>> texture_map_;
-
+    FramebufferSpecification framebuffer_spec_;
+    glm::vec2 viewport_size_{};
+    // glm::vec2 new_viewport_size_{};
 };
 
 } // namespace Hazel

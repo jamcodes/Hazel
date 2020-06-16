@@ -5,11 +5,31 @@
 #include "Hazel/Core/AssertionHandler.h"
 
 namespace Hazel {
-OpenGLFramebuffer::OpenGLFramebuffer(FramebufferSpecification const& spec) : spec_{spec} { recreate(); }
+OpenGLFramebuffer::OpenGLFramebuffer(FramebufferSpecification const& spec) : spec_{spec} { create(); }
 
-OpenGLFramebuffer::~OpenGLFramebuffer() { glDeleteFramebuffers(1, &renderer_id_); }
+OpenGLFramebuffer::~OpenGLFramebuffer()
+{
+    destroy();
+}
 
-void OpenGLFramebuffer::recreate()
+void OpenGLFramebuffer::destroy() noexcept
+{
+    glDeleteFramebuffers(1, &renderer_id_);
+    glDeleteTextures(1, &color_attachment_);
+    glDeleteTextures(1, &depth_attachment_);
+}
+
+void OpenGLFramebuffer::resize(std::uint32_t width, std::uint32_t height)
+{
+    if (renderer_id_) {
+        destroy();
+    }
+    spec_.width = width;
+    spec_.height = height;
+    create();
+}
+
+void OpenGLFramebuffer::create() noexcept
 {
     glCreateFramebuffers(1, &renderer_id_);
     glBindFramebuffer(GL_FRAMEBUFFER, renderer_id_);
@@ -34,7 +54,10 @@ void OpenGLFramebuffer::recreate()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenGLFramebuffer::bind() noexcept { glBindFramebuffer(GL_FRAMEBUFFER, renderer_id_); }
+void OpenGLFramebuffer::bind() noexcept {
+    glBindFramebuffer(GL_FRAMEBUFFER, renderer_id_);
+    glViewport(0, 0, spec_.width, spec_.height);
+}
 
 void OpenGLFramebuffer::unbind() noexcept { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 

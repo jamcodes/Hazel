@@ -17,6 +17,8 @@ public:
 
     static Ref<Framebuffer> create(FramebufferSpecification const& spec);
 
+    virtual void resize(std::uint32_t width, std::uint32_t height) = 0;
+
     virtual void bind() noexcept = 0;
     virtual void unbind() noexcept = 0;
 

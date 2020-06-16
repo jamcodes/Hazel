@@ -62,6 +62,12 @@ void OrthographicCameraController::onEvent(Event& e)
     dispatcher.dispatch<WindowResizeEvent>([this](WindowResizeEvent& e) { return this->onWindowResize(e); });
 }
 
+void OrthographicCameraController::resize(float width, float height) noexcept
+{
+    aspect_ratio_ = width/height;
+    calculateView();
+}
+
 void OrthographicCameraController::calculateView() noexcept
 {
     camera_bounds_ = {-aspect_ratio_ * zoom_level_, aspect_ratio_ * zoom_level_, -zoom_level_, zoom_level_};
@@ -79,8 +85,9 @@ bool OrthographicCameraController::onMouseScrolled(MouseScrolledEvent& e)
 bool OrthographicCameraController::onWindowResize(WindowResizeEvent& e)
 {
     HZ_PROFILE_FUNCTION();
-    aspect_ratio_ = static_cast<float>(e.getWidth()) / e.getHeight();
-    calculateView();
+    // aspect_ratio_ = static_cast<float>(e.getWidth()) / e.getHeight();
+    // calculateView();
+    resize(e.getWidth(), e.getHeight());
     return false;
 }
 

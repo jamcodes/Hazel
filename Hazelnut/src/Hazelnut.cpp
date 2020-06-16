@@ -81,15 +81,15 @@ const std::string flat_color_fragment_src(R"(
 namespace Hazel
 {
 
-class HazelEditor : public Application {
+class Hazelnut : public Application {
 public:
-    HazelEditor() : Application{"HazelEditor"} {
+    Hazelnut() : Application{"Hazelnut"} {
         pushLayer(std::make_unique<EditorLayer>());
     }
-    ~HazelEditor() = default;
-    HazelEditor& operator=(HazelEditor&&) noexcept = delete;
+    ~Hazelnut() = default;
+    Hazelnut& operator=(Hazelnut&&) noexcept = delete;
 };
 
 } // namespace Hazel
 
-Hazel::Application* Hazel::CreateApplication() { return new Hazel::HazelEditor{}; }
+Hazel::Application* Hazel::CreateApplication() { return new Hazel::Hazelnut{}; }

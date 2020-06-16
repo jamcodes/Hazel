@@ -1,0 +1,53 @@
+cmake_minimum_required(VERSION 3.15)
+
+project(Hazelnut VERSION 0.1.0 LANGUAGES CXX)
+DeclareProjectInstallDirectories()
+
+add_executable(Hazelnut)
+add_subdirectory(src)
+target_link_libraries(Hazelnut
+    PRIVATE
+        Hazel::Hazel
+        Hazel::BuildFlags
+)
+
+set_target_properties(Hazelnut
+    PROPERTIES
+        MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>$<$<BOOL:${BUILD_SHARED_LIBS}>:DLL>
+        RUNTIME_OUTPUT_DIRECTORY                ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Hazelnut
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG          ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG}/Hazelnut
+        RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO}/Hazelnut
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE}/Hazelnut
+        ARCHIVE_OUTPUT_DIRECTORY                ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/Hazelnut
+        ARCHIVE_OUTPUT_DIRECTORY_DEBUG          ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG}/Hazelnut
+        ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO}/Hazelnut
+        ARCHIVE_OUTPUT_DIRECTORY_RELEASE        ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE}/Hazelnut
+        LIBRARY_OUTPUT_DIRECTORY                ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Hazelnut
+        LIBRARY_OUTPUT_DIRECTORY_DEBUG          ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG}/Hazelnut
+        LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO}/Hazelnut
+        LIBRARY_OUTPUT_DIRECTORY_RELEASE        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE}/Hazelnut
+)
+
+InstallProject(TARGETS Hazelnut)
+
+# Copy Hazel dll into Hazelnut build directory
+add_custom_command(
+    TARGET Hazelnut POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:Hazel>
+        $<TARGET_FILE_DIR:Hazelnut>
+    DEPENDS Hazel
+    VERBATIM
+    USES_TERMINAL
+    COMMAND_EXPAND_LISTS
+)
+add_custom_command(
+    TARGET Hazelnut POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${Sandbox_SOURCE_DIR}/assets
+        $<TARGET_FILE_DIR:Hazelnut>/assets
+    DEPENDS Hazel
+    VERBATIM
+    USES_TERMINAL
+    COMMAND_EXPAND_LISTS
+)
