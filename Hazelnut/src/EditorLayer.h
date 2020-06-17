@@ -32,7 +32,7 @@ private:
     glm::vec4 sq_color_{0.8f, 0.2f, 0.3f, 1.0f};
     glm::vec4 rect_color_{0.2f, 0.3f, 0.8f, 1.0f};
 
-    FramebufferSpecification framebuffer_spec_;
+    // FramebufferSpecification framebuffer_spec_;
     glm::vec2 viewport_size_{};
     // glm::vec2 new_viewport_size_{};
 };

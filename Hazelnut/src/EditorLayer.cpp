@@ -55,8 +55,7 @@ void EditorLayer::onAttach()
         sprites_.push_back(SubTexture2D::createFromCoords(sprite_sheet_, {i, 0}, {128, 128}));
     }
 
-    // constexpr const auto fb_spec 
-    framebuffer_spec_ = []() constexpr
+    constexpr const auto fb_spec = []() constexpr
     {
         FramebufferSpecification fs{};
         fs.width = 1280;
@@ -64,8 +63,8 @@ void EditorLayer::onAttach()
         return fs;
     }
     ();
-    viewport_size_ = glm::vec2{framebuffer_spec_.width, framebuffer_spec_.height};
-    framebuffer_ = Framebuffer::create(framebuffer_spec_);
+    viewport_size_ = glm::vec2{fb_spec.width, fb_spec.height};
+    framebuffer_ = Framebuffer::create(fb_spec);
 
     camera_controller_.setZoomLevel(5.0f);
 }
@@ -82,12 +81,21 @@ void EditorLayer::onUpdate(float time_delta_seconds)
     {
         HZ_PROFILE_SCOPE("CameraController::onUpdate");
 
-    if (framebuffer_spec_.width != viewport_size_.x || framebuffer_spec_.height != viewport_size_.y) {
-        framebuffer_spec_.width = viewport_size_.x;
-        framebuffer_spec_.height = viewport_size_.y;
-        framebuffer_->resize(viewport_size_.x, viewport_size_.y);
-        camera_controller_.resize(viewport_size_.x, viewport_size_.y);
-    }
+    if (auto const& spec{framebuffer_->getSpecification()};
+        viewport_size_.x > 0 && viewport_size_.y > 0 &&
+        (spec.width != viewport_size_.x || spec.height != viewport_size_.y)) {
+            // framebuffer_spec_.width = viewport_size_.x;
+            // framebuffer_spec_.height = viewport_size_.y;
+            framebuffer_->resize(viewport_size_.x, viewport_size_.y);
+            camera_controller_.resize(viewport_size_.x, viewport_size_.y);
+        }
+
+    // if (framebuffer_spec_.width != viewport_size_.x || framebuffer_spec_.height != viewport_size_.y) {
+    //     framebuffer_spec_.width = viewport_size_.x;
+    //     framebuffer_spec_.height = viewport_size_.y;
+    //     framebuffer_->resize(viewport_size_.x, viewport_size_.y);
+    //     camera_controller_.resize(viewport_size_.x, viewport_size_.y);
+    // }
 
         framebuffer_->bind();
         RenderCommand::setClearColor({0.1f, 0.1f, 0.1f, 1});

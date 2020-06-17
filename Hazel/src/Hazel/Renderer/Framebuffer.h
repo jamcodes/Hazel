@@ -13,6 +13,12 @@ struct FramebufferSpecification
 
 class Framebuffer {
 public:
+    Framebuffer() noexcept = default;
+    Framebuffer(Framebuffer const&) = default;
+    Framebuffer(Framebuffer&&) noexcept = default;
+    Framebuffer& operator=(Framebuffer const&) = default;
+    Framebuffer& operator=(Framebuffer&&) noexcept = default;
+
     virtual ~Framebuffer() = default;
 
     static Ref<Framebuffer> create(FramebufferSpecification const& spec);
