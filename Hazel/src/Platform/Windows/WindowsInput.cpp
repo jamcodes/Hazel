@@ -1,35 +1,48 @@
-#include "WindowsInput.h"
 
-#include <GLFW/glfw3.h>
+#include "Hazel/Core/Input.h"
+#include "Hazel/Core/Application.h"
 
 #include "WindowsWindow.h"
 
-#include "Hazel/Core/Application.h"
+#include <GLFW/glfw3.h>
+
+namespace
+{
+
+GLFWwindow* getWindowHandle() noexcept
+{
+    return static_cast<GLFWwindow*>(Hazel::Application::get().getWindow().getNativeWindow());
+}
+
+} // namespace
 
 namespace Hazel {
 
-Input* Input::s_instance_{new WindowsInput{}};  // Leak Input instance
-
-GLFWwindow* WindowsInput::getWindowHandle() noexcept
-{
-    return static_cast<GLFWwindow*>(Application::get().getWindow().getNativeWindow());
-}
-
-bool WindowsInput::isKeyPressedImpl(int keycode) const
+bool Input::isKeyPressed(int keycode) noexcept
 {
     auto* window{getWindowHandle()};
     auto const state{glfwGetKey(window, keycode)};
     return state == GLFW_PRESS || state == GLFW_REPEAT;
 }
 
-bool WindowsInput::isMouseButtonPressedImpl(int button) const
+bool Input::isKeyPressed(KeyCode keycode) noexcept
+{
+    return isKeyPressed(toInteger<int>(keycode));
+}
+
+bool Input::isMouseButtonPressed(int button) noexcept
 {
     auto* window{getWindowHandle()};
     auto const state{glfwGetMouseButton(window, button)};
     return state == GLFW_PRESS;
 }
 
-std::pair<float, float> WindowsInput::getMousePositionImpl() const
+bool Input::isMouseButtonPressed(MouseButton button) noexcept
+{
+    return isMouseButtonPressed(toInteger<int>(button));
+}
+
+std::pair<float, float> Input::getMousePosition() noexcept
 {
     auto* window{getWindowHandle()};
     double xpos, ypos;
@@ -37,17 +50,16 @@ std::pair<float, float> WindowsInput::getMousePositionImpl() const
     return {static_cast<float>(xpos), static_cast<float>(ypos)};
 }
 
-float WindowsInput::getMouseXImpl() const
+float Input::getMouseX() noexcept
 {
-    auto [x, y]{getMousePositionImpl()};
+    auto const [x, y]{getMousePosition()};
     return x;
 }
 
-float WindowsInput::getMouseYImpl() const
+float Input::getMouseY() noexcept
 {
-    auto [x, y]{getMousePositionImpl()};
+    auto const [x, y]{getMousePosition()};
     return y;
 }
-
 
 }  // namespace Hazel

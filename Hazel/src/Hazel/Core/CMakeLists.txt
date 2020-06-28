@@ -9,6 +9,7 @@ target_sources(Hazel
         Base.h
         EntryPoint.h
         EnumOperators.h
+        Input.h
         KeyCodes.h
         Layer.cpp
         Layer.h
